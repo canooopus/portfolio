@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
+import { Rubik } from 'next/font/google';
 import "./globals.css";
+
+const rubik = Rubik({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "My App",
@@ -13,7 +16,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ja">
-      <body>
+      <body className={rubik.className}>
         {/* childrenの中にpage.tsxの内容が入ります */}
         {children}
       </body>
