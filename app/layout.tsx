@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from 'next/image';
 import { Rubik } from 'next/font/google';
 import "./globals.css";
 
