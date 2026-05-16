@@ -125,7 +125,7 @@ export default function Home() {
         
         <p>
           I’m currently working on 
-          <Link href="https://robopro2.com/app/nagasima/LINE/" className="inline-flex items-center gap-1 align-middle ml-1 mb-1 hover:opacity-80 transition-opacity">
+          <Link href="https://robopro2.com/app/nagasima/LINE/" target="_blank" className="inline-flex items-center gap-1 align-middle ml-1 mb-1 hover:opacity-80 transition-opacity">
             <span className="h-[1em] w-[1em] flex items-center">
               <Image 
                 src="/Bond.svg" 
@@ -142,7 +142,7 @@ export default function Home() {
         </p> 
 
         <p>
-          In my free time, I enjoy photography, exploring new gadgets, and I absolutely love RADWIMPS.
+          In my free time, I enjoy photography, exploring new gadgets, and I absolutely love <Link href="https://radwimps.jp/" target="_blank" className="hover:opacity-80 transition-opacity">RADWIMPS</Link>.
         </p>
       </div>
     </main>
