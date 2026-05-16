@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Nova_Mono } from 'next/font/google';
@@ -12,6 +12,7 @@ const novaMono = Nova_Mono({
 
 export default function Home() {
   const svgRef = useRef<SVGSVGElement>(null);
+  const [showText, setShowText] = useState(false);
 
   useEffect(() => {
     if (!svgRef.current) return;
@@ -39,8 +40,16 @@ export default function Home() {
       path.getBoundingClientRect();
       path.style.animationName = 'drawAndFill';
       path.style.animationTimingFunction = 'cubic-bezier(0.4, 0, 0.2, 1)';
-      path.style.animationFillMode = 'forwards';
+      path.style.animationFillMode = 'both';
     });
+
+    const totalTimeMs = currentDelay * 1000;
+    
+    const timer = setTimeout(() => {
+      setShowText(true);
+    }, totalTimeMs + 200);
+
+    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -49,14 +58,19 @@ export default function Home() {
       {/* ロゴセクション */}
       <div className="mb-12 w-full max-w-60 md:max-w-75">
         <style dangerouslySetInnerHTML={{ __html: `
+          .animated-path {
+            opacity: 0;
+          }
           @keyframes drawAndFill {
             0% {
               stroke-dashoffset: var(--path-length);
               fill: rgba(0, 0, 0, 0);
+              opacity: 1;
             }
             100% {
               stroke-dashoffset: 0;
               fill: rgba(0, 0, 0, 0);
+              opacity: 1;
             }
           }
         `}} />
@@ -99,9 +113,13 @@ export default function Home() {
       </div>
 
       {/* テキストセクション */}
-      <div className="space-y-8 w-full">
+      <div 
+        className={`space-y-8 w-full transition-all duration-1000 ease-out ${
+          showText ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+        }`}
+      >
         <p>
-          I’m <span className="font-semibold">Canooopus</span>, an engineer & designer living in Japan. 
+          I’m Canooopus, an engineer & designer living in Japan. 
           I just build what I want to build independently.
         </p>
         
@@ -118,7 +136,7 @@ export default function Home() {
                 className="w-full h-full object-contain"
               />
             </span>
-            <span className={`text-[#2cca95] ${novaMono.className}`}>Bond</span>
+            <span className={novaMono.className}>Bond</span>
           </Link>
           , a browser-based chat app.
         </p> 

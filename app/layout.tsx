@@ -6,7 +6,7 @@ import "./globals.css";
 const rubik = Rubik({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "My App",
+  title: "Canooopus",
   description: "Created with Next.js",
 };
 
