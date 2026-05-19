@@ -301,149 +301,171 @@ export default function Home() {
                   </button>
 
                   {/* PC版 iframe本体（gapを追加し、クローン配列を使用して無限ループ化） */}
-                  <div className="hidden md:block w-full flex-1 min-w-0 overflow-hidden h-[152px]">
+                  <div className="hidden md:block relative w-full flex-1 min-w-0 h-[152px]">
                     <div
-                      className={`flex gap-4 h-full ${
-                        isTransitioning
-                          ? "transition-transform duration-500 ease-in-out"
-                          : "transition-none"
-                      }`}
+                      className="absolute -left-3 -right-3 top-0 bottom-0 overflow-hidden pointer-events-none"
                       style={{
-                        transform: `translateX(calc(-${currentIndex * 100}% - ${currentIndex * 16}px)) translate3d(0,0,0)`,
-                        backfaceVisibility: "hidden",
-                        willChange: "transform",
+                        maskImage:
+                          "linear-gradient(to right, transparent, black 12px, black calc(100% - 12px), transparent)",
+                        WebkitMaskImage:
+                          "linear-gradient(to right, transparent, black 12px, black calc(100% - 12px), transparent)",
                       }}
-                      onTransitionEnd={handleTransitionEnd}
                     >
-                      {loopedPlaylists.map((url, i) => (
+                      <div className="w-full h-full px-3 pointer-events-auto">
                         <div
-                          key={i}
-                          className="w-full h-full shrink-0 relative"
+                          className={`flex gap-4 h-full ${
+                            isTransitioning
+                              ? "transition-transform duration-500 ease-in-out"
+                              : "transition-none"
+                          }`}
                           style={{
+                            transform: `translateX(calc(-${currentIndex * 100}% - ${currentIndex * 16}px)) translate3d(0,0,0)`,
                             backfaceVisibility: "hidden",
-                            transform: "translate3d(0,0,0)",
                             willChange: "transform",
                           }}
-                          onMouseLeave={() => setActiveIframeIndex(null)}
+                          onTransitionEnd={handleTransitionEnd}
                         >
-                          <iframe
-                            src={url}
-                            className="w-full h-full rounded-xl border-0 bg-transparent pointer-events-auto"
-                            allowFullScreen
-                            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                            loading="lazy"
-                          />
-                          {/* 透明カバー。DOMに常にマウントし、pointer-eventsのみ制御 */}
-                          <div
-                            className={`absolute inset-0 w-full h-full cursor-pointer z-10 ${
-                              activeIframeIndex === i
-                                ? "pointer-events-none"
-                                : "pointer-events-auto"
-                            }`}
-                            onClick={() => setActiveIframeIndex(i)}
-                            style={{
-                              backfaceVisibility: "hidden",
-                              transform: "translate3d(0,0,0)",
-                            }}
-                          />
+                          {loopedPlaylists.map((url, i) => (
+                            <div
+                              key={i}
+                              className="w-full h-full shrink-0 relative"
+                              style={{
+                                backfaceVisibility: "hidden",
+                                transform: "translate3d(0,0,0)",
+                                willChange: "transform",
+                              }}
+                              onMouseLeave={() => setActiveIframeIndex(null)}
+                            >
+                              <iframe
+                                src={url}
+                                className="w-full h-full rounded-xl border-0 bg-transparent pointer-events-auto"
+                                allowFullScreen
+                                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                                loading="lazy"
+                              />
+                              {/* 透明カバー。DOMに常にマウントし、pointer-eventsのみ制御 */}
+                              <div
+                                className={`absolute inset-0 w-full h-full cursor-pointer z-10 ${
+                                  activeIframeIndex === i
+                                    ? "pointer-events-none"
+                                    : "pointer-events-auto"
+                                }`}
+                                onClick={() => setActiveIframeIndex(i)}
+                                style={{
+                                  backfaceVisibility: "hidden",
+                                  transform: "translate3d(0,0,0)",
+                                }}
+                              />
+                            </div>
+                          ))}
                         </div>
-                      ))}
+                      </div>
                     </div>
                   </div>
 
                   {/* スマホ版 iframe本体（スクロールの滑らかさを追加） */}
-                  <div className="relative md:hidden w-full h-[152px] pr-6">
+                  <div className="relative md:hidden w-full h-[152px]">
                     <div
-                      ref={scrollRef}
-                      className="flex flex-col w-full h-full overflow-y-auto snap-y snap-mandatory [&::-webkit-scrollbar]:hidden gap-4"
+                      className="absolute -top-3 -bottom-3 left-0 right-6 pointer-events-none"
                       style={{
-                        scrollbarWidth: "none",
-                        msOverflowStyle: "none",
-                        backfaceVisibility: "hidden",
-                        transform: "translate3d(0,0,0)",
-                        willChange: "transform",
-                      }}
-                      onScroll={(e) => {
-                        const target = e.currentTarget;
-                        const h = target.clientHeight;
-                        const step = h + 16;
-                        const scroll = target.scrollTop;
-
-                        // スクロール状態の管理 (スクロール中はオーバーレイを復活させる)
-                        setIsScrolling(true);
-                        setActiveIframeIndex(null);
-                        if (scrollTimeoutRef.current) {
-                          clearTimeout(scrollTimeoutRef.current);
-                        }
-                        scrollTimeoutRef.current = setTimeout(() => {
-                          setIsScrolling(false);
-                        }, 150);
-
-                        // 無限ループ時のジャンプ
-                        if (scroll <= 0) {
-                          target.scrollTo({
-                            top: step * playlists.length,
-                            behavior: "auto",
-                          });
-                        } else if (
-                          scroll >=
-                          step * (loopedPlaylists.length - 1)
-                        ) {
-                          target.scrollTo({ top: step, behavior: "auto" });
-                        }
-
-                        const index = Math.round(target.scrollTop / step) - 1;
-                        const safeIndex =
-                          (index + playlists.length) % playlists.length;
-                        if (safeIndex !== playlistIndex) {
-                          setPlaylistIndex(safeIndex);
-                        }
+                        maskImage:
+                          "linear-gradient(to bottom, transparent, black 12px, black calc(100% - 12px), transparent)",
+                        WebkitMaskImage:
+                          "linear-gradient(to bottom, transparent, black 12px, black calc(100% - 12px), transparent)",
                       }}
                     >
-                      {loopedPlaylists.map((url, index) => {
-                        const uniqueKey = `mobile-${index}`;
-                        const isOverlayActive =
-                          isScrolling || activeIframeIndex !== uniqueKey;
-                        return (
-                          <div
-                            key={uniqueKey}
-                            className="w-full h-full shrink-0 snap-center relative"
-                            style={{
-                              backfaceVisibility: "hidden",
-                              transform: "translate3d(0,0,0)",
-                              willChange: "transform",
-                            }}
-                          >
-                            <iframe
-                              src={url}
-                              className="w-full h-full rounded-xl border-0 bg-transparent pointer-events-auto"
-                              allowFullScreen
-                              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                              loading="lazy"
-                            />
-                            {/* 透明カバー。DOMに常にマウントし、pointer-eventsのみ制御 */}
+                      <div
+                        ref={scrollRef}
+                        className="flex flex-col w-full h-full overflow-y-auto snap-y snap-mandatory [&::-webkit-scrollbar]:hidden gap-4 py-3 pointer-events-auto"
+                        style={{
+                          scrollbarWidth: "none",
+                          msOverflowStyle: "none",
+                          backfaceVisibility: "hidden",
+                          transform: "translate3d(0,0,0)",
+                          willChange: "transform",
+                        }}
+                        onScroll={(e) => {
+                          const target = e.currentTarget;
+                          const h = 152; // 要素の本来の高さ
+                          const step = h + 16;
+                          const scroll = target.scrollTop;
+
+                          // スクロール状態の管理 (スクロール中はオーバーレイを復活させる)
+                          setIsScrolling(true);
+                          setActiveIframeIndex(null);
+                          if (scrollTimeoutRef.current) {
+                            clearTimeout(scrollTimeoutRef.current);
+                          }
+                          scrollTimeoutRef.current = setTimeout(() => {
+                            setIsScrolling(false);
+                          }, 150);
+
+                          // 無限ループ時のジャンプ
+                          if (scroll <= 0) {
+                            target.scrollTo({
+                              top: step * playlists.length,
+                              behavior: "auto",
+                            });
+                          } else if (
+                            scroll >=
+                            step * (loopedPlaylists.length - 1)
+                          ) {
+                            target.scrollTo({ top: step, behavior: "auto" });
+                          }
+
+                          const index = Math.round(target.scrollTop / step) - 1;
+                          const safeIndex =
+                            (index + playlists.length) % playlists.length;
+                          if (safeIndex !== playlistIndex) {
+                            setPlaylistIndex(safeIndex);
+                          }
+                        }}
+                      >
+                        {loopedPlaylists.map((url, index) => {
+                          const uniqueKey = `mobile-${index}`;
+                          const isOverlayActive =
+                            isScrolling || activeIframeIndex !== uniqueKey;
+                          return (
                             <div
-                              className={`absolute inset-0 w-full h-full cursor-pointer z-10 ${
-                                isOverlayActive
-                                  ? "pointer-events-auto"
-                                  : "pointer-events-none"
-                              }`}
-                              onClick={() => {
-                                if (!isScrolling) {
-                                  setActiveIframeIndex(uniqueKey);
-                                }
-                              }}
+                              key={uniqueKey}
+                              className="w-full h-[152px] shrink-0 snap-center relative"
                               style={{
                                 backfaceVisibility: "hidden",
                                 transform: "translate3d(0,0,0)",
+                                willChange: "transform",
                               }}
-                            />
-                          </div>
-                        );
-                      })}
+                            >
+                              <iframe
+                                src={url}
+                                className="w-full h-full rounded-xl border-0 bg-transparent pointer-events-auto"
+                                allowFullScreen
+                                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                                loading="lazy"
+                              />
+                              {/* 透明カバー。DOMに常にマウントし、pointer-eventsのみ制御 */}
+                              <div
+                                className={`absolute inset-0 w-full h-full cursor-pointer z-10 ${
+                                  isOverlayActive
+                                    ? "pointer-events-auto"
+                                    : "pointer-events-none"
+                                }`}
+                                onClick={() => {
+                                  if (!isScrolling) {
+                                    setActiveIframeIndex(uniqueKey);
+                                  }
+                                }}
+                                style={{
+                                  backfaceVisibility: "hidden",
+                                  transform: "translate3d(0,0,0)",
+                                }}
+                              />
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                     {/* 右のバー（インジケーター） */}
-                    <div className="absolute right-1 top-1/2 -translate-y-1/2 flex flex-col gap-1.5">
+                    <div className="absolute right-1 top-1/2 -translate-y-1/2 flex flex-col gap-1.5 z-20">
                       {playlists.map((_, index) => (
                         <div
                           key={index}
