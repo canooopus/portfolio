@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Nova_Mono, Caveat } from "next/font/google";
+import { motion, AnimatePresence } from "framer-motion";
 
 const novaMono = Nova_Mono({
   subsets: ["latin"],
@@ -27,6 +28,10 @@ const galleryItems = [
 export default function Home() {
   const svgRef = useRef<SVGSVGElement>(null);
   const [showText, setShowText] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<{
+    src: string;
+    description: string;
+  } | null>(null);
 
   const [playlistIndex, setPlaylistIndex] = useState(0);
 
@@ -233,7 +238,6 @@ export default function Home() {
               height: 100%;
               transform-origin: left center;
               transform-style: preserve-3d;
-              transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
             }
             .book-sheet.flipped {
               transform: rotateY(-180deg);
@@ -246,7 +250,7 @@ export default function Home() {
               height: 100%;
               backface-visibility: hidden;
               background-color: #FAF9F5;
-              border: 1px solid rgba(0, 0, 0, 0.08);
+              border: 1px solid rgba(0, 0, 0, 0.1);
               box-shadow: inset 3px 0 12px rgba(0, 0, 0, 0.04), 2px 2px 8px rgba(0, 0, 0, 0.06);
               padding: 24px;
               display: flex;
@@ -256,6 +260,9 @@ export default function Home() {
             }
             .book-page-front {
               border-radius: 2px 10px 10px 2px;
+              box-shadow: 
+                inset 3px 0 10px rgba(0,0,0,0.02),
+                2px 1px 3px rgba(0,0,0,0.05);
             }
             .book-page-back {
               transform: rotateY(180deg);
@@ -625,11 +632,55 @@ export default function Home() {
               <BookAlbum
                 caveatClass={caveat.className}
                 novaMonoClass={novaMono.className}
+                onImageClick={(item) => setSelectedItem(item)}
               />
             </div>
           </div>
         </div>
       </main>
+      <AnimatePresence>
+        {selectedItem && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/30 backdrop-blur-md p-4 cursor-zoom-out"
+            onClick={() => setSelectedItem(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="relative max-w-xl w-full flex flex-col items-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* 画像ボックス */}
+              <div className="bg-white p-2 md:p-4 shadow-2xl rounded-sm">
+                <img
+                  src={selectedItem.src}
+                  alt={selectedItem.description}
+                  className="max-h-[65vh] w-auto object-contain"
+                />
+                <p
+                  className={`text-center mt-2 text-xl md:text-2xl text-neutral-800 ${caveat.className}`}
+                >
+                  {selectedItem.description}
+                </p>
+              </div>
+
+              {/* Close ボタン */}
+              <button
+                onClick={() => setSelectedItem(null)}
+                className="mt-6 px-6 py-1.5 bg-[#E5E7EB] hover:bg-[#D1D5DB] text-[#4B5563] rounded-full transition-all duration-200 text-sm font-medium cursor-pointer active:scale-95"
+              >
+                Close
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -643,12 +694,17 @@ interface PageContentProps {
 const AlbumPageContent: React.FC<{
   item?: { src: string; description: string };
   caveatClass: string;
-}> = ({ item, caveatClass }) => {
+  onItemClick?: (item: { src: string; description: string }) => void; // 追加
+}> = ({ item, caveatClass, onItemClick }) => {
   if (!item) return <div className="w-full h-full bg-[#FAF9F5]" />;
 
   return (
     <div className="w-full h-full relative bg-[#FAF9F5] p-4 flex flex-col items-center justify-center">
-      <div className="w-52 bg-white border border-neutral-200 p-3 shadow-md transition-transform hover:rotate-0 duration-300">
+      {/* 以下のdivに cursor-pointer と onClick を追加 */}
+      <div
+        className="w-52 bg-white border border-neutral-200 p-3 shadow-md transition-transform hover:rotate-0 duration-300 cursor-pointer hover:shadow-lg"
+        onClick={() => onItemClick?.(item)}
+      >
         <div className="relative w-full h-40 bg-neutral-100 overflow-hidden">
           <img
             src={item.src}
@@ -666,10 +722,11 @@ const AlbumPageContent: React.FC<{
   );
 };
 
-const BookAlbum: React.FC<{ caveatClass: string; novaMonoClass: string }> = ({
-  caveatClass,
-  novaMonoClass,
-}) => {
+const BookAlbum: React.FC<{
+  caveatClass: string;
+  novaMonoClass: string;
+  onImageClick: (item: { src: string; description: string }) => void;
+}> = ({ caveatClass, novaMonoClass, onImageClick }) => {
   const [currentSheet, setCurrentSheet] = useState(0);
   const [scale, setScale] = useState(1);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -707,7 +764,7 @@ const BookAlbum: React.FC<{ caveatClass: string; novaMonoClass: string }> = ({
   const goPrev = () => currentSheet > 0 && setCurrentSheet((prev) => prev - 1);
 
   return (
-    <div ref={containerRef} className="book-container select-none mt-6">
+    <div ref={containerRef} className="book-container select-none mt-6 md:mt-0">
       <div
         className="book-wrapper"
         style={{
@@ -725,47 +782,117 @@ const BookAlbum: React.FC<{ caveatClass: string; novaMonoClass: string }> = ({
 
           {/* 左の固定底（最初のアイテム） */}
           <div className="absolute top-0 left-0 w-1/2 h-full bg-[#FAF9F5] border border-black/5 rounded-l-lg z-0 overflow-hidden flex items-center justify-center">
-            <AlbumPageContent item={leftBase} caveatClass={caveatClass} />
+            <AlbumPageContent
+              item={leftBase}
+              caveatClass={caveatClass}
+              onItemClick={onImageClick}
+            />
+            <motion.div
+              className="absolute inset-0 z-10 pointer-events-none"
+              animate={{ opacity: currentSheet > 0 ? 0.2 : 0 }}
+              style={{
+                background:
+                  "linear-gradient(to right, rgba(0,0,0,0.3), transparent)",
+              }}
+            />
           </div>
 
           {/* 右の固定底（最後のアイテム） */}
           <div className="absolute top-0 right-0 w-1/2 h-full bg-[#FAF9F5] border border-black/5 rounded-r-lg z-0 overflow-hidden">
-            <AlbumPageContent item={rightBase} caveatClass={caveatClass} />
+            <AlbumPageContent
+              item={rightBase}
+              caveatClass={caveatClass}
+              onItemClick={onImageClick}
+            />
+            <motion.div
+              className="absolute inset-0 z-10 pointer-events-none"
+              animate={{ opacity: currentSheet < sheets.length ? 0.2 : 0 }}
+              style={{
+                background:
+                  "linear-gradient(to left, rgba(0,0,0,0.3), transparent)",
+              }}
+            />
           </div>
 
           {/* 動的に生成されたシート */}
           {sheets.map((sheet, index) => {
             const isFlipped = index < currentSheet;
+
+            // zIndexの計算（めくっている最中のページが一番上に来るようにする）
             let zIndex = 1;
             if (index === currentSheet || index === currentSheet - 1) {
-              zIndex = 20;
-            } else if (isFlipped) {
-              zIndex = 10 + index;
+              zIndex = 50; // 現在アクション中のページ
             } else {
-              zIndex = 10 + (sheets.length - index);
+              zIndex = isFlipped ? 10 + index : 10 + (sheets.length - index);
             }
 
             return (
-              <div
+              <motion.div
                 key={sheet.id}
-                className={`book-sheet ${isFlipped ? "flipped" : ""}`}
-                style={{ zIndex }}
+                initial={false}
+                animate={{
+                  rotateY: isFlipped ? -180 : 0,
+                  // めくっている最中に少しだけ浮き上がらせる（ステップ4の要素）
+                  z:
+                    index === currentSheet - 1 || index === currentSheet
+                      ? 10
+                      : 0,
+                }}
+                transition={{
+                  type: "spring",
+                  stiffness: 40, // 低めで重厚に
+                  damping: 15, // 揺れすぎない程度に
+                  mass: 1.2, // 紙の重み
+                }}
+                className="book-sheet"
+                style={{
+                  zIndex,
+                  transformStyle: "preserve-3d",
+                  transformOrigin: "left center", // 左端を軸に回転
+                }}
               >
+                {/* 表面 */}
                 <div className="book-page book-page-front">
                   <AlbumPageContent
                     item={sheet.front}
                     caveatClass={caveatClass}
+                    onItemClick={onImageClick}
+                  />
+                  {/* ステップ2：光の当たり方の変化（影） */}
+                  <motion.div
+                    className="absolute inset-0 pointer-events-none"
+                    animate={{ opacity: isFlipped ? 1 : 0 }}
+                    transition={{ duration: 0.5 }}
+                    style={{
+                      background:
+                        "linear-gradient(to right, rgba(0,0,0,0.15), transparent)",
+                      borderRadius: "2px 10px 10px 2px",
+                    }}
                   />
                 </div>
+
+                {/* 裏面 */}
                 <div className="book-page book-page-back">
                   {sheet.back && (
                     <AlbumPageContent
                       item={sheet.back}
                       caveatClass={caveatClass}
+                      onItemClick={onImageClick}
                     />
                   )}
+                  {/* ステップ2：光の当たり方の変化（影） */}
+                  <motion.div
+                    className="absolute inset-0 pointer-events-none"
+                    animate={{ opacity: isFlipped ? 0 : 1 }}
+                    transition={{ duration: 0.5 }}
+                    style={{
+                      background:
+                        "linear-gradient(to left, rgba(0,0,0,0.15), transparent)",
+                      borderRadius: "10px 2px 2px 10px",
+                    }}
+                  />
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>
