@@ -14,6 +14,16 @@ const caveat = Caveat({
   weight: "400",
 });
 
+// ギャラリーデータの定義。ここを編集するだけでページが増減します
+const galleryItems = [
+  { src: "/photo1.jpg", description: "Ice plant" },
+  { src: "/photo2.jpg", description: "Kobe from Above" },
+  { src: "/photo3.jpg", description: "Cherry blossom" },
+  { src: "/photo4.jpg", description: "Ginkakuji Temple" },
+  { src: "/photo5.jpg", description: "Azalea" },
+  { src: "/photo6.jpg", description: "Wedded Rocks" },
+];
+
 export default function Home() {
   const svgRef = useRef<SVGSVGElement>(null);
   const [showText, setShowText] = useState(false);
@@ -186,6 +196,111 @@ export default function Home() {
                 opacity: 1;
               }
             }
+
+            /* 3D Book Album Styles */
+            .book-container {
+              perspective: 1600px;
+              width: 100%;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              padding: 2.5rem 0;
+            }
+
+            @media (max-width: 640px) {
+              .book-container {
+                padding: 0.5rem 0; /* モバイル版の上下余白を狭める */
+              }
+            }
+            .book-wrapper {
+              position: relative;
+              transition: transform 0.3s ease;
+            }
+            .book {
+              position: relative;
+              width: 560px;
+              height: 380px;
+              transform-style: preserve-3d;
+              transform: rotateX(10deg);
+              transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+            }
+            .book-sheet {
+              position: absolute;
+              top: 0;
+              right: 0;
+              width: 50%;
+              height: 100%;
+              transform-origin: left center;
+              transform-style: preserve-3d;
+              transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+            }
+            .book-sheet.flipped {
+              transform: rotateY(-180deg);
+            }
+            .book-page {
+              position: absolute;
+              top: 0;
+              left: 0;
+              width: 100%;
+              height: 100%;
+              backface-visibility: hidden;
+              background-color: #FAF9F5;
+              border: 1px solid rgba(0, 0, 0, 0.08);
+              box-shadow: inset 3px 0 12px rgba(0, 0, 0, 0.04), 2px 2px 8px rgba(0, 0, 0, 0.06);
+              padding: 24px;
+              display: flex;
+              flex-direction: column;
+              justify-content: space-between;
+              user-select: none;
+            }
+            .book-page-front {
+              border-radius: 2px 10px 10px 2px;
+            }
+            .book-page-back {
+              transform: rotateY(180deg);
+              border-radius: 10px 2px 2px 10px;
+              box-shadow: inset -3px 0 12px rgba(0, 0, 0, 0.04), -2px 2px 8px rgba(0, 0, 0, 0.06);
+            }
+            /* ページの内側のグラデーション影（本の中央の谷折り部分） */
+            .book-page-front::after {
+              content: '';
+              position: absolute;
+              top: 0;
+              left: 0;
+              width: 15px;
+              height: 100%;
+              background: linear-gradient(to right, rgba(0,0,0,0.06), transparent);
+              pointer-events: none;
+            }
+            .book-page-back::after {
+              content: '';
+              position: absolute;
+              top: 0;
+              right: 0;
+              width: 15px;
+              height: 100%;
+              background: linear-gradient(to left, rgba(0,0,0,0.06), transparent);
+              pointer-events: none;
+            }
+            /* 背表紙（谷折りシャドウ） */
+            .book-spine {
+              position: absolute;
+              top: 0;
+              left: 50%;
+              transform: translateX(-50%);
+              width: 8px;
+              height: 100%;
+              background: linear-gradient(to right, rgba(0,0,0,0.12), rgba(0,0,0,0.02) 25%, rgba(0,0,0,0.02) 75%, rgba(0,0,0,0.12));
+              box-shadow: 0 0 4px rgba(0,0,0,0.1);
+              z-index: 10;
+              pointer-events: none;
+            }
+            /* 紙の質感風の薄い方眼紙背景 */
+            .bg-grid-paper {
+              background-image: radial-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+              background-size: 16px 16px;
+            }
           `,
             }}
           />
@@ -271,7 +386,7 @@ export default function Home() {
           </div>
           <div className="mt-12 w-full">
             <p
-              className={`text-3xl -rotate-3 relative z-10 translate-y-2 md:translate-y-1 ${caveat.className}`}
+              className={`text-3xl -rotate-3 relative z-10 translate-y-3 md:translate-y-1 ${caveat.className}`}
             >
               My playlist
             </p>
@@ -502,6 +617,15 @@ export default function Home() {
                   </button>
                 </div>
               </div>
+              <p
+                className={`text-3xl -rotate-3 relative z-10 md:-translate-y-2 mt-0 ${caveat.className}`}
+              >
+                Gallery
+              </p>
+              <BookAlbum
+                caveatClass={caveat.className}
+                novaMonoClass={novaMono.className}
+              />
             </div>
           </div>
         </div>
@@ -509,3 +633,194 @@ export default function Home() {
     </div>
   );
 }
+
+// --- Book Album Component ---
+interface PageContentProps {
+  type: "inner";
+  illustration?: React.ReactNode;
+}
+
+const AlbumPageContent: React.FC<{
+  item?: { src: string; description: string };
+  caveatClass: string;
+}> = ({ item, caveatClass }) => {
+  if (!item) return <div className="w-full h-full bg-[#FAF9F5]" />;
+
+  return (
+    <div className="w-full h-full relative bg-[#FAF9F5] p-4 flex flex-col items-center justify-center">
+      <div className="w-52 bg-white border border-neutral-200 p-3 shadow-md transition-transform hover:rotate-0 duration-300">
+        <div className="relative w-full h-40 bg-neutral-100 overflow-hidden">
+          <img
+            src={item.src}
+            alt={item.description}
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <p
+          className={`mt-3 text-lg text-neutral-700 text-center ${caveatClass}`}
+        >
+          {item.description}
+        </p>
+      </div>
+    </div>
+  );
+};
+
+const BookAlbum: React.FC<{ caveatClass: string; novaMonoClass: string }> = ({
+  caveatClass,
+  novaMonoClass,
+}) => {
+  const [currentSheet, setCurrentSheet] = useState(0);
+  const [scale, setScale] = useState(1);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // 配列を「左底」「めくるシート(表・裏)」「右底」に分割するロジック
+  const leftBase = galleryItems[0];
+  const rightBase = galleryItems[galleryItems.length - 1];
+
+  const sheets = [];
+  for (let i = 1; i < galleryItems.length - 1; i += 2) {
+    sheets.push({
+      id: i,
+      front: galleryItems[i],
+      // 次の要素があれば裏面に、なければ空にする
+      back: galleryItems[i + 1] ? galleryItems[i + 1] : null,
+    });
+  }
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (!containerRef.current) return;
+      const containerWidth = containerRef.current.offsetWidth;
+      // 幅に合わせてスケール調整（モバイル対応）
+      const newScale =
+        containerWidth < 600 ? (containerWidth * 0.9) / 560 : 1.0;
+      setScale(Math.max(0.4, Math.min(newScale, 1.0)));
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const goNext = () =>
+    currentSheet < sheets.length && setCurrentSheet((prev) => prev + 1);
+  const goPrev = () => currentSheet > 0 && setCurrentSheet((prev) => prev - 1);
+
+  return (
+    <div ref={containerRef} className="book-container select-none mt-6">
+      <div
+        className="book-wrapper"
+        style={{
+          transform: `scale(${scale})`,
+          transformOrigin: "center center",
+          width: "560px",
+          height: `${380 * scale}px`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <div className="book" style={{ position: "absolute" }}>
+          <div className="book-spine" />
+
+          {/* 左の固定底（最初のアイテム） */}
+          <div className="absolute top-0 left-0 w-1/2 h-full bg-[#FAF9F5] border border-black/5 rounded-l-lg z-0 overflow-hidden flex items-center justify-center">
+            <AlbumPageContent item={leftBase} caveatClass={caveatClass} />
+          </div>
+
+          {/* 右の固定底（最後のアイテム） */}
+          <div className="absolute top-0 right-0 w-1/2 h-full bg-[#FAF9F5] border border-black/5 rounded-r-lg z-0 overflow-hidden">
+            <AlbumPageContent item={rightBase} caveatClass={caveatClass} />
+          </div>
+
+          {/* 動的に生成されたシート */}
+          {sheets.map((sheet, index) => {
+            const isFlipped = index < currentSheet;
+            let zIndex = 1;
+            if (index === currentSheet || index === currentSheet - 1) {
+              zIndex = 20;
+            } else if (isFlipped) {
+              zIndex = 10 + index;
+            } else {
+              zIndex = 10 + (sheets.length - index);
+            }
+
+            return (
+              <div
+                key={sheet.id}
+                className={`book-sheet ${isFlipped ? "flipped" : ""}`}
+                style={{ zIndex }}
+              >
+                <div className="book-page book-page-front">
+                  <AlbumPageContent
+                    item={sheet.front}
+                    caveatClass={caveatClass}
+                  />
+                </div>
+                <div className="book-page book-page-back">
+                  {sheet.back && (
+                    <AlbumPageContent
+                      item={sheet.back}
+                      caveatClass={caveatClass}
+                    />
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* コントロール */}
+      <div className="flex items-center gap-6 mt-8">
+        <button
+          onClick={goPrev}
+          disabled={currentSheet === 0}
+          className="p-2.5 rounded-full border border-neutral-300 hover:bg-neutral-100 disabled:opacity-20 transition-colors cursor-pointer text-neutral-600"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={2}
+            stroke="currentColor"
+            className="w-5 h-5"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15.75 19.5 8.25 12l7.5-7.5"
+            />
+          </svg>
+        </button>
+
+        <span
+          className={`text-sm font-mono text-neutral-500 min-w-[80px] text-center ${novaMonoClass}`}
+        >
+          {currentSheet + 1} / {sheets.length + 1}
+        </span>
+
+        <button
+          onClick={goNext}
+          disabled={currentSheet === sheets.length}
+          className="p-2.5 rounded-full border border-neutral-300 hover:bg-neutral-100 disabled:opacity-20 transition-colors cursor-pointer text-neutral-600"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={2}
+            stroke="currentColor"
+            className="w-5 h-5"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="m8.25 4.5 7.5 7.5-7.5 7.5"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+};
