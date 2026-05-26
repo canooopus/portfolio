@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import Image from 'next/image';
-import { Rubik } from 'next/font/google';
+import Image from "next/image";
+import { Rubik } from "next/font/google";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/react";
 
 const rubik = Rubik({ subsets: ["latin"] });
 
@@ -20,6 +21,7 @@ export default function RootLayout({
       <body className={rubik.className}>
         {/* childrenの中にpage.tsxの内容が入ります */}
         {children}
+        <Analytics />
       </body>
     </html>
   );

@@ -215,7 +215,7 @@ export default function Home() {
 
             @media (max-width: 640px) {
               .book-container {
-                padding: 0.5rem 0; /* モバイル版の上下余白を狭める */
+                padding: 0.5rem 0;
               }
             }
             .book-wrapper {
@@ -645,7 +645,7 @@ export default function Home() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/30 backdrop-blur-md p-4 cursor-zoom-out"
+            className="fixed inset-0 z-100 flex items-center justify-center bg-black/30 backdrop-blur-md p-4 cursor-zoom-out"
             onClick={() => setSelectedItem(null)}
           >
             <motion.div
@@ -691,25 +691,34 @@ interface PageContentProps {
   illustration?: React.ReactNode;
 }
 
+// --- AlbumPageContent Component ---
 const AlbumPageContent: React.FC<{
   item?: { src: string; description: string };
   caveatClass: string;
-  onItemClick?: (item: { src: string; description: string }) => void; // 追加
-}> = ({ item, caveatClass, onItemClick }) => {
+  onItemClick?: (item: { src: string; description: string }) => void;
+  priority?: boolean;
+  eager?: boolean; // 次のページを事前に読み込むためのフラグ
+}> = ({ item, caveatClass, onItemClick, priority = false, eager = false }) => {
   if (!item) return <div className="w-full h-full bg-[#FAF9F5]" />;
 
   return (
     <div className="w-full h-full relative bg-[#FAF9F5] p-4 flex flex-col items-center justify-center">
-      {/* 以下のdivに cursor-pointer と onClick を追加 */}
       <div
         className="w-52 bg-white border border-neutral-200 p-3 shadow-md transition-transform hover:rotate-0 duration-300 cursor-pointer hover:shadow-lg"
         onClick={() => onItemClick?.(item)}
       >
+        {/* コンテナのサイズを固定し、画像切り替え時のガタつきを防止 */}
         <div className="relative w-full h-40 bg-neutral-100 overflow-hidden">
-          <img
+          <Image
             src={item.src}
             alt={item.description}
-            className="w-full h-full object-cover"
+            fill
+            sizes="208px"
+            priority={priority}
+            // 表示が近いページは遅延させずに読み込む
+            loading={priority || eager ? undefined : "lazy"}
+            className="object-cover"
+            quality={90}
           />
         </div>
         <p
@@ -722,6 +731,7 @@ const AlbumPageContent: React.FC<{
   );
 };
 
+// --- Book Album Component ---
 const BookAlbum: React.FC<{
   caveatClass: string;
   novaMonoClass: string;
@@ -731,7 +741,6 @@ const BookAlbum: React.FC<{
   const [scale, setScale] = useState(1);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // 配列を「左底」「めくるシート(表・裏)」「右底」に分割するロジック
   const leftBase = galleryItems[0];
   const rightBase = galleryItems[galleryItems.length - 1];
 
@@ -740,7 +749,6 @@ const BookAlbum: React.FC<{
     sheets.push({
       id: i,
       front: galleryItems[i],
-      // 次の要素があれば裏面に、なければ空にする
       back: galleryItems[i + 1] ? galleryItems[i + 1] : null,
     });
   }
@@ -749,7 +757,6 @@ const BookAlbum: React.FC<{
     const handleResize = () => {
       if (!containerRef.current) return;
       const containerWidth = containerRef.current.offsetWidth;
-      // 幅に合わせてスケール調整（モバイル対応）
       const newScale =
         containerWidth < 600 ? (containerWidth * 0.9) / 560 : 1.0;
       setScale(Math.max(0.4, Math.min(newScale, 1.0)));
@@ -780,12 +787,13 @@ const BookAlbum: React.FC<{
         <div className="book" style={{ position: "absolute" }}>
           <div className="book-spine" />
 
-          {/* 左の固定底（最初のアイテム） */}
+          {/* 左底 */}
           <div className="absolute top-0 left-0 w-1/2 h-full bg-[#FAF9F5] border border-black/5 rounded-l-lg z-0 overflow-hidden flex items-center justify-center">
             <AlbumPageContent
               item={leftBase}
               caveatClass={caveatClass}
               onItemClick={onImageClick}
+              priority={true}
             />
             <motion.div
               className="absolute inset-0 z-10 pointer-events-none"
@@ -797,12 +805,14 @@ const BookAlbum: React.FC<{
             />
           </div>
 
-          {/* 右の固定底（最後のアイテム） */}
+          {/* 右底 */}
           <div className="absolute top-0 right-0 w-1/2 h-full bg-[#FAF9F5] border border-black/5 rounded-r-lg z-0 overflow-hidden">
             <AlbumPageContent
               item={rightBase}
               caveatClass={caveatClass}
               onItemClick={onImageClick}
+              // 最後のページに近づいたら読み込みを優先
+              eager={currentSheet >= sheets.length - 1}
             />
             <motion.div
               className="absolute inset-0 z-10 pointer-events-none"
@@ -814,14 +824,19 @@ const BookAlbum: React.FC<{
             />
           </div>
 
-          {/* 動的に生成されたシート */}
           {sheets.map((sheet, index) => {
             const isFlipped = index < currentSheet;
 
-            // zIndexの計算（めくっている最中のページが一番上に来るようにする）
+            // 【修正】判定範囲を ±2 に拡大
+            // これにより、アニメーション中や前後のページ移動で画像が消えるのを防ぐ
+            const isNear = Math.abs(index - currentSheet) <= 2;
+
+            // 次に表示される可能性が高いページか判定
+            const isNext = index === currentSheet || index === currentSheet - 1;
+
             let zIndex = 1;
-            if (index === currentSheet || index === currentSheet - 1) {
-              zIndex = 50; // 現在アクション中のページ
+            if (isNext) {
+              zIndex = 50;
             } else {
               zIndex = isFlipped ? 10 + index : 10 + (sheets.length - index);
             }
@@ -832,33 +847,32 @@ const BookAlbum: React.FC<{
                 initial={false}
                 animate={{
                   rotateY: isFlipped ? -180 : 0,
-                  // めくっている最中に少しだけ浮き上がらせる（ステップ4の要素）
-                  z:
-                    index === currentSheet - 1 || index === currentSheet
-                      ? 10
-                      : 0,
+                  z: isNext ? 10 : 0,
                 }}
                 transition={{
                   type: "spring",
-                  stiffness: 40, // 低めで重厚に
-                  damping: 15, // 揺れすぎない程度に
-                  mass: 1.2, // 紙の重み
+                  stiffness: 45, // 少しだけ速くして残像感を減らす
+                  damping: 18,
+                  mass: 1.1,
                 }}
                 className="book-sheet"
                 style={{
                   zIndex,
                   transformStyle: "preserve-3d",
-                  transformOrigin: "left center", // 左端を軸に回転
+                  transformOrigin: "left center",
+                  willChange: "transform",
                 }}
               >
-                {/* 表面 */}
                 <div className="book-page book-page-front">
-                  <AlbumPageContent
-                    item={sheet.front}
-                    caveatClass={caveatClass}
-                    onItemClick={onImageClick}
-                  />
-                  {/* ステップ2：光の当たり方の変化（影） */}
+                  {/* isNearがtrueの間は画像を保持 */}
+                  {isNear && (
+                    <AlbumPageContent
+                      item={sheet.front}
+                      caveatClass={caveatClass}
+                      onItemClick={onImageClick}
+                      eager={isNext} // アニメーション中のページは即時読み込み
+                    />
+                  )}
                   <motion.div
                     className="absolute inset-0 pointer-events-none"
                     animate={{ opacity: isFlipped ? 1 : 0 }}
@@ -871,16 +885,15 @@ const BookAlbum: React.FC<{
                   />
                 </div>
 
-                {/* 裏面 */}
                 <div className="book-page book-page-back">
-                  {sheet.back && (
+                  {isNear && sheet.back && (
                     <AlbumPageContent
                       item={sheet.back}
                       caveatClass={caveatClass}
                       onItemClick={onImageClick}
+                      eager={isNext}
                     />
                   )}
-                  {/* ステップ2：光の当たり方の変化（影） */}
                   <motion.div
                     className="absolute inset-0 pointer-events-none"
                     animate={{ opacity: isFlipped ? 0 : 1 }}
@@ -898,7 +911,6 @@ const BookAlbum: React.FC<{
         </div>
       </div>
 
-      {/* コントロール */}
       <div className="flex items-center gap-6 mt-8">
         <button
           onClick={goPrev}
