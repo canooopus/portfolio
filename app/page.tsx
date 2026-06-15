@@ -362,7 +362,7 @@ export default function Home() {
               I’m currently working on
               <Link
                 href="https://robopro2.com/app/nagasima/LINE/"
-                className="inline-flex items-center gap-1 align-middle ml-1 mb-1 hover:opacity-80 transition-opacity"
+                className="inline-flex items-center gap-1 align-middle ml-1 mb-1 hover:opacity-80 transition-opacity underline decoration-1 underline-offset-2"
               >
                 <span className="h-[1em] w-[1em] flex items-center">
                   <Image
@@ -384,7 +384,7 @@ export default function Home() {
               <Link
                 href="https://radwimps.jp/"
                 target="_blank"
-                className="hover:opacity-80 transition-opacity"
+                className="hover:opacity-80 transition-opacity underline decoration-1 underline-offset-2"
               >
                 RADWIMPS
               </Link>
@@ -423,7 +423,7 @@ export default function Home() {
                   </button>
 
                   {/* PC版 iframe本体（gapを追加し、クローン配列を使用して無限ループ化） */}
-                  <div className="hidden md:block relative w-full flex-1 min-w-0 h-[152px]">
+                  <div className="hidden md:block relative w-full flex-1 min-w-0 h-38">
                     <div
                       className="absolute -left-3 -right-3 top-0 bottom-0 overflow-hidden pointer-events-none"
                       style={{
@@ -486,7 +486,7 @@ export default function Home() {
                   </div>
 
                   {/* スマホ版 iframe本体（スクロールの滑らかさを追加） */}
-                  <div className="relative md:hidden w-full h-[152px]">
+                  <div className="relative md:hidden w-full h-38">
                     <div
                       className="absolute -top-3 -bottom-3 left-0 right-6 pointer-events-none"
                       style={{
@@ -550,7 +550,7 @@ export default function Home() {
                           return (
                             <div
                               key={uniqueKey}
-                              className="w-full h-[152px] shrink-0 snap-center relative"
+                              className="w-full h-38 shrink-0 snap-center relative"
                               style={{
                                 backfaceVisibility: "hidden",
                                 transform: "translate3d(0,0,0)",
@@ -934,7 +934,7 @@ const BookAlbum: React.FC<{
         </button>
 
         <span
-          className={`text-sm font-mono text-neutral-500 min-w-[80px] text-center ${novaMonoClass}`}
+          className={`text-sm font-mono text-neutral-500 min-w-20 text-center ${novaMonoClass}`}
         >
           {currentSheet + 1} / {sheets.length + 1}
         </span>
