@@ -191,23 +191,60 @@ export default function Home() {
 
   // メニュー外クリックを検知する useEffect
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
-      // メニューが表示されており、クリックされた要素がメニュー（menuRef）の範囲外だった場合
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let isScrollDetected = false;
+
+    // タッチ開始時の座標を記録
+    const handleTouchStart = (event: TouchEvent) => {
+      isScrollDetected = false;
+      if (event.touches.length > 0) {
+        touchStartX = event.touches[0].clientX;
+        touchStartY = event.touches[0].clientY;
+      }
+    };
+
+    // タッチ中の移動量を監視
+    const handleTouchMove = (event: TouchEvent) => {
+      if (event.touches.length > 0) {
+        const deltaX = Math.abs(event.touches[0].clientX - touchStartX);
+        const deltaY = Math.abs(event.touches[0].clientY - touchStartY);
+        
+        // 10px 以上の移動があった場合はスクロール操作とみなす
+        if (deltaX > 10 || deltaY > 10) {
+          isScrollDetected = true;
+        }
+      }
+    };
+
+    // タッチ終了時にスクロール中でなければ、メニュー外判定を行う
+    const handleTouchEnd = (event: TouchEvent) => {
+      if (isScrollDetected) return; // スクロール中はメニューを閉じない
+
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    // PC向けのマウスクリック判定
+    const handleMouseDown = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setIsMenuOpen(false);
       }
     };
 
     if (isMenuOpen) {
-      // PC向け（クリック）とスマホ向け（タップ）の両方のイベントを登録
-      document.addEventListener("mousedown", handleClickOutside);
-      document.addEventListener("touchstart", handleClickOutside);
+      document.addEventListener("mousedown", handleMouseDown);
+      document.addEventListener("touchstart", handleTouchStart);
+      document.addEventListener("touchmove", handleTouchMove);
+      document.addEventListener("touchend", handleTouchEnd);
     }
 
-    // クリーンアップ処理
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("touchstart", handleClickOutside);
+      document.removeEventListener("mousedown", handleMouseDown);
+      document.removeEventListener("touchstart", handleTouchStart);
+      document.removeEventListener("touchmove", handleTouchMove);
+      document.removeEventListener("touchend", handleTouchEnd);
     };
   }, [isMenuOpen]);
 
