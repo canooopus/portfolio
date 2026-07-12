@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Nova_Mono, Caveat } from "next/font/google";
+import { Nova_Mono, Caveat, Inter } from "next/font/google";
 import { motion, AnimatePresence } from "framer-motion";
 
 const novaMono = Nova_Mono({
@@ -11,6 +11,10 @@ const novaMono = Nova_Mono({
   weight: "400",
 });
 const caveat = Caveat({
+  subsets: ["latin"],
+  weight: "400",
+});
+const inter = Inter({
   subsets: ["latin"],
   weight: "400",
 });
@@ -182,7 +186,7 @@ export default function Home() {
 
   return (
     <div className="overflow-x-hidden w-full">
-      <main className="max-w-2xl mx-auto px-6 py-20 md:py-32 selection:bg-blue-100 flex flex-col items-start justify-center min-h-[50vh]">
+      <main className="max-w-2xl mx-auto px-6 pt-20 pb-0 md:pt-32 selection:bg-blue-100 flex flex-col items-start justify-center min-h-[50vh]">
         {/* ロゴセクション */}
         <div className="mb-12 w-full max-w-60 md:max-w-75">
           <style
@@ -640,6 +644,55 @@ export default function Home() {
           </div>
         </div>
       </main>
+      <footer className={`w-full py-20 text-center text-sm text-neutral-400 border-t border-neutral-100 bg-white ${inter.className}`}>
+        <div className="max-w-2xl mx-auto px-6 flex flex-col items-center gap-4">
+          
+          <div className="flex gap-6 text-sm text-neutral-400">
+            <Link 
+              href="https://github.com/canooopus" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-neutral-600 transition-colors underline decoration-1 underline-offset-4"
+            >
+              <svg 
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor" 
+                strokeWidth="1.6"        
+                strokeLinecap="round"    
+                strokeLinejoin="round"   
+                width="21" 
+                height="21"
+              >
+                <path d="M16 22.027v-2.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7a5.44 5.44 0 0 0-1.5-3.75a5.07 5.07 0 0 0-.09-3.77s-1.18-.35-3.91 1.48a13.4 13.4 0 0 0-7 0c-2.73-1.83-3.91-1.48-3.91-1.48A5.07 5.07 0 0 0 5 5.797a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7a3.37 3.37 0 0 0-.94 2.58v2.87"/><path d="M9 20.027c-3 .973-5.5 0-7-3"/>
+              </svg>
+            </Link>
+            <Link 
+              href="https://x.com/Canopus1170612" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-neutral-600 transition-colors"
+            >
+              <svg 
+                viewBox="0 1 23 23" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="1.6"        
+                strokeLinecap="round"    
+                strokeLinejoin="round"   
+                width="21" 
+                height="21"
+              >
+                <path d="M9.6 4.802a.973.973 0 00-.806-.427H5.148a.39.39 0 00-.322.608L14.49 19.23a.973.973 0 00.805.427h3.646a.39.39 0 00.323-.608L9.6 4.802zM10.45 13.433L4.669 20M18.757 4l-5.437 6.176"></path>
+              </svg>
+            </Link>
+          </div>
+
+          <p className="text-sm text-neutral-400">
+            &copy; {new Date().getFullYear()} Canooopus
+          </p>
+        </div>
+      </footer>
       <AnimatePresence>
         {selectedItem && (
           <motion.div
