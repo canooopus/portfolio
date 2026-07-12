@@ -370,6 +370,10 @@ export default function Home() {
           <style
             dangerouslySetInnerHTML={{
               __html: `
+            html, body {
+              overscroll-behavior-y: none;
+              min-height: 100%;
+            }
             .animated-path {
               opacity: 0;
             }
