@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Nova_Mono, Caveat, Inter } from "next/font/google";
 import { motion, AnimatePresence } from "framer-motion";
+import { s } from "framer-motion/client";
 
 const novaMono = Nova_Mono({
   subsets: ["latin"],
@@ -32,6 +33,7 @@ const galleryItems = [
 export default function Home() {
   const svgRef = useRef<SVGSVGElement>(null);
   const [showText, setShowText] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<{
     src: string;
     description: string;
@@ -187,6 +189,119 @@ export default function Home() {
   return (
     <div className="overflow-x-hidden w-full">
       <main className="max-w-2xl mx-auto px-6 pt-20 pb-0 md:pt-32 selection:bg-blue-100 flex flex-col items-start justify-center min-h-[50vh]">
+        {/* ★ 右下のフローティング・モーフィングメニュー */}
+        <motion.div
+          layout
+          style={{
+            borderRadius: isMenuOpen ? "20px" : "9999px",
+            pointerEvents: showText ? "auto" : "none",
+          }}
+          animate={{
+            width: isMenuOpen ? 160 : 48,
+            height: isMenuOpen ? 180 : 48,
+            opacity: showText ? 1 : 0,
+            y: showText ? 0 : 15,
+          }}
+          transition={{
+            type: "spring",
+            damping: 24,
+            stiffness: 280,
+          }}
+          className={`fixed bottom-15 right-6 z-50 bg-white/20 backdrop-blur-md border border-white/20 shadow-lg overflow-hidden flex items-center justify-center ${inter.className}`}
+        >
+          <AnimatePresence mode="wait">
+            {isMenuOpen ? (
+              // 【開いている状態】メニューの表示
+              <motion.div
+                key="menu-panel"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="p-2 flex flex-col gap-2.5 w-full h-full text-neutral-800" 
+              >
+                {/* メニューヘッダー */}
+                <div className="flex justify-between items-center px-1.5 pt-1 shrink-0">
+                  <span className="pl-1.5 text-[10px] uppercase tracking-widest text-neutral-800 font-bold">
+                    Menu
+                  </span>
+                  <button
+                    onClick={() => setIsMenuOpen(false)}
+                    className="p-1 rounded-lg hover:bg-white/20 active:bg-white/30 transition-colors cursor-pointer text-neutral-600"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      className="w-3.5 h-3.5"
+                    >
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                  </button>
+                </div>
+
+                {/* リンク集 */}
+                <div className="flex flex-col gap-1 shrink-0">
+                  <a
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                      setIsMenuOpen(false);
+                    }}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-white/20 active:bg-white/30 transition-colors text-left text-sm"
+                  >
+                    <svg 
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor" 
+                      strokeWidth="1.5"        
+                      strokeLinecap="round"    
+                      strokeLinejoin="round"   
+                      width="18"
+                      height="18"
+                      className="shrink-0"
+                    >
+                      <path d="M6.133 21C4.955 21 4 20.02 4 18.81v-8.802c0-.665.295-1.295.8-1.71l5.867-4.818a2.09 2.09 0 0 1 2.666 0l5.866 4.818c.506.415.801 1.045.801 1.71v8.802c0 1.21-.955 2.19-2.133 2.19z"/>
+                      <path d="M9.5 21v-5.5a2 2 0 0 1 2-2h1a2 2 0 0 1 2 2V21"/>
+                    </svg>
+                    <span>Home</span>
+                  </a>
+                </div>
+              </motion.div>
+            ) : (
+              // 【閉じている状態】丸いボタンの表示
+            <motion.button
+              key="menu-button"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              onClick={() => setIsMenuOpen(true)}
+              aria-label="Open menu"
+              className="w-12 h-12 flex items-center justify-center rounded-full text-neutral-800 hover:bg-white/20 active:bg-white/30 transition-colors cursor-pointer"
+            >
+              <div className="flex gap-1 justify-center items-center w-5 h-5">
+                <svg 
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor" 
+                  strokeWidth="0.1"        
+                  strokeLinecap="round"    
+                  strokeLinejoin="round"   
+                  width="21" 
+                  height="21"
+                >
+                  <path fill="currentColor" d="M7 12a2 2 0 1 1-4 0a2 2 0 0 1 4 0m7 0a2 2 0 1 1-4 0a2 2 0 0 1 4 0m7 0a2 2 0 1 1-4 0a2 2 0 0 1 4 0"/>
+                </svg>
+              </div>
+            </motion.button>
+            )}
+          </AnimatePresence>
+        </motion.div>
+
         {/* ロゴセクション */}
         <div className="mb-12 w-full max-w-60 md:max-w-75">
           <style
@@ -644,9 +759,8 @@ export default function Home() {
           </div>
         </div>
       </main>
-      <footer className={`w-full py-20 text-center text-sm text-neutral-400 border-t border-neutral-100 bg-white ${inter.className}`}>
+      <footer className={`w-full py-16 md:py-20 text-center text-sm text-neutral-400 border-t border-neutral-100 bg-white selection:bg-blue-100 ${inter.className}`}>
         <div className="max-w-2xl mx-auto px-6 flex flex-col items-center gap-4">
-          
           <div className="flex gap-6 text-sm text-neutral-400">
             <Link 
               href="https://github.com/canooopus" 
