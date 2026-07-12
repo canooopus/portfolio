@@ -186,11 +186,37 @@ export default function Home() {
     return () => clearTimeout(timer);
   }, []);
 
+  // メニューを特定するための ref を作成
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // メニュー外クリックを検知する useEffect
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      // メニューが表示されており、クリックされた要素がメニュー（menuRef）の範囲外だった場合
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      // PC向け（クリック）とスマホ向け（タップ）の両方のイベントを登録
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("touchstart", handleClickOutside);
+    }
+
+    // クリーンアップ処理
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, [isMenuOpen]);
+
   return (
     <div className="overflow-x-hidden w-full">
       <main className="max-w-2xl mx-auto px-6 pt-20 pb-0 md:pt-32 selection:bg-blue-100 flex flex-col items-start justify-center min-h-[50vh]">
         {/* ★ 右下のフローティング・モーフィングメニュー */}
         <motion.div
+          ref={menuRef}
           layout
           style={{
             borderRadius: isMenuOpen ? "20px" : "9999px",
@@ -207,7 +233,7 @@ export default function Home() {
             damping: 24,
             stiffness: 280,
           }}
-          className={`fixed bottom-15 right-6 z-50 bg-white/20 backdrop-blur-md border border-white/20 shadow-lg overflow-hidden flex items-center justify-center ${inter.className}`}
+          className={`fixed bottom-12 right-4 z-50 bg-black/50 backdrop-blur-md border border-white/10 shadow-lg overflow-hidden flex items-center justify-center ${inter.className}`}
         >
           <AnimatePresence mode="wait">
             {isMenuOpen ? (
@@ -218,16 +244,16 @@ export default function Home() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.15 }}
-                className="p-2 flex flex-col gap-2.5 w-full h-full text-neutral-800" 
+                className="p-2 flex flex-col gap-2.5 w-full h-full text-neutral-200" 
               >
                 {/* メニューヘッダー */}
                 <div className="flex justify-between items-center px-1.5 pt-1 shrink-0">
-                  <span className="pl-1.5 text-[10px] uppercase tracking-widest text-neutral-800 font-bold">
+                  <span className="pl-1.5 text-[10px] uppercase tracking-widest text-neutral-200 font-bold">
                     Menu
                   </span>
                   <button
                     onClick={() => setIsMenuOpen(false)}
-                    className="p-1 rounded-lg hover:bg-white/20 active:bg-white/30 transition-colors cursor-pointer text-neutral-600"
+                    className="p-1 rounded-lg hover:bg-white/10 active:bg-white/20 transition-colors cursor-pointer text-neutral-200 hover:text-white"
                   >
                     <svg
                       viewBox="0 0 24 24"
@@ -251,7 +277,7 @@ export default function Home() {
                       window.scrollTo({ top: 0, behavior: "smooth" });
                       setIsMenuOpen(false);
                     }}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-white/20 active:bg-white/30 transition-colors text-left text-sm"
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-white/10 active:bg-white/20 transition-colors text-left text-sm text-neutral-200 hover:text-white"
                   >
                     <svg 
                       viewBox="0 0 24 24"
@@ -281,7 +307,7 @@ export default function Home() {
               transition={{ duration: 0.15 }}
               onClick={() => setIsMenuOpen(true)}
               aria-label="Open menu"
-              className="w-12 h-12 flex items-center justify-center rounded-full text-neutral-800 hover:bg-white/20 active:bg-white/30 transition-colors cursor-pointer"
+              className="w-12 h-12 flex items-center justify-center rounded-full text-neutral-200 hover:bg-white/10 active:bg-white/20 transition-colors cursor-pointer"
             >
               <div className="flex gap-1 justify-center items-center w-5 h-5">
                 <svg 
