@@ -699,7 +699,7 @@ const AlbumPageContent: React.FC<{
   caveatClass: string;
   onItemClick?: (item: { src: string; description: string }) => void;
   priority?: boolean;
-  eager?: boolean; // 次のページを事前に読み込むためのフラグ
+  eager?: boolean;
 }> = ({ item, caveatClass, onItemClick, priority = false, eager = false }) => {
   if (!item) return <div className="w-full h-full bg-[#FAF9F5]" />;
 
@@ -709,7 +709,6 @@ const AlbumPageContent: React.FC<{
         className="w-52 bg-white border border-neutral-200 p-3 shadow-md transition-transform hover:rotate-0 duration-300 cursor-pointer hover:shadow-lg"
         onClick={() => onItemClick?.(item)}
       >
-        {/* コンテナのサイズを固定し、画像切り替え時のガタつきを防止 */}
         <div className="relative w-full h-40 bg-neutral-100 overflow-hidden">
           <Image
             src={item.src}
@@ -717,7 +716,7 @@ const AlbumPageContent: React.FC<{
             fill
             sizes="208px"
             priority={priority}
-            // 表示が近いページは遅延させずに読み込む
+            unoptimized // ★ ここを追加します
             loading={priority || eager ? undefined : "lazy"}
             className="object-cover"
             quality={90}
