@@ -196,6 +196,7 @@ export default function Home() {
             html {
               overscroll-behavior-y: none;
               min-height: 100%;
+              scrollbar-gutter: stable;
             }
             body {
               overflow-x: clip; /* htmlではなく、bodyのみに設定します */

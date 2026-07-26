@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Inter } from "next/font/google";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useMenu } from "@/context/MenuContext";
 
 const inter = Inter({ subsets: ["latin"], weight: "400" });
@@ -12,22 +13,74 @@ export default function FloatingMenu() {
   const { isReady } = useMenu();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
 
+  // スマホのスクロールとタップを区別してメニューを閉じる処理
   useEffect(() => {
-    const handleOutsideAction = (event: MouseEvent | TouchEvent) => {
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let isScrolling = false;
+
+    // タッチ開始時の座標を記録
+    const handleTouchStart = (event: TouchEvent) => {
+      touchStartX = event.touches[0].clientX;
+      touchStartY = event.touches[0].clientY;
+      isScrolling = false;
+    };
+
+    // タッチ中の移動量を監視
+    const handleTouchMove = (event: TouchEvent) => {
+      const touchX = event.touches[0].clientX;
+      const touchY = event.touches[0].clientY;
+      
+      // 10ピクセル以上の移動があればスクロールとみなす
+      if (Math.abs(touchX - touchStartX) > 10 || Math.abs(touchY - touchStartY) > 10) {
+        isScrolling = true;
+      }
+    };
+
+    // タッチ終了時にスクロール中でなければ閉じる
+    const handleTouchEnd = (event: TouchEvent) => {
+      if (isScrolling) return; // スクロール中なら何もしない
+
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setIsMenuOpen(false);
       }
     };
+
+    // PC用のクリック(マウスダウン)判定
+    const handleMouseDown = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+
     if (isMenuOpen) {
-      document.addEventListener("mousedown", handleOutsideAction);
-      document.addEventListener("touchstart", handleOutsideAction);
+      document.addEventListener("mousedown", handleMouseDown);
+      document.addEventListener("touchstart", handleTouchStart, { passive: true });
+      document.addEventListener("touchmove", handleTouchMove, { passive: true });
+      document.addEventListener("touchend", handleTouchEnd);
     }
+
     return () => {
-      document.removeEventListener("mousedown", handleOutsideAction);
-      document.removeEventListener("touchstart", handleOutsideAction);
+      document.removeEventListener("mousedown", handleMouseDown);
+      document.removeEventListener("touchstart", handleTouchStart);
+      document.removeEventListener("touchmove", handleTouchMove);
+      document.removeEventListener("touchend", handleTouchEnd);
     };
   }, [isMenuOpen]);
+
+  const handleHomeClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    setIsMenuOpen(false);
+
+    if (pathname === "/") {
+      e.preventDefault();
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    }
+  };
 
   return (
     <motion.div
@@ -67,7 +120,11 @@ export default function FloatingMenu() {
               </button>
             </div>
             <div className="flex flex-col gap-1 shrink-0">
-              <Link href="/" className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-white/10 text-sm">
+              <Link
+                href="/"
+                onClick={handleHomeClick}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-white/10 text-sm"
+              >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="18" height="18">
                   <path d="M6.133 21C4.955 21 4 20.02 4 18.81v-8.802c0-.665.295-1.295.8-1.71l5.867-4.818a2.09 2.09 0 0 1 2.666 0l5.866 4.818c.506.415.801 1.045.801 1.71v8.802c0 1.21-.955 2.19-2.133 2.19z" />
                   <path d="M9.5 21v-5.5a2 2 0 0 1 2-2h1a2 2 0 0 1 2 2V21" />
