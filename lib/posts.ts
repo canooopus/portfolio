@@ -6,6 +6,7 @@ import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
 import rehypeStringify from "rehype-stringify";
 import rehypePrettyCode from "rehype-pretty-code";
+import remarkGfm from "remark-gfm";
 
 const postsDirectory = path.join(process.cwd(), "posts");
 
@@ -62,6 +63,7 @@ export async function getPostData(slug: string): Promise<PostData | null> {
   const processedContent = await unified()
     .use(remarkParse)               // Markdown をパース
     .use(remarkRehype)              // HTML構造に変換
+    .use(remarkGfm)
     .use(rehypePrettyCode, {        // コードハイライトの処理を追加
       theme: "github-light",        // シンタックスハイライトのテーマ（VS Code風）
       keepBackground: false,         // 背景色をテーマに合わせる
