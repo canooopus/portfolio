@@ -63,8 +63,8 @@ export async function getPostData(slug: string): Promise<PostData | null> {
     .use(remarkParse)               // Markdown をパース
     .use(remarkRehype)              // HTML構造に変換
     .use(rehypePrettyCode, {        // コードハイライトの処理を追加
-      theme: "one-dark-pro",        // シンタックスハイライトのテーマ（VS Code風）
-      keepBackground: true,         // 背景色をテーマに合わせる
+      theme: "github-light",        // シンタックスハイライトのテーマ（VS Code風）
+      keepBackground: false,         // 背景色をテーマに合わせる
     })
     .use(rehypeStringify)           // HTML文字列として書き出し
     .process(content);

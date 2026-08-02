@@ -129,6 +129,7 @@ html {
     overflow-x: auto;
     font-size: 0.875rem;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    background-color: #ECF3F6;
 
     /* 等幅フォントを優先適用 */
     & code {
