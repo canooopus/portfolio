@@ -10,10 +10,17 @@ import { useMenu } from "@/context/MenuContext";
 const inter = Inter({ subsets: ["latin"], weight: "400" });
 
 export default function FloatingMenu() {
-  const { isReady } = useMenu();
+  const { isReady, setIsReady } = useMenu();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+
+  // トップページ以外（ブログ等）でもメニューを確実に表示する
+  useEffect(() => {
+    if (pathname !== "/") {
+      setIsReady(true);
+    }
+  }, [pathname, setIsReady]);
 
   // スマホのスクロールとタップを区別してメニューを閉じる処理
   useEffect(() => {
@@ -21,34 +28,29 @@ export default function FloatingMenu() {
     let touchStartY = 0;
     let isScrolling = false;
 
-    // タッチ開始時の座標を記録
     const handleTouchStart = (event: TouchEvent) => {
       touchStartX = event.touches[0].clientX;
       touchStartY = event.touches[0].clientY;
       isScrolling = false;
     };
 
-    // タッチ中の移動量を監視
     const handleTouchMove = (event: TouchEvent) => {
       const touchX = event.touches[0].clientX;
       const touchY = event.touches[0].clientY;
       
-      // 10ピクセル以上の移動があればスクロールとみなす
       if (Math.abs(touchX - touchStartX) > 10 || Math.abs(touchY - touchStartY) > 10) {
         isScrolling = true;
       }
     };
 
-    // タッチ終了時にスクロール中でなければ閉じる
     const handleTouchEnd = (event: TouchEvent) => {
-      if (isScrolling) return; // スクロール中なら何もしない
+      if (isScrolling) return;
 
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setIsMenuOpen(false);
       }
     };
 
-    // PC用のクリック(マウスダウン)判定
     const handleMouseDown = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setIsMenuOpen(false);
@@ -73,6 +75,7 @@ export default function FloatingMenu() {
   const handleHomeClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     setIsMenuOpen(false);
 
+    // すでにHomeにいる場合はスムーズに最上部へスクロール
     if (pathname === "/") {
       e.preventDefault();
       window.scrollTo({
@@ -120,10 +123,12 @@ export default function FloatingMenu() {
               </button>
             </div>
             <div className="flex flex-col gap-1 shrink-0">
+              
+              {/* Homeへのリンク */}
               <Link
                 href="/"
                 onClick={handleHomeClick}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-white/10 text-sm"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-white/10 text-sm text-neutral-200"
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="18" height="18">
                   <path d="M6.133 21C4.955 21 4 20.02 4 18.81v-8.802c0-.665.295-1.295.8-1.71l5.867-4.818a2.09 2.09 0 0 1 2.666 0l5.866 4.818c.506.415.801 1.045.801 1.71v8.802c0 1.21-.955 2.19-2.133 2.19z" />
@@ -131,6 +136,20 @@ export default function FloatingMenu() {
                 </svg>
                 <span>Home</span>
               </Link>
+              
+              {/* Blogへのリンク */}
+              <Link
+                href="/blog"
+                onClick={() => setIsMenuOpen(false)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-white/10 text-sm text-neutral-200"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="18" height="18">
+                  <path d="M16.5 4H8a4 4 0 0 0-4 4v8.5a4 4 0 0 0 4 4h6.843a4 4 0 0 0 2.829-1.172l1.656-1.656a4 4 0 0 0 1.172-2.829V8a4 4 0 0 0-4-4"/>
+                  <path d="M20.5 14H17a3 3 0 0 0-3 3v3.5M8 8h7.5M8 12h5"/>
+                </svg>
+                <span>Blog</span>
+              </Link>
+
             </div>
           </motion.div>
         ) : (

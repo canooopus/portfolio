@@ -39,3 +39,114 @@ html {
 ::-webkit-scrollbar-button {
   display: none;
 }
+
+/* -------------------------------------------------------------
+ * Blog Article Styling (No Tailwind Typography)
+ * ------------------------------------------------------------- */
+.blog-content {
+  color: var(--color-neutral-800);
+  font-size: 1rem;
+  line-height: 1.75;
+
+  /* 見出し：余白と太さをサイトのトーンに合わせる */
+  & h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    color: var(--color-neutral-900);
+    border-left: 3px solid var(--color-neutral-800);
+    padding-left: 0.75rem;
+  }
+
+  & h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--color-neutral-900);
+  }
+
+  /* 段落と強調表現 */
+  & p {
+    margin-bottom: 1.25rem;
+  }
+
+  & strong {
+    font-weight: 700;
+    color: var(--color-neutral-900);
+  }
+
+  /* リンク */
+  & a {
+    color: var(--color-neutral-900);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-thickness: 1px;
+    transition: opacity 0.2s;
+
+    &:hover {
+      opacity: 0.7;
+    }
+  }
+
+  /* リスト */
+  & ul {
+    list-style-type: disc;
+    padding-left: 1.5rem;
+    margin-bottom: 1.25rem;
+
+    & li {
+      margin-bottom: 0.375rem;
+    }
+  }
+
+  & ol {
+    list-style-type: decimal;
+    padding-left: 1.5rem;
+    margin-bottom: 1.25rem;
+
+    & li {
+      margin-bottom: 0.375rem;
+    }
+  }
+
+  /* 引用 */
+  & blockquote {
+    border-left: 4px solid var(--color-neutral-200);
+    padding-left: 1rem;
+    font-style: italic;
+    color: var(--color-neutral-600);
+    margin-bottom: 1.25rem;
+  }
+
+  /* コードブロック（Shiki ＋ rehype-pretty-code の出力構造にターゲットを合わせる） */
+  & pre {
+    margin-top: 1.25rem;
+    margin-bottom: 1.25rem;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    font-size: 0.875rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+    /* 等幅フォントを優先適用 */
+    & code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-weight: 400;
+      background-color: transparent;
+      padding: 0;
+      color: inherit;
+    }
+  }
+
+  /* 地の文に挟むインラインコード */
+  & :not(pre)>code {
+    background-color: var(--color-neutral-100);
+    color: var(--color-neutral-900);
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+}
