@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ["latin"], weight: "400" });
 
 export const metadata = {
   title: "Blog | Canooopus",
-  description: "Canooopusの技術ブログ・思考の記録一覧です。",
+  description: "Canooopus'blog",
 };
 
 export default function BlogListPage() {
@@ -32,14 +32,8 @@ export default function BlogListPage() {
         
         {/* ブログのヘッダーセクション */}
         <div className="mb-12">
-          <Link 
-            href="/" 
-            className="text-xs text-neutral-500 hover:text-neutral-950 transition-colors inline-flex items-center gap-1 mb-6"
-          >
-            ← Back to Portfolio
-          </Link>
-          <h1 className="text-3xl font-bold text-neutral-900 tracking-tight">Blog</h1>
-          <p className="mt-2 text-neutral-500 text-sm">
+          <h1 className="text-3xl font-bold text-neutral-900">Blog</h1>
+          <p className="mt-5 text-neutral-500 text-sm">
             Technical writing, thoughts, and updates.
           </p>
         </div>
@@ -64,11 +58,6 @@ export default function BlogListPage() {
                   </span>
                   {formatDate(post.date)}
                 </time>
-                {post.description && (
-                  <p className="relative z-10 mt-2 text-sm text-neutral-500 line-clamp-2">
-                    {post.description}
-                  </p>
-                )}
               </article>
             ))}
           </div>

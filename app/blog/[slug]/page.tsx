@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: PostProps) {
 
   return {
     title: `${post.title} | Canooopus`,
-    description: post.description || "Canooopusのブログ記事です。",
+    description: "Canooopus'blog",
   };
 }
 
@@ -79,11 +79,6 @@ export default async function BlogPostPage({ params }: PostProps) {
           <h1 className="text-3xl font-bold text-neutral-900 tracking-tight leading-snug">
             {post.title}
           </h1>
-          {post.description && (
-            <p className="mt-4 text-neutral-500 text-sm italic border-l-2 border-neutral-100 pl-3">
-              {post.description}
-            </p>
-          )}
         </header>
 
         {/* 記事本文（Step 4で定義した .blog-content を適用して描画） */}

@@ -14,7 +14,6 @@ export interface PostData {
   slug: string;
   title: string;
   date: string;
-  description?: string;
   contentHtml?: string;
 }
 
@@ -40,7 +39,6 @@ export function getSortedPostsData(): PostData[] {
         slug,
         title: data.title || "No Title",
         date: data.date || "1970-01-01",
-        description: data.description || "",
       } as PostData;
     });
 
@@ -77,7 +75,6 @@ export async function getPostData(slug: string): Promise<PostData | null> {
     slug,
     title: data.title || "No Title",
     date: data.date || "1970-01-01",
-    description: data.description || "",
     contentHtml,
   };
 }
