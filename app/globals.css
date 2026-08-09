@@ -180,16 +180,8 @@ html {
         background-size: contain;
         transition: background-image 0.2s ease, opacity 0.2s ease;
 
-        /* 【写真左のデザイン】
-         * 未チェック時：滑らかな曲率連続（Squircle）の薄いグレー枠 ＋ 薄いチェックマーク */
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M 12,1.5 C 19.5,1.5 22.5,4.5 22.5,12 C 22.5,19.5 19.5,22.5 12,22.5 C 4.5,22.5 1.5,19.5 1.5,12 C 1.5,4.5 4.5,1.5 12,1.5 Z' fill='none' stroke='%239ca3af' stroke-width='1.5'/%3E%3Cpath d='M7.5 11.5l3 3 6.5-6.5' fill='none' stroke='%239ca3af' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 
-        /* 💡（補足）もし「未チェック時はチェックマークを出さず、枠線のみにしたい」場合は、上記を以下のSVGに差し替えてください。
-         * background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M 12,1.5 C 19.5,1.5 22.5,4.5 22.5,12 C 22.5,19.5 19.5,22.5 12,22.5 C 4.5,22.5 1.5,19.5 1.5,12 C 1.5,4.5 4.5,1.5 12,1.5 Z' fill='none' stroke='%239ca3af' stroke-width='1.5'/%3E%3C/svg%3E");
-         */
-
-        /* 【写真右のデザイン】
-         * チェック済み（:checked）時：ダークなベタ塗り ＋ 白いチェックマーク */
         &:checked {
           background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M 12,1.5 C 19.5,1.5 22.5,4.5 22.5,12 C 22.5,19.5 19.5,22.5 12,22.5 C 4.5,22.5 1.5,19.5 1.5,12 C 1.5,4.5 4.5,1.5 12,1.5 Z' fill='%23171717' stroke='%23171717' stroke-width='1.5'/%3E%3Cpath d='M7.5 11.5l3 3 6.5-6.5' fill='none' stroke='%23ffffff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
         }
@@ -256,36 +248,98 @@ html {
     margin-top: 0.75rem;
   }
 
-  /* テーブル（GFM）：外枠をなくし、薄い水平線とホバー時の反応のみでまとめた清潔感のある表 */
-  & table {
-    width: 100%;
-    margin-top: 1.5rem;
-    margin-bottom: 1.5rem;
-    border-collapse: collapse;
-    font-size: 0.875rem;
-    line-height: 1.5;
-    display: block;
-    overflow-x: auto;
-    /* モバイル端末用の横スクロール */
-  }
-
-  & th {
-    font-weight: 600;
-    color: var(--color-neutral-900);
-    border-bottom: 2px solid var(--color-neutral-200);
-    padding: 0.75rem 1rem;
-    text-align: left;
-  }
-
-  & td {
-    border-bottom: 1px solid var(--color-neutral-100);
-    padding: 0.75rem 1rem;
-    color: var(--color-neutral-700);
-  }
-
-  & tr:hover td {
-    background-color: color-mix(in srgb, var(--color-neutral-50) 50%, transparent);
-  }
+    /* -------------------------------------------------------------
+     * テーブル（GFM）：丸角外枠と点線（破線）のモダンカードデザイン
+     * ------------------------------------------------------------- */
+    & table {
+      width: 100%;
+      margin-top: 1.5rem;
+      margin-bottom: 1.5rem;
+      border-collapse: separate;
+      /* 角丸をすべてのブラウザで綺麗に表現するため separate に設定 */
+      border-spacing: 0;
+      border: 1px solid var(--color-neutral-200);
+      /* 全体を囲む薄いグレーの枠線 */
+      border-radius: 0.75rem;
+      /* 写真のような丸みを帯びた外枠 */
+      overflow: hidden;
+      font-size: 0.875rem;
+      line-height: 1.5;
+  
+      /* モバイル端末での横スクロールに対応 */
+      display: block;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+  
+    & th {
+      font-weight: 600;
+      color: var(--color-neutral-600);
+      /* ヘッダーの文字色を少しマイルドに */
+      background-color: var(--color-neutral-50);
+      /* ヘッダーの淡い背景色 */
+      padding: 1rem 1.25rem;
+      /* ゆったりとした広めの余白 */
+      text-align: left;
+      border-bottom: 1px solid var(--color-neutral-200);
+      /* ヘッダー下の区切り線 */
+      font-size: 0.875rem;
+    }
+  
+    & td {
+      padding: 1rem 1.25rem;
+      color: var(--color-neutral-800);
+      border-bottom: 1px dashed var(--color-neutral-200);
+      /* 行間のスタイリッシュな点線（破線） */
+      background-color: #ffffff;
+      /* セルの背景を白に固定 */
+      transition: background-color 0.2s ease;
+    }
+  
+    /* 最後の行は、下部の破線を消して外枠の角丸に綺麗に合わせる */
+    & tr:last-child td {
+      border-bottom: none;
+    }
+  
+    /* ブラウザ互換性のための角丸の個別適用 */
+    & tr:first-child th:first-child {
+      border-top-left-radius: 0.75rem;
+    }
+  
+    & tr:first-child th:last-child {
+      border-top-right-radius: 0.75rem;
+    }
+  
+    & tr:last-child td:first-child {
+      border-bottom-left-radius: 0.75rem;
+    }
+  
+    & tr:last-child td:last-child {
+      border-bottom-right-radius: 0.75rem;
+    }
+  
+    & th,
+    & td {
+      /* 単語の途中で不自然に切れるのを防ぎ、きれいに折り返す */
+      word-break: normal;
+      overflow-wrap: break-word;
+    }
+    
+    /* GFMのアラインメント（右寄せ・中央寄せ）に対応 */
+    & th[align="right"],
+    & td[align="right"] {
+      text-align: right;
+    }
+  
+    & th[align="center"],
+    & td[align="center"] {
+      text-align: right;
+    }
+  
+    /* ホバー時のかすかなインタラクション（必要に応じて） */
+    & tr:hover td {
+      background-color: color-mix(in srgb, var(--color-neutral-50) 30%, transparent);
+    }
 
   /* 打ち消し線（GFM） */
   & del,
