@@ -99,10 +99,27 @@ html {
 
   /* ★追加: インラインHTMLタグ (14. HTML) */
   & mark {
-    background-color: #fef08a; /* 黄色のハイライト */
+    /* 左右端をわずかに歪ませて薄くするグラデーション */
+    background: linear-gradient(
+      102deg,
+      rgba(254, 240, 138, 0) 1%,
+      rgba(254, 240, 138, 0.85) 5%,
+      rgba(254, 240, 138, 0.9) 93%,
+      rgba(254, 240, 138, 0.2) 99%
+    );
+    /* マーカーの高さと位置（文字の下側75%くらいに引く） */
+    background-size: 100% 75%;
+    background-repeat: no-repeat;
+    background-position: 0 85%;
     color: var(--color-neutral-900);
-    padding: 0.125rem 0.25rem;
-    border-radius: 0.25rem;
+    padding: 0 0.3em;
+
+    /* 不均一な角丸で手書きの揺らぎを表現 */
+    border-radius: 0.8em 0.3em 0.7em 0.2em / 0.4em 0.8em 0.3em 0.7em;
+
+    /* 折り返し（複数行）時も手書き効果を保持する */
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
   }
 
   & u {
@@ -131,16 +148,28 @@ html {
     top: -0.5em;
   }
 
+  /* ★モダン kbd スタイル */
   & kbd {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 0.8em;
-    padding: 0.15rem 0.4rem;
-    color: var(--color-neutral-800);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.6em;
+    min-height: 1.6em;
+    padding: 0.15em 0.4em;
+    font-family:
+      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+      "Courier New", monospace;
+    font-size: 0.75em;
+    font-weight: 500;
+    line-height: 1;
+    color: var(--color-neutral-700);
     background-color: var(--color-neutral-100);
-    border: 1px solid var(--color-neutral-300);
-    border-bottom-width: 2px;
+    border: 1px solid var(--color-neutral-200);
+    border-bottom-color: var(--color-neutral-300);
     border-radius: 0.375rem;
-    box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+    vertical-align: middle;
+    user-select: none;
   }
 
   /* リンク */
@@ -150,7 +179,9 @@ html {
     text-underline-offset: 4px;
     text-decoration-thickness: 1px;
     text-decoration-color: var(--color-neutral-300);
-    transition: text-decoration-color 0.2s, opacity 0.2s;
+    transition:
+      text-decoration-color 0.2s,
+      opacity 0.2s;
 
     &:hover {
       opacity: 0.8;
@@ -211,7 +242,9 @@ html {
         background-repeat: no-repeat;
         background-position: center;
         background-size: contain;
-        transition: background-image 0.2s ease, opacity 0.2s ease;
+        transition:
+          background-image 0.2s ease,
+          opacity 0.2s ease;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M 12,1.5 C 19.5,1.5 22.5,4.5 22.5,12 C 22.5,19.5 19.5,22.5 12,22.5 C 4.5,22.5 1.5,19.5 1.5,12 C 1.5,4.5 4.5,1.5 12,1.5 Z' fill='none' stroke='%239ca3af' stroke-width='1.5'/%3E%3Cpath d='M7.5 11.5l3 3 6.5-6.5' fill='none' stroke='%239ca3af' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 
         &:checked {
@@ -283,35 +316,45 @@ html {
     &.markdown-alert-note {
       border-left-color: #3b82f6;
       background-color: #eff6ff;
-      & .markdown-alert-title { color: #1d4ed8; }
+      & .markdown-alert-title {
+        color: #1d4ed8;
+      }
     }
 
     /* TIP */
     &.markdown-alert-tip {
       border-left-color: #10b981;
       background-color: #ecfdf5;
-      & .markdown-alert-title { color: #047857; }
+      & .markdown-alert-title {
+        color: #047857;
+      }
     }
 
     /* IMPORTANT */
     &.markdown-alert-important {
       border-left-color: #8b5cf6;
       background-color: #f5f3ff;
-      & .markdown-alert-title { color: #6d28d9; }
+      & .markdown-alert-title {
+        color: #6d28d9;
+      }
     }
 
     /* WARNING */
     &.markdown-alert-warning {
       border-left-color: #f59e0b;
       background-color: #fffbeb;
-      & .markdown-alert-title { color: #b45309; }
+      & .markdown-alert-title {
+        color: #b45309;
+      }
     }
 
     /* CAUTION */
     &.markdown-alert-caution {
       border-left-color: #ef4444;
       background-color: #fef2f2;
-      & .markdown-alert-title { color: #b91c1c; }
+      & .markdown-alert-title {
+        color: #b91c1c;
+      }
     }
   }
 
@@ -380,7 +423,8 @@ html {
 
   /* テーブル */
   & table {
-    width: 100%;
+    width: max-content;
+    max-width: 100%;
     margin-top: 1.5rem;
     margin-bottom: 1.5rem;
     border-collapse: separate;
@@ -417,10 +461,18 @@ html {
     border-bottom: none;
   }
 
-  & tr:first-child th:first-child { border-top-left-radius: 0.75rem; }
-  & tr:first-child th:last-child { border-top-right-radius: 0.75rem; }
-  & tr:last-child td:first-child { border-bottom-left-radius: 0.75rem; }
-  & tr:last-child td:last-child { border-bottom-right-radius: 0.75rem; }
+  & tr:first-child th:first-child {
+    border-top-left-radius: 0.75rem;
+  }
+  & tr:first-child th:last-child {
+    border-top-right-radius: 0.75rem;
+  }
+  & tr:last-child td:first-child {
+    border-bottom-left-radius: 0.75rem;
+  }
+  & tr:last-child td:last-child {
+    border-bottom-right-radius: 0.75rem;
+  }
 
   & th,
   & td {
@@ -429,16 +481,26 @@ html {
   }
 
   & th[align="right"],
-  & td[align="right"] { text-align: right; }
+  & td[align="right"] {
+    text-align: right;
+  }
 
   & th[align="left"],
-  & td[align="left"] { text-align: left; }
+  & td[align="left"] {
+    text-align: left;
+  }
 
   & th[align="center"],
-  & td[align="center"] { text-align: center; }
+  & td[align="center"] {
+    text-align: center;
+  }
 
   & tr:hover td {
-    background-color: color-mix(in srgb, var(--color-neutral-50) 30%, transparent);
+    background-color: color-mix(
+      in srgb,
+      var(--color-neutral-50) 30%,
+      transparent
+    );
   }
 
   /* 打ち消し線 */
@@ -446,7 +508,8 @@ html {
   & s {
     color: inherit;
     text-decoration: line-through;
-    text-decoration-color: var(--color-neutral-400);
+    text-decoration-color: inherit;
+    text-decoration-thickness: 0.25px;
   }
 
   /* 脚注 */
@@ -507,10 +570,12 @@ html {
     overflow-x: auto;
     font-size: 0.875rem;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    background-color: #ECF3F6;
+    background-color: #ecf3f6;
 
     & code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-family:
+        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
       font-weight: 400;
       background-color: transparent;
       padding: 0;
@@ -518,12 +583,13 @@ html {
     }
   }
 
-  & :not(pre)>code {
-    background-color: #ECF3F6;
+  & :not(pre) > code {
+    background-color: #ecf3f6;
     padding: 0.125rem 0.375rem;
     border-radius: 0.5rem;
     font-size: 0.875rem;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-family:
+      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   }
 
   /* ★追加: 数式 (19. Mathematical Expressions - KaTeX 表示調整) */
@@ -532,5 +598,25 @@ html {
     overflow-x: auto;
     overflow-y: hidden;
     padding: 0.5rem 0;
+  }
+
+  /* ★追加: Mermaid 図表 (中央揃え＆背景透過) */
+  & pre.mermaid,
+  & div.mermaid,
+  & .mermaid {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem 0;
+    background-color: transparent;
+    box-shadow: none;
+    overflow-x: auto;
+
+    & svg {
+      max-width: 100%;
+      height: auto;
+    }
   }
 }
