@@ -13,32 +13,25 @@ html {
 /* Webkit系 (Chrome, Safari, Edgeなど) */
 ::-webkit-scrollbar {
   width: 8px;
-  /* 縦スクロールバーの幅 */
   height: 8px;
-  /* 横スクロールバーの高さ */
 }
 
-/* スクロールバートラック（背景） */
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 
-/* スクロールバーのつまみ（サム） */
 ::-webkit-scrollbar-thumb {
   background-color: rgba(156, 163, 175, 0.4);
   border-radius: 9999px;
   border: 2px solid transparent;
-  /* 境界線を透明にしてつまみをスリムに見せる */
   background-clip: padding-box;
   transition: background-color 0.2s ease;
 }
 
-/* つまみのホバー効果 */
 ::-webkit-scrollbar-thumb:hover {
   background-color: rgba(107, 114, 128, 0.6);
 }
 
-/* スクロールバーの矢印ボタンを非表示にする */
 ::-webkit-scrollbar-button {
   display: none;
 }
@@ -50,10 +43,9 @@ html {
   color: var(--color-neutral-800);
   font-size: 1rem;
   line-height: 1.8;
-  /* 視認性を高めるため、余白をややゆったりと確保 */
   word-break: break-word;
 
-  /* 見出し：装飾を省き、フォントの太さと厳密な余白のみでセクションを区切るミニマルな構成 */
+  /* 見出し */
   & h1 {
     font-size: 1.75rem;
     font-weight: 700;
@@ -100,15 +92,58 @@ html {
     color: var(--color-neutral-900);
   }
 
-  /* 日本語で崩れやすい斜体を避け、控えめな背景マーカーで強調するモダン表現 */
   & em {
-    font-style: normal;
-    font-weight: 600;
-    background: linear-gradient(transparent 70%, rgba(156, 163, 175, 0.15) 70%);
+    font-style: italic;
     color: var(--color-neutral-900);
   }
 
-  /* リンク：ホバー時に下線の濃さが滑らかに変化するインタラクション */
+  /* ★追加: インラインHTMLタグ (14. HTML) */
+  & mark {
+    background-color: #fef08a; /* 黄色のハイライト */
+    color: var(--color-neutral-900);
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+  }
+
+  & u {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  & small {
+    font-size: 0.85em;
+    color: var(--color-neutral-600);
+  }
+
+  & sub,
+  & sup {
+    font-size: 0.75em;
+    line-height: 0;
+    position: relative;
+    vertical-align: baseline;
+  }
+
+  & sub {
+    bottom: -0.25em;
+  }
+
+  & sup {
+    top: -0.5em;
+  }
+
+  & kbd {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.8em;
+    padding: 0.15rem 0.4rem;
+    color: var(--color-neutral-800);
+    background-color: var(--color-neutral-100);
+    border: 1px solid var(--color-neutral-300);
+    border-bottom-width: 2px;
+    border-radius: 0.375rem;
+    box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  }
+
+  /* リンク */
   & a {
     color: var(--color-neutral-900);
     text-decoration: underline;
@@ -125,28 +160,30 @@ html {
 
   /* リスト */
   & ol {
+    list-style-type: decimal;
     padding-left: 1.5rem;
     margin-bottom: 1.5rem;
 
     & li {
       margin-bottom: 0.5rem;
     }
+
+    &::marker {
+      color: var(--color-neutral-500);
+      font-weight: 500;
+    }
   }
 
   & ul {
     list-style-type: none;
-    /* デフォルトの黒丸を非表示に */
     padding-left: 0;
-    /* 擬似要素で位置決めするため、左パディングをリセット */
     margin-bottom: 1.5rem;
 
     & li {
       position: relative;
       padding-left: 1.35rem;
-      /* チェックボックスの余白に合わせた調整 */
       margin-bottom: 0.5rem;
 
-      /* 通常のリストアイテムに対して、潰れない線の円（中空円）を描画 */
       &:not(:has(input[type="checkbox"]))::before {
         content: "";
         position: absolute;
@@ -159,27 +196,22 @@ html {
         box-sizing: border-box;
       }
 
-      /* -------------------------------------------------------------
-       * タスクリスト（GFM）：曲率連続（Squircle）カスタムデザイン
-       * ------------------------------------------------------------- */
+      /* タスクリスト */
       & input[type="checkbox"] {
         appearance: none;
         -webkit-appearance: none;
         display: inline-block;
         flex-shrink: 0;
         width: 1.15rem;
-        /* 文字の大きさに自然に馴染むサイズに固定（約18px） */
         height: 1.15rem;
         margin-right: 0.5rem;
         vertical-align: middle;
         cursor: pointer;
-        /* 元の「クリック不可」属性を残したい場合は pointer-events: none; にしてください */
         pointer-events: none;
         background-repeat: no-repeat;
         background-position: center;
         background-size: contain;
         transition: background-image 0.2s ease, opacity 0.2s ease;
-
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M 12,1.5 C 19.5,1.5 22.5,4.5 22.5,12 C 22.5,19.5 19.5,22.5 12,22.5 C 4.5,22.5 1.5,19.5 1.5,12 C 1.5,4.5 4.5,1.5 12,1.5 Z' fill='none' stroke='%239ca3af' stroke-width='1.5'/%3E%3Cpath d='M7.5 11.5l3 3 6.5-6.5' fill='none' stroke='%239ca3af' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 
         &:checked {
@@ -189,16 +221,6 @@ html {
     }
   }
 
-  & ol {
-    list-style-type: decimal;
-
-    &::marker {
-      color: var(--color-neutral-500);
-      font-weight: 500;
-    }
-  }
-
-  /* ネスト（入れ子構造）されたリストの余白 */
   & ul ul,
   & ul ol,
   & ol ul,
@@ -207,7 +229,24 @@ html {
     margin-bottom: 0;
   }
 
-  /* 引用：境界線を細くし、ニュートラルで静的な印象に */
+  /* ★追加: 定義リスト (17. Definition Lists) */
+  & dl {
+    margin-bottom: 1.5rem;
+
+    & dt {
+      font-weight: 700;
+      color: var(--color-neutral-900);
+      margin-top: 1rem;
+    }
+
+    & dd {
+      margin-left: 1.25rem;
+      color: var(--color-neutral-700);
+      margin-top: 0.25rem;
+    }
+  }
+
+  /* 引用 */
   & blockquote {
     border-left: 2px solid var(--color-neutral-300);
     padding-left: 1.25rem;
@@ -217,14 +256,105 @@ html {
     margin-bottom: 1.5rem;
   }
 
-  /* 水平線：極細でプレーンな線 */
+  /* ★追加: アラート / コールアウト (18. Alerts - remark-github-blockquote-alert 出力用) */
+  & .markdown-alert {
+    padding: 1rem 1.25rem;
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid var(--color-neutral-400);
+    border-radius: 0.375rem;
+    background-color: var(--color-neutral-50);
+    color: var(--color-neutral-800);
+
+    & p {
+      margin-bottom: 0;
+    }
+
+    & .markdown-alert-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+
+    /* NOTE */
+    &.markdown-alert-note {
+      border-left-color: #3b82f6;
+      background-color: #eff6ff;
+      & .markdown-alert-title { color: #1d4ed8; }
+    }
+
+    /* TIP */
+    &.markdown-alert-tip {
+      border-left-color: #10b981;
+      background-color: #ecfdf5;
+      & .markdown-alert-title { color: #047857; }
+    }
+
+    /* IMPORTANT */
+    &.markdown-alert-important {
+      border-left-color: #8b5cf6;
+      background-color: #f5f3ff;
+      & .markdown-alert-title { color: #6d28d9; }
+    }
+
+    /* WARNING */
+    &.markdown-alert-warning {
+      border-left-color: #f59e0b;
+      background-color: #fffbeb;
+      & .markdown-alert-title { color: #b45309; }
+    }
+
+    /* CAUTION */
+    &.markdown-alert-caution {
+      border-left-color: #ef4444;
+      background-color: #fef2f2;
+      & .markdown-alert-title { color: #b91c1c; }
+    }
+  }
+
+  /* ★追加: アコーディオン要素 (15. HTML Block - details / summary) */
+  & details {
+    margin: 1.5rem 0;
+    padding: 0.875rem 1.25rem;
+    border: 1px solid var(--color-neutral-200);
+    border-radius: 0.5rem;
+    background-color: var(--color-neutral-50);
+    transition: background-color 0.2s ease;
+
+    &[open] {
+      background-color: #ffffff;
+
+      & summary {
+        margin-bottom: 0.75rem;
+        border-bottom: 1px solid var(--color-neutral-100);
+        padding-bottom: 0.5rem;
+      }
+    }
+
+    & summary {
+      font-weight: 600;
+      color: var(--color-neutral-800);
+      cursor: pointer;
+      user-select: none;
+      outline: none;
+
+      &:hover {
+        color: var(--color-neutral-900);
+      }
+    }
+  }
+
+  /* 水平線 */
   & hr {
     border: 0;
     border-top: 1px solid var(--color-neutral-200);
     margin: 2.5rem 0;
   }
 
-  /* 画像（画像単体およびキャプション） */
+  /* 画像 */
   & img {
     max-width: 100%;
     height: auto;
@@ -248,107 +378,78 @@ html {
     margin-top: 0.75rem;
   }
 
-    /* -------------------------------------------------------------
-     * テーブル（GFM）：丸角外枠と点線（破線）のモダンカードデザイン
-     * ------------------------------------------------------------- */
-    & table {
-      width: 100%;
-      margin-top: 1.5rem;
-      margin-bottom: 1.5rem;
-      border-collapse: separate;
-      /* 角丸をすべてのブラウザで綺麗に表現するため separate に設定 */
-      border-spacing: 0;
-      border: 1px solid var(--color-neutral-200);
-      /* 全体を囲む薄いグレーの枠線 */
-      border-radius: 0.75rem;
-      /* 写真のような丸みを帯びた外枠 */
-      overflow: hidden;
-      font-size: 0.875rem;
-      line-height: 1.5;
-  
-      /* モバイル端末での横スクロールに対応 */
-      display: block;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-  
-    & th {
-      font-weight: 600;
-      color: var(--color-neutral-600);
-      /* ヘッダーの文字色を少しマイルドに */
-      background-color: var(--color-neutral-50);
-      /* ヘッダーの淡い背景色 */
-      padding: 1rem 1.25rem;
-      /* ゆったりとした広めの余白 */
-      text-align: left;
-      border-bottom: 1px solid var(--color-neutral-200);
-      /* ヘッダー下の区切り線 */
-      font-size: 0.875rem;
-    }
-  
-    & td {
-      padding: 1rem 1.25rem;
-      color: var(--color-neutral-800);
-      border-bottom: 1px dashed var(--color-neutral-200);
-      /* 行間のスタイリッシュな点線（破線） */
-      background-color: #ffffff;
-      /* セルの背景を白に固定 */
-      transition: background-color 0.2s ease;
-    }
-  
-    /* 最後の行は、下部の破線を消して外枠の角丸に綺麗に合わせる */
-    & tr:last-child td {
-      border-bottom: none;
-    }
-  
-    /* ブラウザ互換性のための角丸の個別適用 */
-    & tr:first-child th:first-child {
-      border-top-left-radius: 0.75rem;
-    }
-  
-    & tr:first-child th:last-child {
-      border-top-right-radius: 0.75rem;
-    }
-  
-    & tr:last-child td:first-child {
-      border-bottom-left-radius: 0.75rem;
-    }
-  
-    & tr:last-child td:last-child {
-      border-bottom-right-radius: 0.75rem;
-    }
-  
-    & th,
-    & td {
-      /* 単語の途中で不自然に切れるのを防ぎ、きれいに折り返す */
-      word-break: normal;
-      overflow-wrap: break-word;
-    }
-    
-    /* GFMのアラインメント（右寄せ・中央寄せ）に対応 */
-    & th[align="right"],
-    & td[align="right"] {
-      text-align: right;
-    }
-  
-    & th[align="center"],
-    & td[align="center"] {
-      text-align: right;
-    }
-  
-    /* ホバー時のかすかなインタラクション（必要に応じて） */
-    & tr:hover td {
-      background-color: color-mix(in srgb, var(--color-neutral-50) 30%, transparent);
-    }
-
-  /* 打ち消し線（GFM） */
-  & del,
-  & s {
-    color: var(--color-neutral-400);
-    text-decoration-color: var(--color-neutral-300);
+  /* テーブル */
+  & table {
+    width: 100%;
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid var(--color-neutral-200);
+    border-radius: 0.75rem;
+    overflow: hidden;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
-  /* 脚注（GFM） */
+  & th {
+    font-weight: 600;
+    color: var(--color-neutral-600);
+    background-color: var(--color-neutral-50);
+    padding: 1rem 1.25rem;
+    text-align: left;
+    border-bottom: 1px solid var(--color-neutral-200);
+    font-size: 0.875rem;
+  }
+
+  & td {
+    padding: 1rem 1.25rem;
+    color: var(--color-neutral-800);
+    border-bottom: 1px dashed var(--color-neutral-200);
+    background-color: #ffffff;
+    transition: background-color 0.2s ease;
+  }
+
+  & tr:last-child td {
+    border-bottom: none;
+  }
+
+  & tr:first-child th:first-child { border-top-left-radius: 0.75rem; }
+  & tr:first-child th:last-child { border-top-right-radius: 0.75rem; }
+  & tr:last-child td:first-child { border-bottom-left-radius: 0.75rem; }
+  & tr:last-child td:last-child { border-bottom-right-radius: 0.75rem; }
+
+  & th,
+  & td {
+    word-break: normal;
+    overflow-wrap: break-word;
+  }
+
+  & th[align="right"],
+  & td[align="right"] { text-align: right; }
+
+  & th[align="left"],
+  & td[align="left"] { text-align: left; }
+
+  & th[align="center"],
+  & td[align="center"] { text-align: center; }
+
+  & tr:hover td {
+    background-color: color-mix(in srgb, var(--color-neutral-50) 30%, transparent);
+  }
+
+  /* 打ち消し線 */
+  & del,
+  & s {
+    color: inherit;
+    text-decoration: line-through;
+    text-decoration-color: var(--color-neutral-400);
+  }
+
+  /* 脚注 */
   & section[data-footnotes] {
     margin-top: 3rem;
     border-top: 1px solid var(--color-neutral-200);
@@ -356,7 +457,6 @@ html {
     font-size: 0.875rem;
     color: var(--color-neutral-500);
 
-    /* 脚注内の見出しは主張を抑える */
     & h2 {
       font-size: 1rem;
       font-weight: 600;
@@ -375,7 +475,6 @@ html {
     }
   }
 
-  /* 脚注へのリンク（上付き文字） */
   & a[data-footnote-ref] {
     text-decoration: none;
     font-size: 0.75rem;
@@ -389,7 +488,6 @@ html {
     }
   }
 
-  /* 脚注から戻るリンク */
   & a[data-footnote-backref] {
     text-decoration: none;
     margin-left: 0.375rem;
@@ -400,11 +498,7 @@ html {
     }
   }
 
-
-  /* -------------------------------------------------------------
-   * コードブロック（Shiki ＋ rehype-pretty-code の出力構造にターゲットを合わせる）
-   * 既存のコードをそのまま維持しています。
-   * ------------------------------------------------------------- */
+  /* コードブロック */
   & pre {
     margin-top: 1.25rem;
     margin-bottom: 1.25rem;
@@ -415,7 +509,6 @@ html {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     background-color: #ECF3F6;
 
-    /* 等幅フォントを優先適用 */
     & code {
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
       font-weight: 400;
@@ -425,12 +518,19 @@ html {
     }
   }
 
-  /* 地の文に挟むインラインコード */
   & :not(pre)>code {
     background-color: #ECF3F6;
     padding: 0.125rem 0.375rem;
     border-radius: 0.5rem;
     font-size: 0.875rem;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+
+  /* ★追加: 数式 (19. Mathematical Expressions - KaTeX 表示調整) */
+  & .katex-display {
+    margin: 1.5rem 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0.5rem 0;
   }
 }

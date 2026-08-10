@@ -3,14 +3,19 @@ import path from "path";
 import matter from "gray-matter";
 import { unified } from "unified";
 import remarkParse from "remark-parse";
-import remarkRehype from "remark-rehype";
-import rehypeStringify from "rehype-stringify";
-import rehypePrettyCode from "rehype-pretty-code";
 import remarkGfm from "remark-gfm";
+import remarkDeflist from "remark-deflist"; // ★追加: 定義リスト (17. Definition Lists)
+import remarkGithubBlockquoteAlert from "remark-github-blockquote-alert"; // ★追加: アラート (18. Alerts)
+import remarkMath from "remark-math"; // ★追加: 数式記法 (19. Mathematical Expressions)
+import remarkRehype from "remark-rehype";
+import rehypeRaw from "rehype-raw";
+import rehypeKatex from "rehype-katex"; // ★追加: 数式のHTMLレンダリング
+import rehypeMermaid from "rehype-mermaid"; // ★追加: Mermaid図表のSVG変換 (20-22)
+import rehypePrettyCode from "rehype-pretty-code";
+import rehypeStringify from "rehype-stringify";
 
 const postsDirectory = path.join(process.cwd(), "posts");
 
-// 記事の型定義
 export interface PostData {
   slug: string;
   title: string;
@@ -18,22 +23,18 @@ export interface PostData {
   contentHtml?: string;
 }
 
-// 1. 全記事のメタデータ（一覧用）を日付順にソートして取得する関数
 export function getSortedPostsData(): PostData[] {
-  // フォルダが存在しない場合は空配列を返す（エラー防止）
   if (!fs.existsSync(postsDirectory)) {
     return [];
   }
 
   const fileNames = fs.readdirSync(postsDirectory);
   const allPostsData = fileNames
-    .filter((fileName) => fileName.endsWith(".md")) // .mdファイルのみ対象
+    .filter((fileName) => fileName.endsWith(".md"))
     .map((fileName) => {
       const slug = fileName.replace(/\.md$/, "");
       const fullPath = path.join(postsDirectory, fileName);
       const fileContents = fs.readFileSync(fullPath, "utf8");
-
-      // matter を使ってフロントマター（メタデータ）を解析
       const { data } = matter(fileContents);
 
       return {
@@ -43,15 +44,12 @@ export function getSortedPostsData(): PostData[] {
       } as PostData;
     });
 
-  // 日付の新しい順にソート
   return allPostsData.sort((a, b) => (a.date < b.date ? 1 : -1));
 }
 
-// 2. 単一記事の詳細データ（メタデータ ＋ HTML化された本文）を取得する関数
 export async function getPostData(slug: string): Promise<PostData | null> {
   const fullPath = path.join(postsDirectory, `${slug}.md`);
 
-  // ファイルが存在しない場合は null を返す
   if (!fs.existsSync(fullPath)) {
     return null;
   }
@@ -61,14 +59,22 @@ export async function getPostData(slug: string): Promise<PostData | null> {
 
   // unifiedエコシステムで Markdown -> HTML 変換
   const processedContent = await unified()
-    .use(remarkParse)               // Markdown をパース
-    .use(remarkRehype)              // HTML構造に変換
-    .use(remarkGfm)
-    .use(rehypePrettyCode, {        // コードハイライトの処理を追加
-      theme: "github-light",        // シンタックスハイライトのテーマ（VS Code風）
-      keepBackground: false,         // 背景色をテーマに合わせる
+    .use(remarkParse)                       // 1. Markdown をASTにパース
+    .use(remarkGfm)                         // 2. GFM (テーブル、タスクリスト等)
+    .use(remarkDeflist)                     // 3. 定義リストを解析 (<dl>, <dt>, <dd>)
+    .use(remarkGithubBlockquoteAlert)       // 4. [!NOTE] などのアラート記法を解析
+    .use(remarkMath)                        // 5. $...$ や $$...$$ の数式記法を解析
+    .use(remarkRehype, { allowDangerousHtml: true }) // 6. AST を HTML構造 (rehype) に変換
+    .use(rehypeRaw)                         // 7. 生HTMLノードを rehype AST 要素に変換
+    .use(rehypeKatex)                       // 8. 数式を KaTeX による表示用HTMLへ変換
+    .use(rehypeMermaid, {                   // 9. Mermaid コードブロックを pre.mermaid に変換 (ビルド時エラー防止)
+      strategy: "pre-mermaid",
     })
-    .use(rehypeStringify)           // HTML文字列として書き出し
+    .use(rehypePrettyCode, {                // 10. コードブロックのシンタックスハイライト
+      theme: "github-light",
+      keepBackground: false,
+    })
+    .use(rehypeStringify, { allowDangerousHtml: true }) // 11. HTML文字列として出力
     .process(content);
 
   const contentHtml = processedContent.toString();

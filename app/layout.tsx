@@ -5,6 +5,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { MenuProvider } from "@/context/MenuContext";
 import FloatingMenu from "@/app/components/FloatingMenu";
 import Footer from "@/app/components/Footer";
+import "katex/dist/katex.min.css";
 
 const rubik = Rubik({ subsets: ["latin"] });
 

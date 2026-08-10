@@ -3,72 +3,665 @@ title: "Building a Custom Blog with Next.js and TypeScript"
 date: "2026-08-02"
 ---
 
-This article is a first post test for a custom-built blog. Writing your own CSS allows for **flexible styling** and _complete creative freedom_.
+# Markdown Comprehensive Sample
 
-> This article explains the steps to build a custom blog using Next.js and TypeScript.
+## 1. Headings
+
+# Heading 1
+
+## Heading 2
+
+### Heading 3
+
+#### Heading 4
+
+##### Heading 5
+
+###### Heading 6
+
+---
+
+## 2. Text Formatting
+
+**Bold text**
+
+_Italic text_
+
+**_Bold and italic text_**
+
+~~Strikethrough text~~
+
+`Inline code`
+
+**Bold text with _nested italic_**
+
+---
+
+## 3. Links
+
+[OpenAI](https://www.openai.com)
+
+[Example](https://example.com "Example title")
+
+<https://example.com>
+
+<someone@example.com>
+
+Reference-style link: [Markdown Guide][guide]
+
+[guide]: https://www.markdownguide.org/
+
+---
+
+## 4. Paragraphs
+
+This is the first paragraph.
+
+This is the second paragraph.
+
+This line ends with two spaces.  
+This line starts on a new line.
+
+---
+
+## 5. Blockquotes
+
+> This is a blockquote.
+
+> This is a multi-line blockquote.
 >
-> -- _Written by the development team_
+> It can contain multiple paragraphs.
 
-### Advantages of a Custom Blog
-
-By keeping external libraries to a minimum, you can benefit from several key architectural advantages:
-
-1. **Performance Optimization**
-   - Smaller bundle size
-   - Faster _Time to Interactive_ (TTI)
-2. **Maintenance & Longevity**
-   - Less susceptible to layout breaks caused by major dependency updates
-   - ~~No more~~ fewer deprecation warnings during npm installs
-3. **Design System Integration**
-   - Fine details like spacing and color usage can be perfectly matched with your portfolio site
-   - Custom CSS variables can be shared across components
-
-#### Feature Support Checklist
-
-- [x] Full TypeScript support
-- [x] Custom CSS Grid layout
-- [x] Syntax highlighting for code blocks
-- [ ] RSS feed generation (under development)
+> You can also nest blockquotes.
+>
+> > This is a nested blockquote.
 
 ---
 
-### Comparison: Custom Blog vs. CMS Platforms
+## 6. Unordered Lists
 
-| Feature                |   Custom (Next.js)   |  Traditional CMS  |    headless CMS    |
-| :--------------------- | :------------------: | :---------------: | :----------------: |
-| **Page Speed**         |   🚀 Blazing Fast    |    🐢 Average     |      ⚡ Fast       |
-| **Design Flexibility** |         100%         | Limited by themes |        100%        |
-| **Hosting Cost**       | \$0 (Vercel/Netlify) |    Monthly fee    | Generous free tier |
+- Apple
+- Banana
+- Orange
+- Mango
+
+### Nested Lists
+
+- Frontend
+  - HTML
+  - CSS
+  - JavaScript
+- Backend
+  - Python
+  - Java
+  - Go
+- Database
+  - PostgreSQL
+  - MySQL
+  - SQLite
 
 ---
 
-### Test Code Block
+## 7. Ordered Lists
 
-Below is a **`TypeScript`** code snippet featuring an `interface` and a generic function to test whether syntax highlighting is working properly with inline code elements like `const` and `let`:
+1. First item
+2. Second item
+3. Third item
+4. Fourth item
 
-```typescript
-interface User {
-  id: number;
-  name: string;
-  isReady: boolean;
+### Nested Ordered Lists
+
+1. Prepare the environment.
+   1. Install dependencies.
+   2. Configure the project.
+   3. Run the tests.
+2. Build the application.
+3. Deploy the application.
+
+---
+
+## 8. Task Lists
+
+- [x] Create the project
+- [x] Install dependencies
+- [x] Write documentation
+- [ ] Add unit tests
+- [ ] Deploy to production
+
+---
+
+## 9. Code
+
+Inline code:
+
+`console.log("Hello, world!");`
+
+### JavaScript
+
+```javascript
+function greet(name) {
+  return `Hello, ${name}!`;
 }
 
-/**
- * Initializes a new user profile with a timestamp-based ID.
- * @param name The user's displayed name
- */
-const initializeUser = (name: string): User => {
-  return {
-    id: Date.now(),
-    name,
-    isReady: true,
-  };
-};
-
-// Execute the test function
-console.log(initializeUser("Canooopus"));
+const message = greet("Alice");
+console.log(message);
 ```
 
-### Useful Resources & Links
+### Python
 
-- **Official Documentation**: Check out the [Next.js Documentation](https://nextjs.org) to learn more about App Router features.
+```python
+def greet(name):
+    return f"Hello, {name}!"
+
+print(greet("Alice"))
+```
+
+### JSON
+
+```json
+{
+  "name": "Alice",
+  "age": 30,
+  "active": true,
+  "skills": ["Python", "JavaScript", "Markdown"]
+}
+```
+
+### Bash
+
+```bash
+npm install
+npm run build
+npm test
+```
+
+### HTML
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Hello</title>
+  </head>
+  <body>
+    <h1>Hello, world!</h1>
+  </body>
+</html>
+```
+
+### CSS
+
+```css
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+```
+
+### SQL
+
+```sql
+SELECT
+    id,
+    name,
+    email
+FROM users
+WHERE active = true
+ORDER BY name ASC;
+```
+
+---
+
+## 10. Code Block Without Language
+
+```
+This is a plain code block.
+
+    Indentation is preserved.
+    Line breaks are preserved.
+
+No syntax highlighting is specified.
+```
+
+---
+
+## 11. Horizontal Rules
+
+---
+
+---
+
+---
+
+---
+
+## 12. Tables
+
+| Name  | Age | Role      |
+| ----- | --: | --------- |
+| Alice |  30 | Developer |
+| Bob   |  25 | Designer  |
+| Carol |  35 | Manager   |
+
+### Table Alignment
+
+| Left | Center | Right |
+| :--- | :----: | ----: |
+| A    |   B    |     C |
+| D    |   E    |     F |
+| G    |   H    |     I |
+
+### Feature Comparison
+
+| Feature    |   Free    |   Pro    | Enterprise |
+| :--------- | :-------: | :------: | :--------: |
+| Users      |     1     |    10    | Unlimited  |
+| Storage    |   1 GB    |  100 GB  |    1 TB    |
+| Support    | Community |  Email   |    24/7    |
+| API Access |    No     |   Yes    |    Yes     |
+| Analytics  |   Basic   | Advanced |  Advanced  |
+
+---
+
+## 13. Escaping Characters
+
+\*Not italic\*
+
+\*\*Not bold\*\*
+
+\# Not a heading
+
+\[Not a link\]
+
+\`Not inline code\`
+
+Escaped characters:
+
+\* \_ \# \+ \- \. \! \[ \] \( \) \{ \} \> \| \~
+
+---
+
+## 14. HTML
+
+This is <u>underlined text</u>.
+
+This is <mark>highlighted text</mark>.
+
+This is <small>small text</small>.
+
+H<sub>2</sub>O
+
+E = mc<sup>2</sup>
+
+Press <kbd>Ctrl</kbd> + <kbd>C</kbd> to copy.
+
+Press <kbd>Ctrl</kbd> + <kbd>V</kbd> to paste.
+
+---
+
+## 15. HTML Block
+
+<div align="center">
+
+This paragraph is centered using HTML.
+
+</div>
+
+<details>
+<summary>Click to expand</summary>
+
+This content is hidden until the section is expanded.
+
+- Item one
+- Item two
+- Item three
+
+</details>
+
+---
+
+## 16. Footnotes
+
+Markdown supports footnotes in many implementations.[^1]
+
+You can also use named footnotes.[^note]
+
+[^1]: This is the first footnote.
+
+[^note]: This is a named footnote.
+
+---
+
+## 17. Definition Lists
+
+Term
+: Definition of the term.
+
+Markdown
+: A lightweight markup language.
+
+---
+
+## 18. Alerts
+
+> [!NOTE]
+> This is a note.
+
+> [!TIP]
+> This is a useful tip.
+
+> [!IMPORTANT]
+> This information is important.
+
+> [!WARNING]
+> Be careful when changing production settings.
+
+> [!CAUTION]
+> This operation cannot easily be undone.
+
+---
+
+## 19. Mathematical Expressions
+
+Inline math:
+
+$E = mc^2$
+
+Another equation:
+
+$a^2 + b^2 = c^2$
+
+Block math:
+
+$$
+E = mc^2
+$$
+
+Another formula:
+
+$$
+\sum_{i=1}^{n} i
+=
+\frac{n(n+1)}{2}
+$$
+
+---
+
+## 20. Mermaid
+
+```mermaid
+flowchart TD
+    A[Start] --> B{Is it working?}
+    B -->|Yes| C[Done]
+    B -->|No| D[Debug]
+    D --> B
+```
+
+---
+
+## 21. Mermaid Sequence Diagram
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Server
+    participant Database
+
+    User->>Server: Send request
+    Server->>Database: Query data
+    Database-->>Server: Return data
+    Server-->>User: Send response
+```
+
+---
+
+## 22. Mermaid Class Diagram
+
+```mermaid
+classDiagram
+    class User {
+        +String name
+        +String email
+        +login()
+        +logout()
+    }
+
+    class Admin {
+        +deleteUser()
+    }
+
+    User <|-- Admin
+```
+
+---
+
+## 23. HTML Comments
+
+<!--
+This is an HTML comment.
+
+It will not normally be displayed
+when the Markdown is rendered.
+-->
+
+Visible text after the comment.
+
+---
+
+## 24. Nested Formatting
+
+**Bold text containing _italic text_.**
+
+**Bold text containing `inline code`.**
+
+**Bold text containing ~~strikethrough~~.**
+
+> A quote containing **bold text**, _italic text_, and `inline code`.
+
+- **Bold list item**
+- _Italic list item_
+- [Linked list item](https://example.com)
+- `Code list item`
+
+---
+
+## 25. Link Variations
+
+[Normal link](https://example.com)
+
+**[Bold link](https://example.com)**
+
+_[Italic link](https://example.com)_
+
+**_[Bold italic link](https://example.com)_**
+
+[Link with title](https://example.com "This is a title")
+
+---
+
+## 26. Images
+
+Images are intentionally omitted from this sample.
+
+---
+
+## 27. API Documentation Example
+
+# User API
+
+## Get User
+
+Returns information about a specific user.
+
+### Request
+
+```http
+GET /api/users/123 HTTP/1.1
+Host: example.com
+Accept: application/json
+Authorization: Bearer <token>
+```
+
+### Response
+
+```json
+{
+  "id": 123,
+  "name": "Alice",
+  "email": "alice@example.com",
+  "active": true
+}
+```
+
+### Status Codes
+
+| Code | Meaning               |
+| ---: | --------------------- |
+|  200 | Success               |
+|  400 | Bad Request           |
+|  401 | Unauthorized          |
+|  404 | Not Found             |
+|  500 | Internal Server Error |
+
+---
+
+## 28. Project Documentation Example
+
+# Example Project
+
+## Overview
+
+This project is a **sample application** designed to demonstrate
+common Markdown syntax.
+
+The main goals are:
+
+1. Simplicity
+2. Readability
+3. Maintainability
+4. Compatibility
+
+> [!NOTE]
+> This document is intended as a Markdown reference.
+
+---
+
+## Installation
+
+Clone the repository:
+
+```bash
+git clone https://example.com/example-project.git
+cd example-project
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Run the development server:
+
+```bash
+npm run dev
+```
+
+---
+
+## Configuration
+
+Create a `.env` file:
+
+```env
+APP_NAME=Example
+APP_ENV=development
+PORT=3000
+```
+
+| Variable   | Description         | Default       |
+| ---------- | ------------------- | ------------- |
+| `APP_NAME` | Application name    | `Example`     |
+| `APP_ENV`  | Runtime environment | `development` |
+| `PORT`     | Server port         | `3000`        |
+
+---
+
+## Features
+
+- **Fast**
+- **Simple**
+- **Extensible**
+- **Well documented**
+
+### Progress
+
+- [x] Project setup
+- [x] Basic API
+- [x] Authentication
+- [ ] Database migration
+- [ ] Production deployment
+
+---
+
+## Usage
+
+```javascript
+import { createApp } from "./app.js";
+
+const app = createApp();
+
+app.start();
+```
+
+Expected output:
+
+```text
+Server started on port 3000
+```
+
+---
+
+## Important Notes
+
+> [!WARNING]
+> Never commit secrets, API keys, passwords, or private credentials.
+
+> [!TIP]
+> Use environment variables for configuration that changes between environments.
+
+> [!NOTE]
+> This example uses fictional data.
+
+---
+
+## References
+
+- [Markdown Guide](https://www.markdownguide.org/)
+- [CommonMark](https://commonmark.org/)
+- [GitHub Flavored Markdown](https://github.github.com/gfm/)
+
+---
+
+## Conclusion
+
+Markdown provides a simple syntax for creating structured documents.
+
+It supports:
+
+- Headings
+- Text formatting
+- Lists
+- Tables
+- Links
+- Code blocks
+- Task lists
+- Blockquotes
+- Footnotes
+- HTML
+- Mathematical notation
+- Diagrams
+- And much more
+
+**End of sample.**
