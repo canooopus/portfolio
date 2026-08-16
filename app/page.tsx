@@ -90,14 +90,26 @@ export default function Home() {
 
   // ロゴが完全に描画されるまで（showTextがtrueになるまで）スクロールを禁止
   useEffect(() => {
+    // スクロールした状態でのリロード時にロゴが表示範囲外へずれないようスクロール位置を最上部に固定
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+
     if (!showText) {
+      window.scrollTo(0, 0);
       document.body.style.overflow = "hidden";
     } else {
       // 明示的に "auto" に戻すことで、確実にスクロール機能を復帰させます
       document.body.style.overflow = "auto";
+      if ("scrollRestoration" in window.history) {
+        window.history.scrollRestoration = "auto";
+      }
     }
     return () => {
       document.body.style.overflow = "";
+      if ("scrollRestoration" in window.history) {
+        window.history.scrollRestoration = "auto";
+      }
     };
   }, [showText]);
 
@@ -146,6 +158,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     if (!svgRef.current) return;
 
     const paths =
