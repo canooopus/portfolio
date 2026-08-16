@@ -45,6 +45,10 @@ html {
   line-height: 1.8;
   word-break: break-word;
 
+  :root {
+    interpolate-size: allow-keywords;
+  }
+
   /* 見出し */
   & h1 {
     font-size: 1.75rem;
@@ -99,23 +103,20 @@ html {
 
   /* ★追加: インラインHTMLタグ (14. HTML) */
   & mark {
-    /* 左右端をわずかに歪ませて薄くするグラデーション */
+    /* 両端が濃く、真ん中が薄いグラデーション */
     background: linear-gradient(
       102deg,
-      rgba(254, 240, 138, 0) 1%,
-      rgba(254, 240, 138, 0.85) 5%,
-      rgba(254, 240, 138, 0.9) 93%,
-      rgba(254, 240, 138, 0.2) 99%
+      rgba(254, 240, 138, 0.95) 0%,
+      rgba(254, 240, 138, 0.35) 50%,
+      rgba(254, 240, 138, 0.95) 100%
     );
-    /* マーカーの高さと位置（文字の下側75%くらいに引く） */
-    background-size: 100% 75%;
-    background-repeat: no-repeat;
-    background-position: 0 85%;
     color: var(--color-neutral-900);
-    padding: 0 0.3em;
 
-    /* 不均一な角丸で手書きの揺らぎを表現 */
-    border-radius: 0.8em 0.3em 0.7em 0.2em / 0.4em 0.8em 0.3em 0.7em;
+    /* ★上下の高さ（余白）を減らす */
+    padding: 0 0.4em;
+
+    /* 尖りを起こさず滑らかに揺らぐ非対称角丸 */
+    border-radius: 1.8em 0.6em 1.4em 0.8em / 0.8em 1.3em 0.7em 1.4em;
 
     /* 折り返し（複数行）時も手書き効果を保持する */
     box-decoration-break: clone;
@@ -287,6 +288,11 @@ html {
     color: var(--color-neutral-500);
     margin-top: 1.5rem;
     margin-bottom: 1.5rem;
+
+    & strong,
+    & em {
+      color: inherit;
+    }
   }
 
   /* ★追加: アラート / コールアウト (18. Alerts - remark-github-blockquote-alert 出力用) */
@@ -358,34 +364,133 @@ html {
     }
   }
 
-  /* ★追加: アコーディオン要素 (15. HTML Block - details / summary) */
+  /* ★モダン Accordion (details / summary) - ＋/ー アイコン & スムース開閉 */
   & details {
     margin: 1.5rem 0;
-    padding: 0.875rem 1.25rem;
     border: 1px solid var(--color-neutral-200);
-    border-radius: 0.5rem;
-    background-color: var(--color-neutral-50);
-    transition: background-color 0.2s ease;
+    border-radius: 0.75rem;
+    background-color: #ffffff;
+    overflow: hidden;
+    transition:
+      border-color 0.3s ease,
+      box-shadow 0.3s ease;
 
+    &:hover {
+      border-color: var(--color-neutral-300);
+    }
+
+    /* 開いている状態 (Open) */
     &[open] {
       background-color: #ffffff;
+      border-color: var(--color-neutral-200);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
 
       & summary {
-        margin-bottom: 0.75rem;
-        border-bottom: 1px solid var(--color-neutral-100);
-        padding-bottom: 0.5rem;
+        border-bottom-color: var(--color-neutral-100);
+
+        /* ★太さは2pxのまま、上下両端から真ん中に向かって長さだけが0になる */
+        &::before {
+          height: 0;
+        }
+
+        &::after {
+          background-color: var(--color-neutral-700);
+        }
+      }
+
+      /* カードが開いた時の状態 */
+      &::details-content {
+        height: auto;
+        opacity: 1;
+        padding-top: 1rem;
+        padding-bottom: 1.25rem;
       }
     }
 
     & summary {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.875rem 2.75rem 0.875rem 1.25rem;
       font-weight: 600;
       color: var(--color-neutral-800);
       cursor: pointer;
       user-select: none;
       outline: none;
+      list-style: none;
+
+      border-bottom: 1px solid transparent;
+      transition:
+        color 0.2s ease,
+        border-color 0.3s ease;
+
+      &::-webkit-details-marker {
+        display: none;
+      }
+
+      /* ＋ / ー 用の「縦線」 */
+      &::before {
+        content: "";
+        position: absolute;
+        right: calc(1.25rem + 6px);
+        top: 50%;
+        width: 2px;
+        height: 12px;
+        background-color: var(--color-neutral-400);
+        border-radius: 1px;
+        /* 中心を軸に上下に伸縮 */
+        transform: translate(50%, -50%);
+        transition:
+          height 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+          background-color 0.2s ease;
+      }
+
+      /* ＋ / ー 用の「横線」 */
+      &::after {
+        content: "";
+        position: absolute;
+        right: calc(1.25rem + 6px);
+        top: 50%;
+        width: 12px;
+        height: 2px;
+        background-color: var(--color-neutral-400);
+        border-radius: 1px;
+        transform: translate(50%, -50%);
+        transition: background-color 0.2s ease;
+      }
 
       &:hover {
         color: var(--color-neutral-900);
+        background-color: transparent;
+
+        &::before,
+        &::after {
+          background-color: var(--color-neutral-700);
+        }
+      }
+    }
+
+    /* ★カードが開閉する領域（ゆったりと滑らかな 0.45s） */
+    &::details-content {
+      height: 0;
+      opacity: 0;
+      overflow: clip;
+      padding: 0 1.25rem;
+      transition: 
+        height 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+        padding 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+        opacity 0.35s ease,
+        content-visibility 0.45s allow-discrete;
+    }
+
+    /* コンテンツ内の余白最適化 */
+    & > *:not(summary) {
+      &:first-of-type {
+        margin-top: 0;
+      }
+      &:last-child {
+        margin-bottom: 0;
       }
     }
   }
@@ -509,7 +614,7 @@ html {
     color: inherit;
     text-decoration: line-through;
     text-decoration-color: inherit;
-    text-decoration-thickness: 0.25px;
+    text-decoration-thickness: 0.5px;
   }
 
   /* 脚注 */
