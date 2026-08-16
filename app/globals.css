@@ -613,10 +613,88 @@ html {
     background-color: transparent;
     box-shadow: none;
     overflow-x: auto;
+    font-family: Inter, sans-serif !important;
+
+    & svg,
+    & text,
+    & tspan,
+    & .label,
+    & foreignObject,
+    & foreignObject div,
+    & foreignObject span,
+    & foreignObject p {
+      font-family: Inter, sans-serif !important;
+    }
 
     & svg {
       max-width: 100%;
       height: auto;
+    }
+
+    /* ★追加: ノード、アクター、ボックス等の薄いオレンジ背景色 (#fff4eb) */
+    & .node rect,
+    & .node circle,
+    & .node ellipse,
+    & .node polygon,
+    & .node path,
+    & .actor,
+    & rect.actor,
+    & .note,
+    & rect.note,
+    & .labelBox,
+    & rect.labelBox {
+      fill: #fff4eb !important;
+    }
+
+    /* ★追加: アクティベーションバーの背景色 (#ffedd5) */
+    & .activation0,
+    & .activation1,
+    & .activation2 {
+      fill: #ffedd5 !important;
+    }
+
+    /* ★追加: ノード、アクター、枠線の色をモダンなオレンジ(#f97316)に統一 */
+    & .node rect,
+    & .node circle,
+    & .node ellipse,
+    & .node polygon,
+    & .node path,
+    & .actor,
+    & rect.actor,
+    & .note,
+    & rect.note,
+    & .labelBox,
+    & rect.labelBox,
+    & .activation0,
+    & .activation1,
+    & .activation2 {
+      stroke: #f97316 !important;
+    }
+
+    /* ★追加: シーケンス図およびフローチャートの矢印・線・ライフラインの色をオレンジ(#f97316)に統一 */
+    & .edgePath .path,
+    & .flowchart-link,
+    & path.edge,
+    & line.actor-line,
+    & .actor-line,
+    & line.messageLine0,
+    & line.messageLine1,
+    & .messageLine0,
+    & .messageLine1,
+    & svg line,
+    & svg path.line {
+      stroke: #f97316 !important;
+    }
+
+    /* ★追加: 矢印の頭部・マーカーの色をオレンジ(#f97316)に統一 */
+    & .marker,
+    & marker path,
+    & #arrowhead path,
+    & .arrowheadPath,
+    & [id*="arrowhead"] path,
+    & [id*="crosshead"] path {
+      fill: #f97316 !important;
+      stroke: #f97316 !important;
     }
 
     /* ★追加: ラベル付き矢印のラベル部分が矢印と被った際に矢印を切り取る（背景で覆う）設定 */
