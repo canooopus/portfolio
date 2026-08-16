@@ -1,34 +1,42 @@
 "use client";
 
-import Script from "next/script";
-
-declare global {
-  interface Window {
-    mermaid?: {
-      initialize: (config: Record<string, unknown>) => void;
-      contentLoaded: () => void;
-      run: (options?: { querySelector?: string }) => void;
-    };
-  }
-}
+import { useEffect } from "react";
 
 export default function MermaidScript() {
-  return (
-    <Script
-      src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"
-      strategy="afterInteractive"
-      onLoad={() => {
-        if (window.mermaid) {
-          window.mermaid.initialize({
-            startOnLoad: false,
-            theme: "default",
-            securityLevel: "loose",
-          });
-          window.mermaid.run({
+  useEffect(() => {
+    let isMounted = true;
+
+    async function renderMermaid() {
+      try {
+        const mermaidModule = await import("mermaid");
+        const mermaid = mermaidModule.default;
+        
+        if (!isMounted) return;
+
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: "default",
+          securityLevel: "loose",
+        });
+
+        const elements = document.querySelectorAll(".mermaid");
+        if (elements.length > 0) {
+          await mermaid.run({
             querySelector: ".mermaid",
           });
         }
-      }}
-    />
-  );
+      } catch (error) {
+        console.error("Failed to render Mermaid diagrams:", error);
+      }
+    }
+
+    renderMermaid();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  return null;
 }
+
