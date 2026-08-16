@@ -17,6 +17,12 @@ export default function MermaidScript() {
           startOnLoad: false,
           theme: "default",
           securityLevel: "loose",
+          themeVariables: {
+            edgeLabelBackground: "#ffffff",
+          },
+          flowchart: {
+            htmlLabels: true,
+          },
         });
 
         const elements = document.querySelectorAll(".mermaid");

@@ -618,5 +618,18 @@ html {
       max-width: 100%;
       height: auto;
     }
+
+    /* ★追加: ラベル付き矢印のラベル部分が矢印と被った際に矢印を切り取る（背景で覆う）設定 */
+    & .edgeLabel,
+    & .edgeLabel span,
+    & .edgeLabel p,
+    & .edgeLabel rect,
+    & .edgeLabel foreignObject div,
+    & .labelBkg {
+      background-color: #ffffff !important;
+      fill: #ffffff !important;
+      padding: 0 !important;
+      border-radius: 2px;
+    }
   }
 }
