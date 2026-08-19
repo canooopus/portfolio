@@ -36,6 +36,10 @@ html {
   display: none;
 }
 
+:root {
+  interpolate-size: allow-keywords;
+}
+
 /* -------------------------------------------------------------
  * Blog Article Styling (No Tailwind Typography)
  * ------------------------------------------------------------- */
@@ -44,10 +48,6 @@ html {
   font-size: 1rem;
   line-height: 1.8;
   word-break: break-word;
-
-  :root {
-    interpolate-size: allow-keywords;
-  }
 
   /* 見出し */
   & h1 {
@@ -228,6 +228,10 @@ html {
         box-sizing: border-box;
       }
 
+      &:has(input[type="checkbox"]) {
+        padding-left: 0;
+      }
+
       /* タスクリスト */
       & input[type="checkbox"] {
         appearance: none;
@@ -283,7 +287,7 @@ html {
   /* 引用 */
   & blockquote {
     border-left: 2px solid var(--color-neutral-300);
-    padding-left: 1.25rem;
+    padding-left: 1.15rem;
     font-style: normal;
     color: var(--color-neutral-500);
     margin-top: 1.5rem;
