@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getPostData, getSortedPostsData } from "@/lib/posts";
+import { getPostData, getSortedPostsData } from "@/features/blog/posts";
 import { Inter } from "next/font/google";
-import MermaidScript from "@/app/components/MermaidScript";
+import MermaidScript from "@/components/markdown/MermaidScript";
 
 // 1. weightの指定を外すことで、太字（Bold）が正しく適用されるようにします
 const inter = Inter({ subsets: ["latin"] });

@@ -14,7 +14,7 @@ import rehypeMermaid from "rehype-mermaid"; // ★追加: Mermaid図表のSVG変
 import rehypePrettyCode from "rehype-pretty-code";
 import rehypeStringify from "rehype-stringify";
 
-const postsDirectory = path.join(process.cwd(), "posts");
+const postsDirectory = path.join(process.cwd(), "content", "blog");
 
 export interface PostData {
   slug: string;

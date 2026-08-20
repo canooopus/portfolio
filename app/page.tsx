@@ -7,6 +7,8 @@ import { Nova_Mono, Caveat, Inter } from "next/font/google";
 import { motion, AnimatePresence } from "framer-motion";
 import { s } from "framer-motion/client";
 import { useMenu } from "@/context/MenuContext"; 
+import { galleryItems } from "@/features/portfolio/galleryItems";
+import { playlists } from "@/features/portfolio/playlists";
 
 const novaMono = Nova_Mono({
   subsets: ["latin"],
@@ -22,15 +24,6 @@ const inter = Inter({
 });
 
 // ギャラリーデータの定義。ここを編集するだけでページが増減します
-const galleryItems = [
-  { src: "/photo1.jpg", description: "Ice plant" },
-  { src: "/photo2.jpg", description: "Kobe from Above" },
-  { src: "/photo3.jpg", description: "Cherry blossom" },
-  { src: "/photo4.jpg", description: "Ginkakuji Temple" },
-  { src: "/photo5.jpg", description: "Azalea" },
-  { src: "/photo6.jpg", description: "Wedded Rocks" },
-];
-
 export default function Home() {
   const { setIsReady } = useMenu();
   const svgRef = useRef<SVGSVGElement>(null);
@@ -42,14 +35,6 @@ export default function Home() {
   } | null>(null);
 
   const [playlistIndex, setPlaylistIndex] = useState(0);
-
-  const playlists = [
-    "https://open.spotify.com/embed/track/51CpRSb1XBOdlZq3Q7rmUi?utm_source=generator",
-    "https://open.spotify.com/embed/track/0BYa5V0RyOYthDeCMUBJQZ?si=f013a5f8dced4d9c",
-    "https://open.spotify.com/embed/track/7ELIV5p6Irk5MHsazeAFv6?si=f92f05899a3b417f",
-    "https://open.spotify.com/embed/track/6OATni35nMNSO6a2BcaylV?si=90bdcfb3887b4b83",
-    "https://open.spotify.com/embed/track/0BVPCiNO3QIfdBx8mQAVaU?si=ee1d2ccb598e4287",
-  ];
 
   // PC用無限ループカルーセルの制御用ステート (初期値 1: 本物の最初の要素)
   const [currentIndex, setCurrentIndex] = useState(1);

@@ -3,8 +3,8 @@ import { Rubik } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/react";
 import { MenuProvider } from "@/context/MenuContext";
-import FloatingMenu from "@/app/components/FloatingMenu";
-import Footer from "@/app/components/Footer";
+import FloatingMenu from "@/components/layout/FloatingMenu";
+import Footer from "@/components/layout/Footer";
 import "katex/dist/katex.min.css";
 
 const rubik = Rubik({ subsets: ["latin"] });

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getSortedPostsData } from "@/lib/posts";
+import { getSortedPostsData } from "@/features/blog/posts";
 import { Inter } from "next/font/google";
 
 const inter = Inter({ subsets: ["latin"], weight: "400" });
