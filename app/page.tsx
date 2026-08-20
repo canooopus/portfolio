@@ -379,7 +379,7 @@ export default function Home() {
               >
                 <span className="h-[1em] w-[1em] flex items-center">
                   <Image
-                    src="/Bond.svg"
+                    src="/images/brand/Bond.svg"
                     alt="ロゴ"
                     width={100}
                     height={100}
