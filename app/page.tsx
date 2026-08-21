@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Nova_Mono, Caveat, Inter } from "next/font/google";
 import { motion, AnimatePresence } from "framer-motion";
-import { s } from "framer-motion/client";
 import { useMenu } from "@/context/MenuContext"; 
 import { galleryItems } from "@/features/portfolio/galleryItems";
 import { playlists } from "@/features/portfolio/playlists";
@@ -28,7 +27,6 @@ export default function Home() {
   const { setIsReady } = useMenu();
   const svgRef = useRef<SVGSVGElement>(null);
   const [showText, setShowText] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<{
     src: string;
     description: string;
@@ -118,12 +116,21 @@ export default function Home() {
     }
   }, [isTransitioning]);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSelectedItem(null);
+    };
+    if (selectedItem) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedItem]);
+
   const scrollRef = useRef<HTMLDivElement>(null);
-  const loopedPlaylists = [
-    playlists[playlists.length - 1],
-    ...playlists,
-    playlists[0],
-  ];
+  const loopedPlaylists = useMemo(() => {
+    if (!playlists.length) return [];
+    return [playlists[playlists.length - 1], ...playlists, playlists[0]];
+  }, []);
 
   // 初期表示時にクローンではない「最初の要素」までスクロール
   useEffect(() => {
@@ -698,20 +705,22 @@ export default function Home() {
   );
 }
 
-// --- Book Album Component ---
-interface PageContentProps {
-  type: "inner";
-  illustration?: React.ReactNode;
-}
-
 // --- AlbumPageContent Component ---
-const AlbumPageContent: React.FC<{
+interface AlbumPageContentProps {
   item?: { src: string; description: string };
   caveatClass: string;
   onItemClick?: (item: { src: string; description: string }) => void;
   priority?: boolean;
   eager?: boolean;
-}> = ({ item, caveatClass, onItemClick, priority = false, eager = false }) => {
+}
+
+const AlbumPageContent: React.FC<AlbumPageContentProps> = ({
+  item,
+  caveatClass,
+  onItemClick,
+  priority = false,
+  eager = false,
+}) => {
   if (!item) return <div className="w-full h-full bg-[#FAF9F5]" />;
 
   return (
@@ -727,7 +736,6 @@ const AlbumPageContent: React.FC<{
             fill
             sizes="208px"
             priority={priority}
-            unoptimized // ★ ここを追加します
             loading={priority || eager ? undefined : "lazy"}
             className="object-cover"
             quality={90}
@@ -744,6 +752,7 @@ const AlbumPageContent: React.FC<{
 };
 
 // --- Book Album Component ---
+// --- Book Album Component ---
 const BookAlbum: React.FC<{
   caveatClass: string;
   novaMonoClass: string;
@@ -756,14 +765,18 @@ const BookAlbum: React.FC<{
   const leftBase = galleryItems[0];
   const rightBase = galleryItems[galleryItems.length - 1];
 
-  const sheets = [];
-  for (let i = 1; i < galleryItems.length - 1; i += 2) {
-    sheets.push({
-      id: i,
-      front: galleryItems[i],
-      back: galleryItems[i + 1] ? galleryItems[i + 1] : null,
-    });
-  }
+  // useMemo で配列の再生成を防ぐ
+  const sheets = useMemo(() => {
+    const list = [];
+    for (let i = 1; i < galleryItems.length - 1; i += 2) {
+      list.push({
+        id: i,
+        front: galleryItems[i],
+        back: galleryItems[i + 1] ?? null,
+      });
+    }
+    return list;
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -839,8 +852,7 @@ const BookAlbum: React.FC<{
           {sheets.map((sheet, index) => {
             const isFlipped = index < currentSheet;
 
-            // 【修正】判定範囲を ±2 に拡大
-            // これにより、アニメーション中や前後のページ移動で画像が消えるのを防ぐ
+            // 判定範囲を ±2 に拡大（アニメーション中の画像のチラつき・非表示を防ぐ）
             const isNear = Math.abs(index - currentSheet) <= 2;
 
             // 次に表示される可能性が高いページか判定
@@ -863,7 +875,7 @@ const BookAlbum: React.FC<{
                 }}
                 transition={{
                   type: "spring",
-                  stiffness: 45, // 少しだけ速くして残像感を減らす
+                  stiffness: 45,
                   damping: 18,
                   mass: 1.1,
                 }}
@@ -876,13 +888,12 @@ const BookAlbum: React.FC<{
                 }}
               >
                 <div className="book-page book-page-front">
-                  {/* isNearがtrueの間は画像を保持 */}
                   {isNear && (
                     <AlbumPageContent
                       item={sheet.front}
                       caveatClass={caveatClass}
                       onItemClick={onImageClick}
-                      eager={isNext} // アニメーション中のページは即時読み込み
+                      eager={isNext}
                     />
                   )}
                   <motion.div
@@ -927,6 +938,7 @@ const BookAlbum: React.FC<{
         <button
           onClick={goPrev}
           disabled={currentSheet === 0}
+          aria-label="Previous page"
           className="p-2.5 rounded-full border border-neutral-300 hover:bg-neutral-100 disabled:opacity-20 transition-colors cursor-pointer text-neutral-600"
         >
           <svg
@@ -940,7 +952,7 @@ const BookAlbum: React.FC<{
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
-              d="M15.75 19.5 8.25 12l7.5-7.5"
+              d="M15.75 19.5L8.25 12l7.5-7.5"
             />
           </svg>
         </button>
@@ -954,6 +966,7 @@ const BookAlbum: React.FC<{
         <button
           onClick={goNext}
           disabled={currentSheet === sheets.length}
+          aria-label="Next page"
           className="p-2.5 rounded-full border border-neutral-300 hover:bg-neutral-100 disabled:opacity-20 transition-colors cursor-pointer text-neutral-600"
         >
           <svg
