@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useMemo } from "react";
-import Image from "next/image";
+import { Image } from "@/components/common/Image";
 import { motion } from "framer-motion";
 import { galleryItems } from "@/features/portfolio/galleryItems";
 import { GalleryItem } from "@/features/portfolio/types";
@@ -35,10 +35,9 @@ export const AlbumPageContent: React.FC<AlbumPageContentProps> = ({
             alt={item.description}
             fill
             sizes="208px"
-            priority={priority}
-            loading={priority || eager ? undefined : "lazy"}
+            priority={true}
+            variant="thumb"
             className="object-cover"
-            quality={90}
           />
         </div>
         <p

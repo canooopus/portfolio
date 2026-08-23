@@ -73,11 +73,15 @@ export function PortfolioContainer({
           }`}
         >
           <IntroText novaMonoClass={novaMonoClass} />
-          <PlaylistSection caveatClass={caveatClass} />
-          <GallerySection
-            caveatClass={caveatClass}
-            novaMonoClass={novaMonoClass}
-          />
+          <div className="mt-16 w-full">
+            <div className="relative pb-6 before:content-[''] before:absolute before:inset-0 before:w-screen before:left-1/2 before:-translate-x-1/2 before:bg-gray-100 before:-z-10">
+              <PlaylistSection caveatClass={caveatClass} />
+              <GallerySection
+                caveatClass={caveatClass}
+                novaMonoClass={novaMonoClass}
+              />
+            </div>
+          </div>
         </div>
       </main>
     </div>

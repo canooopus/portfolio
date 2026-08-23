@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
-import Image from "next/image";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import { Image } from "@/components/common/Image";
 import { motion, AnimatePresence } from "framer-motion";
 import { GalleryItem } from "@/features/portfolio/types";
 
@@ -16,6 +17,12 @@ export function ImageModal({
   onClose,
   caveatClass,
 }: ImageModalProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -26,7 +33,9 @@ export function ImageModal({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedItem, onClose]);
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {selectedItem && (
         <motion.div
@@ -55,6 +64,7 @@ export function ImageModal({
                 sizes="(max-width: 768px) 90vw, 576px"
                 className="max-h-[65vh] w-auto object-contain"
                 priority
+                variant="large"
               />
               <p
                 className={`text-center mt-2 text-xl md:text-2xl text-neutral-800 ${caveatClass}`}
@@ -73,6 +83,7 @@ export function ImageModal({
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

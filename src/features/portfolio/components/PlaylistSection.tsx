@@ -91,237 +91,235 @@ export function PlaylistSection({ caveatClass }: PlaylistSectionProps) {
   }, []);
 
   return (
-    <div className="mt-12 w-full">
+    <>
       <p
-        className={`text-3xl -rotate-3 relative z-10 translate-y-3 md:translate-y-1 ${caveatClass}`}
+        className={`text-3xl -rotate-3 origin-left w-fit relative z-10 -translate-y-1/2 top-0.5 ${caveatClass}`}
       >
         My playlist
       </p>
-      <div className="relative pt-4 pl-0 pb-4 pr-0 before:content-[''] before:absolute before:inset-0 before:w-screen before:left-1/2 before:-translate-x-1/2 before:bg-gray-100 before:-z-10">
-        <div className="max-w-2xl mx-auto py-4 md:py-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            {/* 左矢印ボタン（PC版のみ表示） */}
-            <button
-              onClick={prevPlaylist}
-              className="hidden md:flex p-2 rounded-full hover:bg-gray-200 transition-colors shrink-0 text-gray-500 hover:text-gray-900"
-              aria-label="Previous track"
+      <div className="max-w-2xl mx-auto py-4 md:py-6">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          {/* 左矢印ボタン（PC版のみ表示） */}
+          <button
+            onClick={prevPlaylist}
+            className="hidden md:flex p-2 rounded-full hover:bg-gray-200 transition-colors shrink-0 text-gray-500 hover:text-gray-900"
+            aria-label="Previous track"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className="w-6 h-6"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-                stroke="currentColor"
-                className="w-6 h-6"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15.75 19.5L8.25 12l7.5-7.5"
-                />
-              </svg>
-            </button>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15.75 19.5L8.25 12l7.5-7.5"
+              />
+            </svg>
+          </button>
 
-            {/* PC版 iframe本体（gapを追加し、クローン配列を使用して無限ループ化） */}
-            <div className="hidden md:block relative w-full flex-1 min-w-0 h-38">
-              <div
-                className="absolute -left-3 -right-3 top-0 bottom-0 overflow-hidden pointer-events-none"
-                style={{
-                  maskImage:
-                    "linear-gradient(to right, transparent, black 12px, black calc(100% - 12px), transparent)",
-                  WebkitMaskImage:
-                    "linear-gradient(to right, transparent, black 12px, black calc(100% - 12px), transparent)",
-                }}
-              >
-                <div className="w-full h-full px-3 pointer-events-auto">
-                  <div
-                    className={`flex gap-4 h-full ${
-                      isTransitioning
-                        ? "transition-transform duration-500 ease-in-out"
-                        : "transition-none"
-                    }`}
-                    style={{
-                      transform: `translateX(calc(-${currentIndex * 100}% - ${currentIndex * 16}px)) translate3d(0,0,0)`,
-                      backfaceVisibility: "hidden",
-                      willChange: "transform",
-                    }}
-                    onTransitionEnd={handleTransitionEnd}
-                  >
-                    {loopedPlaylists.map((url, i) => (
-                      <div
-                        key={i}
-                        className="w-full h-full shrink-0 relative"
-                        style={{
-                          backfaceVisibility: "hidden",
-                          transform: "translate3d(0,0,0)",
-                          willChange: "transform",
-                        }}
-                        onMouseLeave={() => setActiveIframeIndex(null)}
-                      >
-                        <iframe
-                          src={url}
-                          className="w-full h-full rounded-xl border-0 bg-transparent pointer-events-auto"
-                          allowFullScreen
-                          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                          loading="lazy"
-                        />
-                        {/* 透明カバー。DOMに常にマウントし、pointer-eventsのみ制御 */}
-                        <div
-                          className={`absolute inset-0 w-full h-full cursor-pointer z-10 ${
-                            activeIframeIndex === i
-                              ? "pointer-events-none"
-                              : "pointer-events-auto"
-                          }`}
-                          onClick={() => setActiveIframeIndex(i)}
-                          style={{
-                            backfaceVisibility: "hidden",
-                            transform: "translate3d(0,0,0)",
-                          }}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* スマホ版 iframe本体（スクロールの滑らかさを追加） */}
-            <div className="relative md:hidden w-full h-38">
-              <div
-                className="absolute -top-3 -bottom-3 left-0 right-6 pointer-events-none"
-                style={{
-                  maskImage:
-                    "linear-gradient(to bottom, transparent, black 12px, black calc(100% - 12px), transparent)",
-                  WebkitMaskImage:
-                    "linear-gradient(to bottom, transparent, black 12px, black calc(100% - 12px), transparent)",
-                }}
-              >
+          {/* PC版 iframe本体（gapを追加し、クローン配列を使用して無限ループ化） */}
+          <div className="hidden md:block relative w-full flex-1 min-w-0 h-38">
+            <div
+              className="absolute -left-3 -right-3 top-0 bottom-0 overflow-hidden pointer-events-none"
+              style={{
+                maskImage:
+                  "linear-gradient(to right, transparent, black 12px, black calc(100% - 12px), transparent)",
+                WebkitMaskImage:
+                  "linear-gradient(to right, transparent, black 12px, black calc(100% - 12px), transparent)",
+              }}
+            >
+              <div className="w-full h-full px-3 pointer-events-auto">
                 <div
-                  ref={scrollRef}
-                  className="flex flex-col w-full h-full overflow-y-auto snap-y snap-mandatory [&::-webkit-scrollbar]:hidden gap-4 py-3 pointer-events-auto"
+                  className={`flex gap-4 h-full ${
+                    isTransitioning
+                      ? "transition-transform duration-500 ease-in-out"
+                      : "transition-none"
+                  }`}
                   style={{
-                    scrollbarWidth: "none",
-                    msOverflowStyle: "none",
+                    transform: `translateX(calc(-${currentIndex * 100}% - ${currentIndex * 16}px)) translate3d(0,0,0)`,
                     backfaceVisibility: "hidden",
-                    transform: "translate3d(0,0,0)",
                     willChange: "transform",
                   }}
-                  onScroll={(e) => {
-                    const target = e.currentTarget;
-                    const h = 152; // 要素の本来の高さ
-                    const step = h + 16;
-                    const scroll = target.scrollTop;
-
-                    // スクロール状態の管理 (スクロール中はオーバーレイを復活させる)
-                    setIsScrolling(true);
-                    setActiveIframeIndex(null);
-                    if (scrollTimeoutRef.current) {
-                      clearTimeout(scrollTimeoutRef.current);
-                    }
-                    scrollTimeoutRef.current = setTimeout(() => {
-                      setIsScrolling(false);
-                    }, 150);
-
-                    // 無限ループ時のジャンプ
-                    if (scroll <= 0) {
-                      target.scrollTo({
-                        top: step * playlists.length,
-                        behavior: "auto",
-                      });
-                    } else if (scroll >= step * (loopedPlaylists.length - 1)) {
-                      target.scrollTo({ top: step, behavior: "auto" });
-                    }
-
-                    const index = Math.round(target.scrollTop / step) - 1;
-                    const safeIndex =
-                      (index + playlists.length) % playlists.length;
-                    if (safeIndex !== playlistIndex) {
-                      setPlaylistIndex(safeIndex);
-                    }
-                  }}
+                  onTransitionEnd={handleTransitionEnd}
                 >
-                  {loopedPlaylists.map((url, index) => {
-                    const uniqueKey = `mobile-${index}`;
-                    const isOverlayActive =
-                      isScrolling || activeIframeIndex !== uniqueKey;
-                    return (
+                  {loopedPlaylists.map((url, i) => (
+                    <div
+                      key={i}
+                      className="w-full h-full shrink-0 relative"
+                      style={{
+                        backfaceVisibility: "hidden",
+                        transform: "translate3d(0,0,0)",
+                        willChange: "transform",
+                      }}
+                      onMouseLeave={() => setActiveIframeIndex(null)}
+                    >
+                      <iframe
+                        src={url}
+                        className="w-full h-full rounded-xl border-0 bg-transparent pointer-events-auto"
+                        allowFullScreen
+                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                        loading="lazy"
+                      />
+                      {/* 透明カバー。DOMに常にマウントし、pointer-eventsのみ制御 */}
                       <div
-                        key={uniqueKey}
-                        className="w-full h-38 shrink-0 snap-center relative"
+                        className={`absolute inset-0 w-full h-full cursor-pointer z-10 ${
+                          activeIframeIndex === i
+                            ? "pointer-events-none"
+                            : "pointer-events-auto"
+                        }`}
+                        onClick={() => setActiveIframeIndex(i)}
                         style={{
                           backfaceVisibility: "hidden",
                           transform: "translate3d(0,0,0)",
-                          willChange: "transform",
                         }}
-                      >
-                        <iframe
-                          src={url}
-                          className="w-full h-full rounded-xl border-0 bg-transparent pointer-events-auto"
-                          allowFullScreen
-                          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                          loading="lazy"
-                        />
-                        {/* 透明カバー。DOMに常にマウントし、pointer-eventsのみ制御 */}
-                        <div
-                          className={`absolute inset-0 w-full h-full cursor-pointer z-10 ${
-                            isOverlayActive
-                              ? "pointer-events-auto"
-                              : "pointer-events-none"
-                          }`}
-                          onClick={() => {
-                            if (!isScrolling) {
-                              setActiveIframeIndex(uniqueKey);
-                            }
-                          }}
-                          style={{
-                            backfaceVisibility: "hidden",
-                            transform: "translate3d(0,0,0)",
-                          }}
-                        />
-                      </div>
-                    );
-                  })}
+                      />
+                    </div>
+                  ))}
                 </div>
               </div>
-              {/* 右のバー（インジケーター） */}
-              <div className="absolute right-1 top-1/2 -translate-y-1/2 flex flex-col gap-1.5 z-20">
-                {playlists.map((_, index) => (
-                  <div
-                    key={index}
-                    className={`w-0.5 transition-all duration-300 rounded-full ${
-                      playlistIndex === index
-                        ? "bg-gray-800 h-6"
-                        : "bg-gray-300 h-3"
-                    }`}
-                  />
-                ))}
+            </div>
+          </div>
+
+          {/* スマホ版 iframe本体（スクロールの滑らかさを追加） */}
+          <div className="relative md:hidden w-full h-38">
+            <div
+              className="absolute -top-3 -bottom-3 left-0 right-6 pointer-events-none"
+              style={{
+                maskImage:
+                  "linear-gradient(to bottom, transparent, black 12px, black calc(100% - 12px), transparent)",
+                WebkitMaskImage:
+                  "linear-gradient(to bottom, transparent, black 12px, black calc(100% - 12px), transparent)",
+              }}
+            >
+              <div
+                ref={scrollRef}
+                className="flex flex-col w-full h-full overflow-y-auto snap-y snap-mandatory [&::-webkit-scrollbar]:hidden gap-4 py-3 pointer-events-auto"
+                style={{
+                  scrollbarWidth: "none",
+                  msOverflowStyle: "none",
+                  backfaceVisibility: "hidden",
+                  transform: "translate3d(0,0,0)",
+                  willChange: "transform",
+                }}
+                onScroll={(e) => {
+                  const target = e.currentTarget;
+                  const h = 152; // 要素の本来の高さ
+                  const step = h + 16;
+                  const scroll = target.scrollTop;
+
+                  // スクロール状態の管理 (スクロール中はオーバーレイを復活させる)
+                  setIsScrolling(true);
+                  setActiveIframeIndex(null);
+                  if (scrollTimeoutRef.current) {
+                    clearTimeout(scrollTimeoutRef.current);
+                  }
+                  scrollTimeoutRef.current = setTimeout(() => {
+                    setIsScrolling(false);
+                  }, 150);
+
+                  // 無限ループ時のジャンプ
+                  if (scroll <= 0) {
+                    target.scrollTo({
+                      top: step * playlists.length,
+                      behavior: "auto",
+                    });
+                  } else if (scroll >= step * (loopedPlaylists.length - 1)) {
+                    target.scrollTo({ top: step, behavior: "auto" });
+                  }
+
+                  const index = Math.round(target.scrollTop / step) - 1;
+                  const safeIndex =
+                    (index + playlists.length) % playlists.length;
+                  if (safeIndex !== playlistIndex) {
+                    setPlaylistIndex(safeIndex);
+                  }
+                }}
+              >
+                {loopedPlaylists.map((url, index) => {
+                  const uniqueKey = `mobile-${index}`;
+                  const isOverlayActive =
+                    isScrolling || activeIframeIndex !== uniqueKey;
+                  return (
+                    <div
+                      key={uniqueKey}
+                      className="w-full h-38 shrink-0 snap-center relative"
+                      style={{
+                        backfaceVisibility: "hidden",
+                        transform: "translate3d(0,0,0)",
+                        willChange: "transform",
+                      }}
+                    >
+                      <iframe
+                        src={url}
+                        className="w-full h-full rounded-xl border-0 bg-transparent pointer-events-auto"
+                        allowFullScreen
+                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                        loading="lazy"
+                      />
+                      {/* 透明カバー。DOMに常にマウントし、pointer-eventsのみ制御 */}
+                      <div
+                        className={`absolute inset-0 w-full h-full cursor-pointer z-10 ${
+                          isOverlayActive
+                            ? "pointer-events-auto"
+                            : "pointer-events-none"
+                        }`}
+                        onClick={() => {
+                          if (!isScrolling) {
+                            setActiveIframeIndex(uniqueKey);
+                          }
+                        }}
+                        style={{
+                          backfaceVisibility: "hidden",
+                          transform: "translate3d(0,0,0)",
+                        }}
+                      />
+                    </div>
+                  );
+                })}
               </div>
             </div>
-
-            {/* 右矢印ボタン（PC版のみ表示） */}
-            <button
-              onClick={nextPlaylist}
-              className="hidden md:flex p-2 rounded-full hover:bg-gray-200 transition-colors shrink-0 text-gray-500 hover:text-gray-900"
-              aria-label="Next track"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-                stroke="currentColor"
-                className="w-6 h-6"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="m8.25 4.5 7.5 7.5-7.5 7.5"
+            {/* 右のバー（インジケーター） */}
+            <div className="absolute right-1 top-1/2 -translate-y-1/2 flex flex-col gap-1.5 z-20">
+              {playlists.map((_, index) => (
+                <div
+                  key={index}
+                  className={`w-0.5 transition-all duration-300 rounded-full ${
+                    playlistIndex === index
+                      ? "bg-gray-800 h-6"
+                      : "bg-gray-300 h-3"
+                  }`}
                 />
-              </svg>
-            </button>
+              ))}
+            </div>
           </div>
+
+          {/* 右矢印ボタン（PC版のみ表示） */}
+          <button
+            onClick={nextPlaylist}
+            className="hidden md:flex p-2 rounded-full hover:bg-gray-200 transition-colors shrink-0 text-gray-500 hover:text-gray-900"
+            aria-label="Next track"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className="w-6 h-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m8.25 4.5 7.5 7.5-7.5 7.5"
+              />
+            </svg>
+          </button>
         </div>
       </div>
-    </div>
+    </>
   );
 }
