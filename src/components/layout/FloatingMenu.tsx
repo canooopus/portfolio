@@ -90,13 +90,13 @@ export default function FloatingMenu() {
       ref={menuRef}
       layout
       style={{
-        borderRadius: isMenuOpen ? "20px" : "9999px",
         pointerEvents: isReady ? "auto" : "none",
       }}
       initial={{ opacity: 0, y: 15 }}
       animate={{
         width: isMenuOpen ? 160 : 48,
         height: isMenuOpen ? 180 : 48,
+        borderRadius: isMenuOpen ? 20 : 24,
         opacity: isReady ? 1 : 0,
         y: isReady ? 0 : 15,
       }}
