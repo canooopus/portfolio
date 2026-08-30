@@ -15,11 +15,12 @@ export default function FloatingMenu() {
   const menuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
 
-  // トップページ以外（ブログ等）でもメニューを確実に表示する
+  // トップページ以外（ブログ等）でもメニューを確実に表示し、ページ遷移時にメニューを閉じる
   useEffect(() => {
     if (pathname !== "/") {
       setIsReady(true);
     }
+    setIsMenuOpen(false);
   }, [pathname, setIsReady]);
 
   // スマホのスクロールとタップを区別してメニューを閉じる処理
@@ -37,8 +38,11 @@ export default function FloatingMenu() {
     const handleTouchMove = (event: TouchEvent) => {
       const touchX = event.touches[0].clientX;
       const touchY = event.touches[0].clientY;
-      
-      if (Math.abs(touchX - touchStartX) > 10 || Math.abs(touchY - touchStartY) > 10) {
+
+      if (
+        Math.abs(touchX - touchStartX) > 10 ||
+        Math.abs(touchY - touchStartY) > 10
+      ) {
         isScrolling = true;
       }
     };
@@ -59,8 +63,12 @@ export default function FloatingMenu() {
 
     if (isMenuOpen) {
       document.addEventListener("mousedown", handleMouseDown);
-      document.addEventListener("touchstart", handleTouchStart, { passive: true });
-      document.addEventListener("touchmove", handleTouchMove, { passive: true });
+      document.addEventListener("touchstart", handleTouchStart, {
+        passive: true,
+      });
+      document.addEventListener("touchmove", handleTouchMove, {
+        passive: true,
+      });
       document.addEventListener("touchend", handleTouchEnd);
     }
 
@@ -72,11 +80,14 @@ export default function FloatingMenu() {
     };
   }, [isMenuOpen]);
 
-  const handleHomeClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  // どのリンクでも「現在と同じページなら最上部へスクロール」する共通関数
+  const handleNavClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href: string,
+  ) => {
     setIsMenuOpen(false);
 
-    // すでにHomeにいる場合はスムーズに最上部へスクロール
-    if (pathname === "/") {
+    if (pathname === href) {
       e.preventDefault();
       window.scrollTo({
         top: 0,
@@ -88,7 +99,6 @@ export default function FloatingMenu() {
   return (
     <motion.div
       ref={menuRef}
-      layout
       style={{
         pointerEvents: isReady ? "auto" : "none",
       }}
@@ -114,42 +124,65 @@ export default function FloatingMenu() {
             className="p-2 flex flex-col gap-2.5 w-full h-full text-neutral-200"
           >
             <div className="flex justify-between items-center px-1.5 pt-1 shrink-0">
-              <span className="pl-1.5 text-[10px] uppercase tracking-widest font-bold">Menu</span>
-              <button onClick={() => setIsMenuOpen(false)} className="p-1 cursor-pointer">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-3.5 h-3.5">
+              <span className="pl-1.5 text-[10px] uppercase tracking-widest font-bold">
+                Menu
+              </span>
+              <button
+                onClick={() => setIsMenuOpen(false)}
+                className="p-1 cursor-pointer"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  className="w-3.5 h-3.5"
+                >
                   <line x1="18" y1="6" x2="6" y2="18" />
                   <line x1="6" y1="6" x2="18" y2="18" />
                 </svg>
               </button>
             </div>
             <div className="flex flex-col gap-1 shrink-0">
-              
               {/* Homeへのリンク */}
               <Link
                 href="/"
-                onClick={handleHomeClick}
+                onClick={(e) => handleNavClick(e, "/")}
                 className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-white/10 text-sm text-neutral-200"
               >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="18" height="18">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  width="18"
+                  height="18"
+                >
                   <path d="M6.133 21C4.955 21 4 20.02 4 18.81v-8.802c0-.665.295-1.295.8-1.71l5.867-4.818a2.09 2.09 0 0 1 2.666 0l5.866 4.818c.506.415.801 1.045.801 1.71v8.802c0 1.21-.955 2.19-2.133 2.19z" />
                   <path d="M9.5 21v-5.5a2 2 0 0 1 2-2h1a2 2 0 0 1 2 2V21" />
                 </svg>
                 <span>Home</span>
               </Link>
-              
+
               {/* Blogへのリンク */}
               <Link
                 href="/blog"
-                onClick={() => setIsMenuOpen(false)}
+                onClick={(e) => handleNavClick(e, "/blog")}
                 className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-white/10 text-sm text-neutral-200"
               >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="18" height="18">
-                  <path d="M16.5 4H8a4 4 0 0 0-4 4v8.5a4 4 0 0 0 4 4h6.843a4 4 0 0 0 2.829-1.172l1.656-1.656a4 4 0 0 0 1.172-2.829V8a4 4 0 0 0-4-4"/>
-                  <path d="M20.5 14H17a3 3 0 0 0-3 3v3.5M8 8h7.5M8 12h5"/>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  width="18"
+                  height="18"
+                >
+                  <path d="M16.5 4H8a4 4 0 0 0-4 4v8.5a4 4 0 0 0 4 4h6.843a4 4 0 0 0 2.829-1.172l1.656-1.656a4 4 0 0 0 1.172-2.829V8a4 4 0 0 0-4-4" />
+                  <path d="M20.5 14H17a3 3 0 0 0-3 3v3.5M8 8h7.5M8 12h5" />
                 </svg>
                 <span>Blog</span>
               </Link>
-
             </div>
           </motion.div>
         ) : (
@@ -161,8 +194,18 @@ export default function FloatingMenu() {
             onClick={() => setIsMenuOpen(true)}
             className="w-12 h-12 flex items-center justify-center rounded-full text-neutral-200 hover:bg-white/10 cursor-pointer"
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.1" width="21" height="21">
-              <path fill="currentColor" d="M7 12a2 2 0 1 1-4 0a2 2 0 0 1 4 0m7 0a2 2 0 1 1-4 0a2 2 0 0 1 4 0m7 0a2 2 0 1 1-4 0a2 2 0 0 1 4 0" />
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="0.1"
+              width="21"
+              height="21"
+            >
+              <path
+                fill="currentColor"
+                d="M7 12a2 2 0 1 1-4 0a2 2 0 0 1 4 0m7 0a2 2 0 1 1-4 0a2 2 0 0 1 4 0m7 0a2 2 0 1 1-4 0a2 2 0 0 1 4 0"
+              />
             </svg>
           </motion.button>
         )}
