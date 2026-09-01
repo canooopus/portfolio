@@ -13,42 +13,53 @@ export function AnimatedLogo({ onComplete }: AnimatedLogoProps) {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+
     if (!svgRef.current) return;
 
-    const paths =
-      svgRef.current.querySelectorAll<SVGPathElement>(".animated-path");
+    let timer: NodeJS.Timeout | null = null;
+    const rafId = requestAnimationFrame(() => {
+      if (!svgRef.current) return;
 
-    let currentDelay = 0;
-    const speed = 400;
+      const paths =
+        svgRef.current.querySelectorAll<SVGPathElement>(".animated-path");
 
-    paths.forEach((path) => {
-      const length = path.getTotalLength();
+      let currentDelay = 0;
+      const speed = 400;
 
-      path.style.strokeDasharray = `${length}`;
-      path.style.strokeDashoffset = `${length}`;
-      path.style.setProperty("--path-length", `${length}`);
+      paths.forEach((path) => {
+        const length = path.getTotalLength();
 
-      const duration = length / speed;
+        path.style.strokeDasharray = `${length}`;
+        path.style.strokeDashoffset = `${length}`;
+        path.style.setProperty("--path-length", `${length}`);
 
-      path.style.animationDuration = `${duration}s`;
-      path.style.animationDelay = `${currentDelay}s`;
+        const duration = length / speed;
 
-      currentDelay += duration;
+        path.style.animationDuration = `${duration}s`;
+        path.style.animationDelay = `${currentDelay}s`;
 
-      path.getBoundingClientRect();
-      path.style.animationName = "drawAndFill";
-      path.style.animationTimingFunction = "cubic-bezier(0.4, 0, 0.2, 1)";
-      path.style.animationFillMode = "both";
+        currentDelay += duration;
+
+        path.getBoundingClientRect();
+        path.style.animationName = "drawAndFill";
+        path.style.animationTimingFunction = "cubic-bezier(0.4, 0, 0.2, 1)";
+        path.style.animationFillMode = "both";
+      });
+
+      const totalTimeMs = currentDelay * 1000;
+
+      timer = setTimeout(() => {
+        setIsReady(true);
+        onComplete?.();
+      }, totalTimeMs + 200);
     });
 
-    const totalTimeMs = currentDelay * 1000;
-
-    const timer = setTimeout(() => {
-      setIsReady(true);
-      onComplete?.();
-    }, totalTimeMs + 200);
-
-    return () => clearTimeout(timer);
+    return () => {
+      cancelAnimationFrame(rafId);
+      if (timer) clearTimeout(timer);
+    };
   }, [setIsReady, onComplete]);
 
   return (

@@ -17,16 +17,27 @@ export function PortfolioContainer({
 }: PortfolioContainerProps) {
   const [showText, setShowText] = useState(false);
 
-  // ロゴが完全に描画されるまで（showTextがtrueになるまで）スクロールを禁止
+  // ロゴが完全に描画されるまで（showTextがtrueになるまで）スクロールを禁止し、最上部に固定
   useEffect(() => {
-    // スクロールした状態でのリロード時にロゴが表示範囲外へずれないようスクロール位置を最上部に固定
     if ("scrollRestoration" in window.history) {
       window.history.scrollRestoration = "manual";
     }
 
-    if (!showText) {
+    const resetScroll = () => {
       window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    };
+
+    if (!showText) {
+      resetScroll();
       document.body.style.overflow = "hidden";
+
+      // ブラウザの非同期スクロール復元に対抗するため次フレームでもリセット
+      const rafId = requestAnimationFrame(resetScroll);
+      return () => {
+        cancelAnimationFrame(rafId);
+      };
     } else {
       // 明示的に "auto" に戻すことで、確実にスクロール機能を復帰させます
       document.body.style.overflow = "auto";
