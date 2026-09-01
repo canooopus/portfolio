@@ -225,7 +225,7 @@ export function BookAlbum({
       />
       <div
         ref={containerRef}
-        className="book-container select-none mt-6 md:mt-0"
+        className="book-container select-none mt-2 md:-mt-4"
       >
         <div
           className="book-wrapper"

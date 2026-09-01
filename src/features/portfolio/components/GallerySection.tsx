@@ -19,7 +19,7 @@ export function GallerySection({
   return (
     <>
       <p
-        className={`text-3xl -rotate-3 origin-left w-fit relative z-10 md:-translate-y-2 mt-0 ${caveatClass}`}
+        className={`text-3xl -rotate-3 origin-left w-fit relative z-10 md: mt-0 ${caveatClass}`}
       >
         Gallery
       </p>

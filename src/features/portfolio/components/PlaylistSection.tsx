@@ -97,7 +97,7 @@ export function PlaylistSection({ caveatClass }: PlaylistSectionProps) {
       >
         My playlist
       </p>
-      <div className="max-w-2xl mx-auto py-4 md:py-6">
+      <div className="max-w-2xl mx-auto pt-0 pb-4 md:pt-1 md:pb-6">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           {/* 左矢印ボタン（PC版のみ表示） */}
           <button
