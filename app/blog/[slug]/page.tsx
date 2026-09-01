@@ -62,7 +62,7 @@ export default async function BlogPostPage({ params }: PostProps) {
     <div className={`w-full min-h-screen relative ${inter.className}`}>
 
       {/* ブログ一覧へ戻るナビゲーション */}
-      <div className="absolute lg:fixed top-6 left-6 z-10">
+      <div className="absolute lg:fixed top-6 left-6 z-10 animate-fade-up">
         <Link 
           href="/blog" 
           className="text-neutral-500 hover:text-neutral-950 transition-colors inline-flex items-center"
@@ -77,7 +77,7 @@ export default async function BlogPostPage({ params }: PostProps) {
         </Link>
       </div>
 
-      <main className="max-w-2xl mx-auto px-6 pt-24 pb-20 selection:bg-blue-100">
+      <main className="max-w-2xl mx-auto px-6 pt-24 pb-20 selection:bg-blue-100 animate-fade-up">
 
         {/* 記事のタイトル・投稿日ヘッダー */}
         <header className="mb-10 lg:mt-14">

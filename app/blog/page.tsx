@@ -28,7 +28,7 @@ export default function BlogListPage() {
 
   return (
     <div className={`w-full min-h-screen ${inter.className}`}>
-      <main className="max-w-2xl mx-auto px-6 pt-24 pb-20 selection:bg-blue-100">
+      <main className="max-w-2xl mx-auto px-6 pt-24 pb-20 selection:bg-blue-100 animate-fade-up">
         
         {/* ブログのヘッダーセクション */}
         <div className="mb-12">

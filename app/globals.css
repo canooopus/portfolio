@@ -41,6 +41,24 @@ html {
 }
 
 /* -------------------------------------------------------------
+ * Page Transition / Fade-up Animation
+ * ------------------------------------------------------------- */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 1s ease-out forwards;
+}
+
+/* -------------------------------------------------------------
  * Blog Article Styling (No Tailwind Typography)
  * ------------------------------------------------------------- */
 .blog-content {
