@@ -760,7 +760,7 @@ html {
   & pre {
     margin-top: 1.25rem;
     margin-bottom: 1.25rem;
-    padding: 1rem;
+    padding: 1rem 0;
     border-radius: 1rem;
     overflow-x: auto;
     font-size: 0.875rem;
@@ -768,14 +768,16 @@ html {
     background-color: #ecf3f6;
 
     & code {
-      display: inline-block;
+      display: grid;
       min-width: 100%;
+      width: max-content;
+      box-sizing: border-box;
+      padding: 0 1rem;
       font-family:
         ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
         "Liberation Mono", "Courier New", monospace;
       font-weight: 400;
       background-color: transparent;
-      padding: 0;
       color: inherit;
     }
   }
