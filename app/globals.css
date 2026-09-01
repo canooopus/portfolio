@@ -360,7 +360,9 @@ html {
 
     /* 各種タイプごとの左線・タイトルカラー & 先頭大文字テキスト */
     &.markdown-alert-note {
-      &::before { background-color: #3b82f6; }
+      &::before {
+        background-color: #3b82f6;
+      }
       & .markdown-alert-title {
         color: #2563eb;
         font-size: 0;
@@ -372,7 +374,9 @@ html {
     }
 
     &.markdown-alert-tip {
-      &::before { background-color: #10b981; }
+      &::before {
+        background-color: #10b981;
+      }
       & .markdown-alert-title {
         color: #059669;
         font-size: 0;
@@ -384,7 +388,9 @@ html {
     }
 
     &.markdown-alert-important {
-      &::before { background-color: #8b5cf6; }
+      &::before {
+        background-color: #8b5cf6;
+      }
       & .markdown-alert-title {
         color: #7c3aed;
         font-size: 0;
@@ -396,7 +402,9 @@ html {
     }
 
     &.markdown-alert-warning {
-      &::before { background-color: #f59e0b; }
+      &::before {
+        background-color: #f59e0b;
+      }
       & .markdown-alert-title {
         color: #d97706;
         font-size: 0;
@@ -408,7 +416,9 @@ html {
     }
 
     &.markdown-alert-caution {
-      &::before { background-color: #ef4444; }
+      &::before {
+        background-color: #ef4444;
+      }
       & .markdown-alert-title {
         color: #dc2626;
         font-size: 0;
@@ -533,7 +543,7 @@ html {
       opacity: 0;
       overflow: clip;
       padding: 0 1.25rem;
-      transition: 
+      transition:
         height 0.45s cubic-bezier(0.16, 1, 0.3, 1),
         padding 0.45s cubic-bezier(0.16, 1, 0.3, 1),
         opacity 0.35s ease,
@@ -562,13 +572,34 @@ html {
   & img {
     max-width: 100%;
     height: auto;
-    border-radius: 0.375rem;
-    margin: 1.5rem auto;
     display: block;
+    margin: 2rem auto;
+
+    /* サイト全体のトーン（tableやdetails）と揃えた角丸 */
+    border-radius: 1rem;
+
+    /* 白背景のスクショでも境界が溶けない微細なボーダー */
+    border: 1px solid var(--color-neutral-200);
+
+    /* ふんわり浮き上がるソフトな二重シャドウ */
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.04),
+      0 10px 15px -3px rgba(0, 0, 0, 0.05);
+
+    /* なめらかなホバー演出 */
+    transition:
+      transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.3s ease;
+
+    &:hover {
+      box-shadow:
+        0 6px 12px -2px rgba(0, 0, 0, 0.06),
+        0 16px 24px -4px rgba(0, 0, 0, 0.07);
+    }
   }
 
   & figure {
-    margin: 2rem 0;
+    margin: 2.25rem 0;
 
     & img {
       margin: 0 auto;
@@ -576,10 +607,13 @@ html {
   }
 
   & figcaption {
-    font-size: 0.825rem;
-    color: var(--color-neutral-500);
-    text-align: center;
     margin-top: 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1.6;
+    color: var(--color-neutral-500);
+    letter-spacing: 0.01em;
+    text-align: center;
   }
 
   /* テーブル */

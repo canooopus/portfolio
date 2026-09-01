@@ -47,6 +47,47 @@ export function getSortedPostsData(): PostData[] {
   return allPostsData.sort((a, b) => (a.date < b.date ? 1 : -1));
 }
 
+/**
+ * Markdown内の画像（<img src="...">）を事前生成WebP & srcsetに自動変換するRehypeプラグイン
+ */
+function rehypeOptimizeImages() {
+  function visit(node: any) {
+    if (!node || typeof node !== "object") return;
+
+    if (node.type === "element" && node.tagName === "img" && node.properties?.src) {
+      const src = String(node.properties.src);
+
+      if (!src.startsWith("/images/optimized/")) {
+        const match = src.match(/^\/images\/(?:(.+)\/)?([^/]+)\.(jpg|jpeg|png|webp)$/i);
+        if (match) {
+          const subDir = match[1] || "";
+          const baseName = match[2];
+          const prefix = subDir ? `/images/optimized/${subDir}` : `/images/optimized`;
+
+          const thumbSrc = `${prefix}/${baseName}-thumb.webp`;
+          const mediumSrc = `${prefix}/${baseName}-medium.webp`;
+          const largeSrc = `${prefix}/${baseName}-large.webp`;
+
+          node.properties.src = mediumSrc;
+          node.properties.srcSet = `${thumbSrc} 480w, ${mediumSrc} 800w, ${largeSrc} 1280w`;
+          node.properties.loading = node.properties.loading || "lazy";
+          node.properties.decoding = node.properties.decoding || "async";
+        }
+      }
+    }
+
+    if (Array.isArray(node.children)) {
+      for (const child of node.children) {
+        visit(child);
+      }
+    }
+  }
+
+  return (tree: any) => {
+    visit(tree);
+  };
+}
+
 export async function getPostData(slug: string): Promise<PostData | null> {
   const fullPath = path.join(postsDirectory, `${slug}.md`);
 
@@ -66,15 +107,16 @@ export async function getPostData(slug: string): Promise<PostData | null> {
     .use(remarkMath)                        // 5. $...$ や $$...$$ の数式記法を解析
     .use(remarkRehype, { allowDangerousHtml: true }) // 6. AST を HTML構造 (rehype) に変換
     .use(rehypeRaw)                         // 7. 生HTMLノードを rehype AST 要素に変換
-    .use(rehypeKatex)                       // 8. 数式を KaTeX による表示用HTMLへ変換
-    .use(rehypeMermaid, {                   // 9. Mermaid コードブロックを pre.mermaid に変換 (ビルド時エラー防止)
+    .use(rehypeOptimizeImages)              // 8. 画像を WebP & srcset に自動変換
+    .use(rehypeKatex)                       // 9. 数式を KaTeX による表示用HTMLへ変換
+    .use(rehypeMermaid, {                   // 10. Mermaid コードブロックを pre.mermaid に変換 (ビルド時エラー防止)
       strategy: "pre-mermaid",
     })
-    .use(rehypePrettyCode, {                // 10. コードブロックのシンタックスハイライト
+    .use(rehypePrettyCode, {                // 11. コードブロックのシンタックスハイライト
       theme: "github-light",
       keepBackground: false,
     })
-    .use(rehypeStringify, { allowDangerousHtml: true }) // 11. HTML文字列として出力
+    .use(rehypeStringify, { allowDangerousHtml: true }) // 12. HTML文字列として出力
     .process(content);
 
   const contentHtml = processedContent.toString();

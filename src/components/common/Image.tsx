@@ -25,16 +25,24 @@ function resolveOptimizedSrc(
   src: string,
   variant: "thumb" | "medium" | "large" | "auto" = "auto"
 ): { defaultSrc: string; srcSet?: string } {
-  // /images/gallery/photo1.jpg などの形式を判定
-  const match = src.match(/^\/images\/gallery\/(photo\d+)\.(jpg|jpeg|png|webp)$/i);
+  // 既に optimized 配下のパスが直接指定されている場合はそのまま返す
+  if (src.startsWith("/images/optimized/")) {
+    return { defaultSrc: src };
+  }
+
+  // /images/(任意の階層/)?(ファイル名).(jpg|jpeg|png|webp) の形式を判定
+  const match = src.match(/^\/images\/(?:(.+)\/)?([^/]+)\.(jpg|jpeg|png|webp)$/i);
   if (!match) {
     return { defaultSrc: src };
   }
 
-  const baseName = match[1]; // "photo1"
-  const thumbSrc = `/images/optimized/${baseName}-thumb.webp`;
-  const mediumSrc = `/images/optimized/${baseName}-medium.webp`;
-  const largeSrc = `/images/optimized/${baseName}-large.webp`;
+  const subDir = match[1] || ""; // 例: "gallery", "home/gallery", "blog/hello-world", または ""
+  const baseName = match[2]; // 例: "photo1", "eyecatch"
+
+  const prefix = subDir ? `/images/optimized/${subDir}` : `/images/optimized`;
+  const thumbSrc = `${prefix}/${baseName}-thumb.webp`;
+  const mediumSrc = `${prefix}/${baseName}-medium.webp`;
+  const largeSrc = `${prefix}/${baseName}-large.webp`;
 
   if (variant === "thumb") {
     return { defaultSrc: thumbSrc };
