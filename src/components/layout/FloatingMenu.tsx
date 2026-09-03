@@ -80,7 +80,6 @@ export default function FloatingMenu() {
     };
   }, [isMenuOpen]);
 
-  // どのリンクでも「現在と同じページなら最上部へスクロール」する共通関数
   const handleNavClick = (
     e: React.MouseEvent<HTMLAnchorElement>,
     href: string,
@@ -102,7 +101,14 @@ export default function FloatingMenu() {
       style={{
         pointerEvents: isReady ? "auto" : "none",
       }}
-      initial={{ opacity: 0, y: 15 }}
+      // 1. initial に初期状態の形状・角丸を明示
+      initial={{
+        opacity: 0,
+        y: 15,
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+      }}
       animate={{
         width: isMenuOpen ? 160 : 48,
         height: isMenuOpen ? 180 : 48,
@@ -111,7 +117,8 @@ export default function FloatingMenu() {
         y: isReady ? 0 : 15,
       }}
       transition={{ type: "spring", damping: 24, stiffness: 280 }}
-      className={`fixed bottom-12 right-4 z-50 bg-black/50 backdrop-blur-md border border-white/10 shadow-lg overflow-hidden flex items-center justify-center ${inter.className}`}
+      // 2. CSSクラスに初期のサイズ (w-12 h-12) と角丸 (rounded-[24px]) を指定しておくことで初期描画時のチラつきを防止
+      className={`fixed bottom-12 right-4 z-50 w-12 h-12 rounded-3xl bg-black/50 backdrop-blur-md border border-white/10 shadow-lg overflow-hidden flex items-center justify-center ${inter.className}`}
     >
       <AnimatePresence mode="wait">
         {isMenuOpen ? (
@@ -144,7 +151,6 @@ export default function FloatingMenu() {
               </button>
             </div>
             <div className="flex flex-col gap-1 shrink-0">
-              {/* Homeへのリンク */}
               <Link
                 href="/"
                 onClick={(e) => handleNavClick(e, "/")}
@@ -164,7 +170,6 @@ export default function FloatingMenu() {
                 <span>Home</span>
               </Link>
 
-              {/* Blogへのリンク */}
               <Link
                 href="/blog"
                 onClick={(e) => handleNavClick(e, "/blog")}
