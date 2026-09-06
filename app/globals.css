@@ -236,19 +236,19 @@ html {
       position: absolute;
       top: 0.875rem;
       right: 0.875rem;
-      width: 2rem;
-      height: 2rem;
+      width: 1.5rem;
+      height: 1.5rem;
       border-radius: 9999px;
       background-color: rgba(0, 0, 0, 0.5);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
       background-repeat: no-repeat;
-      background-position: center;
+      background-position: 45% 45%;
       background-size: 0.95rem 0.95rem;
-      /* 矢印アイコンを白背景で見えるように #171717 に変更 */
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23ffffff' stroke-width='2.2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25'/%3E%3C/svg%3E");
+      /* 矢印アイコンを FloatingMenu と同じ text-neutral-200 (#e5e5e5) に設定 */
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23e5e5e5' stroke-width='2.2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25'/%3E%3C/svg%3E");
       pointer-events: none;
       /* サブピクセルジッター防止 */
       backface-visibility: hidden;
@@ -869,7 +869,7 @@ html {
   /* ★モダン & コンパクトコピーボタン */
   & .copy-code-button {
     position: absolute;
-    top: 1.25rem;
+    top: 1.1rem;
     right: 1rem;
     display: inline-flex;
     align-items: center;
@@ -877,7 +877,7 @@ html {
     width: 1.25rem;
     height: 1.25rem;
     padding: 0;
-    border-radius: 0.25rem;
+    border-radius: 0.5rem;
     /* コードブロック背景と完全同色（#ecf3f6）の不透明ソリッドカラー */
     background-color: #ecf3f6;
     border: 1px solid rgba(0, 0, 0, 0.08);
