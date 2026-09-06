@@ -856,7 +856,7 @@ html {
     scrollbar-color: auto;
 
     /* ② スクロール位置（テキスト末尾）も角丸に被らないよう余白を確保 */
-    scroll-padding: 0 1rem;
+    scroll-padding: 0 3rem;
 
     /* ③ 横スクロールバーの高さを明示 */
     &::-webkit-scrollbar {
