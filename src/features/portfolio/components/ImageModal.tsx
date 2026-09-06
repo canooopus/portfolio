@@ -23,27 +23,68 @@ export function ImageModal({
     setMounted(true);
   }, []);
 
+  // 画面全体のブラー適用 & ガター解除 & 余白補正
+  const lockScroll = () => {
+    const scrollbarWidth =
+      window.innerWidth - document.documentElement.clientWidth;
+
+    document.documentElement.style.scrollbarGutter = "auto";
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+
+    if (scrollbarWidth > 0) {
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+      // スクロールバー幅を CSS 変数としてセット（FloatingMenu などの位置補正用）
+      document.documentElement.style.setProperty(
+        "--scrollbar-width",
+        `${scrollbarWidth}px`,
+      );
+    }
+  };
+
+  // スクロールバーとガターの完全復元
+  const unlockScroll = () => {
+    document.documentElement.style.scrollbarGutter = "";
+    document.documentElement.style.overflow = "";
+    document.body.style.overflow = "";
+    document.body.style.paddingRight = "";
+    document.documentElement.style.removeProperty("--scrollbar-width");
+  };
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
+
     if (selectedItem) {
       window.addEventListener("keydown", handleKeyDown);
+      lockScroll();
     }
-    return () => window.removeEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, [selectedItem, onClose]);
+
+  // コンポーネントアンマウント時の安全対策
+  useEffect(() => {
+    return () => {
+      unlockScroll();
+    };
+  }, []);
 
   if (!mounted) return null;
 
   return createPortal(
-    <AnimatePresence>
+    // onExitComplete でフェードアウト完了後にスクロールバーとガターを復元
+    <AnimatePresence onExitComplete={unlockScroll}>
       {selectedItem && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className="fixed inset-0 z-100 flex items-center justify-center bg-black/30 backdrop-blur-md p-4 cursor-zoom-out"
+          className="fixed inset-0 z-100 flex items-center justify-center bg-black/30 backdrop-blur-md p-4 cursor-zoom-out select-none"
           onClick={onClose}
         >
           <motion.div
@@ -84,6 +125,6 @@ export function ImageModal({
         </motion.div>
       )}
     </AnimatePresence>,
-    document.body
+    document.body,
   );
 }

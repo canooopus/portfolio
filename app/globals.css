@@ -4,8 +4,9 @@
  * Modern Custom Scrollbar
  * ------------------------------------------------------------- */
 
-/* 標準仕様 (Firefox用) */
+/* 標準仕様 (Firefox用 & レイアウトシフト防止) */
 html {
+  scrollbar-gutter: stable;
   scrollbar-width: thin;
   scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
 }
@@ -654,12 +655,39 @@ html {
     margin: 2.5rem 0;
   }
 
-  /* 画像 */
-  & img {
+  /* -------------------------------------------------------------
+   * 画像 & フィギュア (Image & Figure / Caption)
+   * ------------------------------------------------------------- */
+  & figure {
+    margin: 2.25rem 0;
+    padding: 0;
+    text-align: center;
+
+    /* figure 内の画像・リンク付き画像のマージンをリセットして統合 */
+    & img {
+      margin: 0 auto;
+    }
+
+    & a:has(img) {
+      margin: 0 auto;
+    }
+  }
+
+  /* 単体配置の画像（figureで囲まれていない場合） */
+  & > img,
+  & p > img {
     max-width: 100%;
     height: auto;
     display: block;
     margin: 2rem auto;
+  }
+
+  /* 画像共通スタイル */
+  & img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    cursor: zoom-in;
 
     /* サイト全体のトーン（tableやdetails）と揃えた角丸 */
     border-radius: 1rem;
@@ -682,6 +710,43 @@ html {
       box-shadow:
         0 6px 12px -2px rgba(0, 0, 0, 0.06),
         0 16px 24px -4px rgba(0, 0, 0, 0.07);
+    }
+  }
+
+  & a img {
+    cursor: pointer;
+  }
+
+  /* ★モダン figcaption（キャプション） */
+  & figcaption {
+    margin-top: 0.75rem;
+    padding: 0 1rem;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--color-neutral-500);
+    text-align: center;
+    letter-spacing: -0.01em;
+
+    /* キャプション内の強調やコードのトーンを調和 */
+    & strong {
+      color: var(--color-neutral-700);
+      font-weight: 600;
+    }
+
+    & code {
+      font-size: 0.8em;
+      padding: 0.1em 0.3em;
+    }
+
+    /* キャプション内リンク（出典リンク等） */
+    & a {
+      color: var(--color-neutral-600);
+      text-decoration-color: var(--color-neutral-300);
+
+      &:hover {
+        color: var(--color-neutral-900);
+        text-decoration-color: var(--color-neutral-900);
+      }
     }
   }
 
@@ -850,30 +915,6 @@ html {
     font-size: 0.875rem;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     background-color: #ecf3f6;
-
-    /* ① html から継承された標準スクロールバーを解除し、WebKit疑似要素を有効化 */
-    scrollbar-width: auto;
-    scrollbar-color: auto;
-
-    /* ② スクロール位置（テキスト末尾）も角丸に被らないよう余白を確保 */
-    scroll-padding: 0 3rem;
-
-    /* ③ 横スクロールバーの高さを明示 */
-    &::-webkit-scrollbar {
-      height: 8px;
-    }
-
-    /* ④ 角丸のカーブ範囲（左右1rem）につまみが侵入できないよう透明なストッパー領域を設ける */
-    &::-webkit-scrollbar-button:single-button:horizontal:decrement {
-      display: block;
-      width: 1rem;
-      background: transparent;
-    }
-    &::-webkit-scrollbar-button:single-button:horizontal:increment {
-      display: block;
-      width: 1rem;
-      background: transparent;
-    }
 
     & code {
       display: grid;

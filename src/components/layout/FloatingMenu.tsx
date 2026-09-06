@@ -100,6 +100,8 @@ export default function FloatingMenu() {
       ref={menuRef}
       style={{
         pointerEvents: isReady ? "auto" : "none",
+        // モーダル開閉によるビューポート幅の変動を相殺し、画面上の絶対位置を完全に固定
+        right: "calc(1rem + var(--scrollbar-width, 0px))",
       }}
       // 1. initial に初期状態の形状・角丸を明示
       initial={{
@@ -117,8 +119,8 @@ export default function FloatingMenu() {
         y: isReady ? 0 : 15,
       }}
       transition={{ type: "spring", damping: 24, stiffness: 280 }}
-      // 2. CSSクラスに初期のサイズ (w-12 h-12) と角丸 (rounded-[24px]) を指定しておくことで初期描画時のチラつきを防止
-      className={`fixed bottom-12 right-4 z-50 w-12 h-12 rounded-3xl bg-black/50 backdrop-blur-md border border-white/10 shadow-lg overflow-hidden flex items-center justify-center ${inter.className}`}
+      // className から `right-4` を除外して style 側の calc に一本化
+      className={`fixed bottom-12 z-50 w-12 h-12 rounded-3xl bg-black/50 backdrop-blur-md border border-white/10 shadow-lg overflow-hidden flex items-center justify-center ${inter.className}`}
     >
       <AnimatePresence mode="wait">
         {isMenuOpen ? (
