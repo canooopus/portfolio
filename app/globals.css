@@ -851,6 +851,30 @@ html {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     background-color: #ecf3f6;
 
+    /* ① html から継承された標準スクロールバーを解除し、WebKit疑似要素を有効化 */
+    scrollbar-width: auto;
+    scrollbar-color: auto;
+
+    /* ② スクロール位置（テキスト末尾）も角丸に被らないよう余白を確保 */
+    scroll-padding: 0 1rem;
+
+    /* ③ 横スクロールバーの高さを明示 */
+    &::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    /* ④ 角丸のカーブ範囲（左右1rem）につまみが侵入できないよう透明なストッパー領域を設ける */
+    &::-webkit-scrollbar-button:single-button:horizontal:decrement {
+      display: block;
+      width: 1rem;
+      background: transparent;
+    }
+    &::-webkit-scrollbar-button:single-button:horizontal:increment {
+      display: block;
+      width: 1rem;
+      background: transparent;
+    }
+
     & code {
       display: grid;
       min-width: 100%;
