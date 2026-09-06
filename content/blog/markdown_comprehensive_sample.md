@@ -481,29 +481,36 @@ _[Italic link](https://example.com)_
 ## 26. Images
 
 ### 26.1 Basic Image
+
 ![Basic Sample Image](/images/blog/markdown_comprehensive_sample/sample.jpg)
 
 ### 26.2 Image with Hover Title
+
 ![Sample with Title](/images/blog/markdown_comprehensive_sample/sample.jpg "Photograph of a stunning landscape")
 
 ### 26.3 Clickable Linked Image (Opens Full Resolution)
+
 [![Clickable Image](/images/blog/markdown_comprehensive_sample/sample.jpg)](/images/blog/markdown_comprehensive_sample/sample.jpg)
 
 ### 26.4 Figure with Caption
+
 <figure>
   <img src="/images/blog/markdown_comprehensive_sample/sample.jpg" alt="Figure Sample" />
   <figcaption>Figure 1: Landscape photograph rendered with a custom figure caption.</figcaption>
 </figure>
 
 ### 26.5 Reference-style Image
+
 ![Reference Style Example][sample-ref-image]
 
 [sample-ref-image]: /images/blog/markdown_comprehensive_sample/sample.jpg "Reference Image Title"
 
 ### 26.6 Resized Image (HTML `width` attribute)
+
 <img src="/images/blog/markdown_comprehensive_sample/sample.jpg" alt="Small sized image" width="320" />
 
 ### 26.7 Multi-column Grid (2 Images Side-by-Side)
+
 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin: 1.5rem 0;">
   <img src="/images/blog/markdown_comprehensive_sample/sample.jpg" alt="Grid item 1" style="margin: 0; width: 100%; height: auto;" />
   <img src="/images/blog/markdown_comprehensive_sample/sample.jpg" alt="Grid item 2" style="margin: 0; width: 100%; height: auto;" />

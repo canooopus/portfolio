@@ -825,7 +825,22 @@ html {
     }
   }
 
-  /* コードブロック */
+  /* コードブロック & コピーボタン */
+  & .code-block-wrapper {
+    position: relative;
+    margin-top: 1.25rem;
+    margin-bottom: 1.25rem;
+
+    & pre {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+
+    &:hover .copy-code-button {
+      opacity: 1;
+    }
+  }
+
   & pre {
     margin-top: 1.25rem;
     margin-bottom: 1.25rem;
@@ -841,13 +856,120 @@ html {
       min-width: 100%;
       width: max-content;
       box-sizing: border-box;
-      padding: 0 1rem;
+      padding: 0 2.75rem 0 1rem;
       font-family:
         ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
         "Liberation Mono", "Courier New", monospace;
       font-weight: 400;
       background-color: transparent;
       color: inherit;
+    }
+  }
+
+  /* ★モダン & コンパクトコピーボタン */
+  & .copy-code-button {
+    position: absolute;
+    top: 1.25rem;
+    right: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    padding: 0;
+    border-radius: 0.25rem;
+    /* コードブロック背景と完全同色（#ecf3f6）の不透明ソリッドカラー */
+    background-color: #ecf3f6;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+    color: var(--color-neutral-600);
+    cursor: pointer;
+    opacity: 0;
+    transition:
+      opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.15s ease,
+      box-shadow 0.15s ease,
+      color 0.15s ease;
+    z-index: 5;
+    outline: none;
+
+    &:hover {
+      opacity: 1 !important;
+      background-color: #ecf3f6;
+      color: var(--color-neutral-900);
+      border-color: rgba(0, 0, 0, 0.15);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    &:active {
+      background-color: #ecf3f6;
+    }
+
+    &:focus-visible {
+      opacity: 1;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+    }
+
+    /* コピー成功時 (Copied) - 背景色(#ecf3f6)を維持 */
+    &.copied {
+      opacity: 1 !important;
+      background-color: #ecf3f6;
+      color: var(--color-neutral-900);
+      border-color: rgba(0, 0, 0, 0.15);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    /* グリッドレイアウトで2つのSVGを厳密に1ピクセルの狂いもなく同一中心に配置 */
+    & .copy-code-icon-wrapper {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: 0.75rem;
+      height: 0.75rem;
+    }
+
+    & .copy-icon,
+    & .check-icon {
+      grid-area: 1 / 1;
+      width: 0.75rem;
+      height: 0.75rem;
+      display: block;
+      pointer-events: none;
+      transform-origin: center center;
+    }
+
+    & .copy-icon {
+      opacity: 1;
+      transform: scale(1);
+      transition:
+        opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    & .check-icon {
+      opacity: 0;
+      transform: scale(0.7);
+      transition:
+        opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    &.copied .copy-icon {
+      opacity: 0;
+      transform: scale(0.7);
+    }
+
+    &.copied .check-icon {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* タッチ端末用: ホバーできない環境では常時表示（透けない） */
+  @media (hover: none) or (pointer: coarse) {
+    & .copy-code-button {
+      opacity: 1;
     }
   }
 

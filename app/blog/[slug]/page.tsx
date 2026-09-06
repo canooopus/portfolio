@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getPostData, getSortedPostsData } from "@/features/blog/posts";
 import { Inter } from "next/font/google";
 import MermaidScript from "@/components/markdown/MermaidScript";
+import CodeCopyScript from "@/components/markdown/CodeCopyScript";
 
 // 1. weightの指定を外すことで、太字（Bold）が正しく適用されるようにします
 const inter = Inter({ subsets: ["latin"] });
@@ -109,6 +110,7 @@ export default async function BlogPostPage({ params }: PostProps) {
               dangerouslySetInnerHTML={{ __html: post.contentHtml }}
             />
             <MermaidScript />
+            <CodeCopyScript />
           </>
         )}
       </main>
