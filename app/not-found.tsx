@@ -10,17 +10,34 @@ const caveat = Caveat({
   weight: ["400", "600", "700"],
 });
 
+// マーカーのスタイル定義
+const markerStyle: React.CSSProperties = {
+  background:
+    "linear-gradient(102deg, rgba(254, 240, 138, 0.95) 0%, rgba(254, 240, 138, 0.35) 50%, rgba(254, 240, 138, 0.95) 100%)",
+  color: "rgb(23 23 23)", // text-neutral-900相当
+  padding: "0 0.4em",
+  borderRadius: "1.8em 0.6em 1.4em 0.8em / 0.8em 1.3em 0.7em 1.4em",
+  boxDecorationBreak: "clone",
+  WebkitBoxDecorationBreak: "clone",
+};
+
 export default function NotFound() {
-  const { setIsReady } = useMenu();
+  const { setIsReady, setShowFooter } = useMenu();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setIsReady(true);
+    setShowFooter(false);
+
     const timer = setTimeout(() => {
       setMounted(true);
     }, 100);
-    return () => clearTimeout(timer);
-  }, [setIsReady]);
+
+    return () => {
+      clearTimeout(timer);
+      setShowFooter(true);
+    };
+  }, [setIsReady, setShowFooter]);
 
   return (
     <div
@@ -32,18 +49,15 @@ export default function NotFound() {
             mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
           }`}
         >
-          {/* タイトル */}
+          {/* タイトル：<mark> で囲んでマーカーを適用 */}
           <h2 className="text-3xl md:text-4xl -rotate-1 origin-left text-neutral-800 mb-6">
-            Page not found
+            <mark style={markerStyle}>Page not found ...</mark>
           </h2>
 
-          {/* 説明文 & リンク */}
-          <div className="space-y-6 text-xl md:text-2xl text-neutral-700 leading-relaxed">
-            <p className="max-w-md">
-              The page you are looking for doesn’t exist, has been removed, or
-              its URL may have been changed.
-            </p>
-          </div>
+          {/* サブタイトル */}
+          <p className="text-xl md:text-2xl text-neutral-500 origin-left leading-relaxed">
+            The page you are looking for might have been removed or moved.
+          </p>
         </div>
       </main>
     </div>
