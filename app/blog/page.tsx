@@ -124,7 +124,7 @@ export default function BlogListPage() {
                                       strokeDasharray: 70,
                                       strokeDashoffset: 70,
                                       animation:
-                                        "drawArrow 0.6s cubic-bezier(0.4, 0, 0.2, 1) 1.15s forwards",
+                                        "drawArrow 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.85s forwards",
                                     }}
                                   />
                                   {/* 左端の矢じり */}
@@ -134,7 +134,7 @@ export default function BlogListPage() {
                                       strokeDasharray: 20,
                                       strokeDashoffset: 20,
                                       animation:
-                                        "drawArrow 0.25s ease-out 1.7s forwards",
+                                        "drawArrow 0.25s ease-out 1.4s forwards",
                                     }}
                                   />
                                 </svg>
