@@ -48,7 +48,7 @@ export default function BlogListPage() {
 
   return (
     <div
-      className={`w-full min-h-screen bg-white text-neutral-900 ${inter.className}`}
+      className={`w-full min-h-screen bg-white text-neutral-900 overflow-x-hidden ${inter.className}`}
     >
       {/* 手描き線アニメーション用のキーフレーム定義 */}
       <style>{`
@@ -59,7 +59,7 @@ export default function BlogListPage() {
         }
       `}</style>
 
-      <main className="max-w-2xl mx-auto px-6 pt-24 pb-24 selection:bg-neutral-900 selection:text-white animate-fade-up">
+      <main className="max-w-2xl mx-auto px-6 pt-24 pb-24 selection:bg-blue-100 animate-fade-up">
         {/* ブログのヘッダーセクション */}
         <div className="mb-14">
           <h1 className="text-3xl font-bold tracking-tight text-neutral-900">
@@ -70,20 +70,23 @@ export default function BlogListPage() {
           </p>
         </div>
 
-        {/* 記事一覧コンテナ（group/list を付与） */}
+        {/* 記事一覧コンテナ */}
         {sortedYears.length === 0 ? (
           <p className="text-sm text-neutral-400">No posts found.</p>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-8 sm:space-y-4">
             {sortedYears.map((year, yearIndex) => (
-              <div key={year} className="flex gap-4 sm:gap-10 items-start">
-                {/* 年（左カラム） */}
-                <div className="w-14 sm:w-16 shrink-0 pt-3.5 text-base text-neutral-400 font-normal select-none">
+              <div
+                key={year}
+                className="flex flex-col sm:flex-row gap-1 sm:gap-10 items-start"
+              >
+                {/* 年（スマホは上、PCは左カラム） */}
+                <div className="w-auto sm:w-16 shrink-0 pt-0 sm:pt-3.5 text-base font-medium sm:font-normal text-neutral-400">
                   {year}
                 </div>
 
                 {/* 記事リスト */}
-                <div className="flex-1 divide-y divide-neutral-100 group/list">
+                <div className="w-full sm:flex-1 min-w-0 divide-y divide-neutral-100 group/list">
                   {postsByYear[year].map((post, postIndex) => {
                     const isNew = yearIndex === 0 && postIndex === 0;
 
@@ -94,7 +97,7 @@ export default function BlogListPage() {
                       >
                         <Link
                           href={`/blog/${post.slug}`}
-                          className="flex items-center justify-between py-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 rounded"
+                          className="flex items-center justify-between py-3.5 w-full min-w-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 rounded"
                         >
                           {/* 記事タイトル ＋ Newバッジ & 手書き矢印 */}
                           <div className="flex items-center gap-2 min-w-0 pr-4">
@@ -136,7 +139,6 @@ export default function BlogListPage() {
                                   />
                                 </svg>
 
-                                {/* 2xlに変更し、leading-noneで高さを固定 */}
                                 <span
                                   className={`inline-flex items-center text-2xl font-regular text-orange-500 tracking-tight shrink-0 leading-none -translate-y-0.5 ${caveat.className}`}
                                 >
