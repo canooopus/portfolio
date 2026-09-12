@@ -1,64 +1,161 @@
 import Link from "next/link";
 import { getSortedPostsData } from "@/features/blog/posts";
 import { Inter } from "next/font/google";
+import { Caveat } from "next/font/google";
 
-const inter = Inter({ subsets: ["latin"], weight: "400" });
+const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600"] });
+const caveat = Caveat({ subsets: ["latin"], weight: ["400", "600", "700"] });
 
 export const metadata = {
   title: "Blog | Canooopus",
-  description: "Canooopus'blog",
+  description: "Canooopus' blog",
 };
 
 export default function BlogListPage() {
   const allPosts = getSortedPostsData();
 
-  // 日付表示用のフォーマッター（英語表記に整えます）
-  const formatDate = (dateString: string) => {
+  // 年ごとに記事をグループ化
+  const postsByYear = allPosts.reduce<Record<string, typeof allPosts>>(
+    (acc, post) => {
+      const year = new Date(post.date).getFullYear().toString();
+      if (!acc[year]) {
+        acc[year] = [];
+      }
+      acc[year].push(post);
+      return acc;
+    },
+    {},
+  );
+
+  // 年を降順（最新順）に並び替え
+  const sortedYears = Object.keys(postsByYear).sort(
+    (a, b) => Number(b) - Number(a),
+  );
+
+  // "MMM D" (例: "Oct 24", "Jan 5") 形式のフォーマッター
+  const formatMonthDay = (dateString: string) => {
     try {
       const date = new Date(dateString);
-      return new Intl.DateTimeFormat("en-US", {
-        year: "numeric",
-        month: "long",
+      return date.toLocaleDateString("en-US", {
+        month: "short",
         day: "numeric",
-      }).format(date);
+        timeZone: "UTC",
+      });
     } catch {
       return dateString;
     }
   };
 
   return (
-    <div className={`w-full min-h-screen ${inter.className}`}>
-      <main className="max-w-2xl mx-auto px-6 pt-24 pb-20 selection:bg-blue-100 animate-fade-up">
-        
+    <div
+      className={`w-full min-h-screen bg-white text-neutral-900 ${inter.className}`}
+    >
+      {/* 手描き線アニメーション用のキーフレーム定義 */}
+      <style>{`
+        @keyframes drawArrow {
+          to {
+            stroke-dashoffset: 0;
+          }
+        }
+      `}</style>
+
+      <main className="max-w-2xl mx-auto px-6 pt-24 pb-24 selection:bg-neutral-900 selection:text-white animate-fade-up">
         {/* ブログのヘッダーセクション */}
-        <div className="mb-12">
-          <h1 className="text-3xl font-bold text-neutral-900">Blog</h1>
-          <p className="mt-5 text-neutral-500 text-sm">
+        <div className="mb-14">
+          <h1 className="text-3xl font-bold tracking-tight text-neutral-900">
+            Blog
+          </h1>
+          <p className="mt-4 text-sm text-neutral-500 leading-relaxed">
             Technical writing, thoughts, and updates.
           </p>
         </div>
 
-        {/* 記事一覧 */}
-        {allPosts.length === 0 ? (
+        {/* 記事一覧コンテナ（group/list を付与） */}
+        {sortedYears.length === 0 ? (
           <p className="text-sm text-neutral-400">No posts found.</p>
         ) : (
-          <div className="space-y-8">
-            {allPosts.map((post) => (
-              <article key={post.slug} className="group relative flex flex-col items-start">
-                <h2 className="text-lg font-semibold text-neutral-900 group-hover:text-neutral-600 transition-colors">
-                  <Link href={`/blog/${post.slug}`} className="focus:outline-none">
-                    {/* カード全体をクリック可能にする透明なリンク */}
-                    <span className="absolute -inset-y-2.5 -inset-x-4 z-0 rounded-2xl md:-inset-y-4 md:-inset-x-6" />
-                    <span className="relative z-10">{post.title}</span>
-                  </Link>
-                </h2>
-                <time className="relative z-10 order-first mb-2 flex items-center text-xs text-neutral-400 pl-3.5">
-                  <span className="absolute inset-y-0 left-0 flex items-center" aria-hidden="true">
-                    <span className="h-4 w-0.5 rounded-full bg-neutral-200" />
-                  </span>
-                  {formatDate(post.date)}
-                </time>
-              </article>
+          <div className="space-y-4">
+            {sortedYears.map((year, yearIndex) => (
+              <div key={year} className="flex gap-4 sm:gap-10 items-start">
+                {/* 年（左カラム） */}
+                <div className="w-14 sm:w-16 shrink-0 pt-3.5 text-base text-neutral-400 font-normal select-none">
+                  {year}
+                </div>
+
+                {/* 記事リスト */}
+                <div className="flex-1 divide-y divide-neutral-100 group/list">
+                  {postsByYear[year].map((post, postIndex) => {
+                    const isNew = yearIndex === 0 && postIndex === 0;
+
+                    return (
+                      <article
+                        key={post.slug}
+                        className="transition-opacity duration-200 group-hover/list:opacity-35 hover:!opacity-100"
+                      >
+                        <Link
+                          href={`/blog/${post.slug}`}
+                          className="flex items-center justify-between py-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 rounded"
+                        >
+                          {/* 記事タイトル ＋ Newバッジ & 手書き矢印 */}
+                          <div className="flex items-center gap-2 min-w-0 pr-4">
+                            <span className="text-base font-medium text-neutral-900 truncate">
+                              {post.title}
+                            </span>
+                            {isNew && (
+                              <div className="inline-flex items-center gap-1 shrink-0 select-none leading-none">
+                                {/* 手書き風のくるっとした左向き矢印 */}
+                                <svg
+                                  className="w-7 h-5 text-orange-500 shrink-0 -rotate-6 translate-y-[1px]"
+                                  viewBox="0 0 42 20"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  aria-hidden="true"
+                                >
+                                  {/* くるっとループして左へ向かう胴体 */}
+                                  <path
+                                    d="M 38 13 C 32 5 26 4 23 7 C 20 10 21 14 24 14 C 28 14 30 10 26 7 C 21 4 12 10 4 10"
+                                    style={{
+                                      strokeDasharray: 70,
+                                      strokeDashoffset: 70,
+                                      animation:
+                                        "drawArrow 0.6s cubic-bezier(0.4, 0, 0.2, 1) 1.15s forwards",
+                                    }}
+                                  />
+                                  {/* 左端の矢じり */}
+                                  <path
+                                    d="M 9 6 L 4 10 L 9 14"
+                                    style={{
+                                      strokeDasharray: 20,
+                                      strokeDashoffset: 20,
+                                      animation:
+                                        "drawArrow 0.25s ease-out 1.7s forwards",
+                                    }}
+                                  />
+                                </svg>
+
+                                {/* 2xlに変更し、leading-noneで高さを固定 */}
+                                <span
+                                  className={`inline-flex items-center text-2xl font-regular text-orange-500 tracking-tight shrink-0 leading-none -translate-y-0.5 ${caveat.className}`}
+                                >
+                                  New
+                                </span>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* 日付 */}
+                          <time className="text-sm text-neutral-400 shrink-0">
+                            {formatMonthDay(post.date)}
+                          </time>
+                        </Link>
+                      </article>
+                    );
+                  })}
+                </div>
+              </div>
             ))}
           </div>
         )}

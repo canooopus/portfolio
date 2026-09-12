@@ -1,4 +1,7 @@
-# The Surprising Benefits of Daily Walking
+---
+title: "The Surprising Benefits of Daily Walking"
+date: "2026-08-01"
+---
 
 When it comes to fitness, many people assume that only intense workouts—like running, weightlifting, or high-intensity interval training (HIIT)—can deliver real results. However, one of the most effective and accessible forms of exercise is something most of us do every day: walking.
 
