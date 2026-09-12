@@ -5,6 +5,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { MenuProvider } from "@/context/MenuContext";
 import FloatingMenu from "@/components/layout/FloatingMenu";
 import Footer from "@/components/layout/Footer";
+import { ScrollRestoration } from "@/components/common";
 import "katex/dist/katex.min.css";
 
 const rubik = Rubik({ subsets: ["latin"] });
@@ -18,16 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ja">
       <body className={rubik.className}>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              if ('scrollRestoration' in history) {
-                history.scrollRestoration = 'manual';
-              }
-              window.scrollTo(0, 0);
-            `,
-          }}
-        />
+        <ScrollRestoration />
         <MenuProvider>
           <div className="flex flex-col min-h-screen">
             <main className="grow">
