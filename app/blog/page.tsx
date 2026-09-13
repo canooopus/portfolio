@@ -81,7 +81,7 @@ export default function BlogListPage() {
                 className="flex flex-col sm:flex-row gap-1 sm:gap-10 items-start"
               >
                 {/* 年（スマホは上、PCは左カラム） */}
-                <div className="w-auto sm:w-16 shrink-0 pt-0 sm:pt-3.5 text-base font-medium sm:font-normal text-neutral-400">
+                <div className="w-auto sm:w-16 shrink-0 pt-0 sm:pt-3.5 text-sm sm:text-base font-medium sm:font-normal text-neutral-400">
                   {year}
                 </div>
 
@@ -97,18 +97,19 @@ export default function BlogListPage() {
                       >
                         <Link
                           href={`/blog/${post.slug}`}
-                          className="flex items-center justify-between py-3.5 w-full min-w-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 rounded"
+                          className="flex items-start sm:items-center justify-between py-3.5 w-full min-w-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 rounded"
                         >
                           {/* 記事タイトル ＋ Newバッジ & 手書き矢印 */}
-                          <div className="flex items-center gap-2 min-w-0 pr-4">
-                            <span className="text-base font-medium text-neutral-900 truncate">
+                          <div className="flex items-start sm:items-center gap-2 min-w-0 pr-4">
+                            {/* スマホは text-sm かつ 2行、PCは text-base かつ 1行省略 */}
+                            <span className="text-sm sm:text-base font-medium text-neutral-900 line-clamp-2 sm:line-clamp-none sm:truncate">
                               {post.title}
                             </span>
                             {isNew && (
-                              <div className="inline-flex items-center gap-1 shrink-0 select-none leading-none">
-                                {/* 手書き風のくるっとした左向き矢印 */}
+                              <div className="inline-flex items-center gap-1 shrink-0 select-none leading-none pt-0.5 sm:pt-0">
+                                {/* 手書き風矢印（スマホ時は少し小さめにスケール） */}
                                 <svg
-                                  className="w-7 h-5 text-orange-500 shrink-0 -rotate-6 translate-y-[1px]"
+                                  className="w-6 h-4 sm:w-7 sm:h-5 text-orange-500 shrink-0 -rotate-6 translate-y-[1px]"
                                   viewBox="0 0 42 20"
                                   fill="none"
                                   stroke="currentColor"
@@ -117,7 +118,6 @@ export default function BlogListPage() {
                                   strokeLinejoin="round"
                                   aria-hidden="true"
                                 >
-                                  {/* くるっとループして左へ向かう胴体 */}
                                   <path
                                     d="M 38 13 C 32 5 26 4 23 7 C 20 10 21 14 24 14 C 28 14 30 10 26 7 C 21 4 12 10 4 10"
                                     style={{
@@ -127,7 +127,6 @@ export default function BlogListPage() {
                                         "drawArrow 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.85s forwards",
                                     }}
                                   />
-                                  {/* 左端の矢じり */}
                                   <path
                                     d="M 9 6 L 4 10 L 9 14"
                                     style={{
@@ -139,8 +138,9 @@ export default function BlogListPage() {
                                   />
                                 </svg>
 
+                                {/* New文字（スマホ時は text-xl、PC時は text-2xl） */}
                                 <span
-                                  className={`inline-flex items-center text-2xl font-regular text-orange-500 tracking-tight shrink-0 leading-none -translate-y-0.5 ${caveat.className}`}
+                                  className={`inline-flex items-center text-xl sm:text-2xl font-regular text-orange-500 tracking-tight shrink-0 leading-none -translate-y-0.5 ${caveat.className}`}
                                 >
                                   New
                                 </span>
@@ -148,8 +148,8 @@ export default function BlogListPage() {
                             )}
                           </div>
 
-                          {/* 日付 */}
-                          <time className="text-sm text-neutral-400 shrink-0">
+                          {/* 日付（スマホ時は text-xs にしてタイトルを引き立てる） */}
+                          <time className="text-xs sm:text-sm text-neutral-400 shrink-0 pt-0.5 sm:pt-0">
                             {formatMonthDay(post.date)}
                           </time>
                         </Link>
