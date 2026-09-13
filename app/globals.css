@@ -364,12 +364,37 @@ html {
     }
   }
 
+  /* ★追加: リスト内の <p> タグの余白をリセット（Loose Listによる巨大な行間を解消） */
+  & li > p {
+    margin-top: 0;
+    margin-bottom: 0;
+
+    /* 1つのli内に複数段落がある場合のみ間隔を設ける */
+    &:not(:last-child) {
+      margin-bottom: 0.375rem;
+    }
+  }
+
+  /* ★追加: 各階層の最後の li の下マージンをリセット（親liのマージンとの二重加算を防止） */
+  & li:last-child {
+    margin-bottom: 0;
+  }
+
+  /* ネストされたリストの設定 */
   & ul ul,
   & ul ol,
   & ol ul,
   & ol ol {
     margin-top: 0.375rem;
     margin-bottom: 0;
+  }
+
+  /* ★追加: 空行などで別々のリストタグに分割された場合の隙間を詰める */
+  & ul + ul,
+  & ol + ol,
+  & ul + ol,
+  & ol + ul {
+    margin-top: -1rem;
   }
 
   /* ★追加: 定義リスト (17. Definition Lists) */
