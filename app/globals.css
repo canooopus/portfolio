@@ -209,8 +209,8 @@ html {
     }
   }
 
-  /* ★追加: リンク付き画像 (Linked Image) */
-  & a:has(img) {
+  /* ★追加: リンク付き画像 (Linked Image) - 控えめなホバー */
+  & a:has(img):not(.ogp-card) {
     display: block;
     position: relative;
     width: fit-content;
@@ -218,8 +218,8 @@ html {
     margin: 2rem auto;
     text-decoration: none;
     cursor: pointer;
-    /* 親要素全体を一括でなめらかに浮上させる */
-    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    /* 親要素のホバートランジションを控えめに */
+    transition: transform 0.2s ease;
 
     &:hover {
       opacity: 1;
@@ -231,7 +231,7 @@ html {
       margin: 0;
     }
 
-    /* 右上のすりガラス調リンクバッジ (↗) - 白基調に変更 */
+    /* 右上のすりガラス調リンクバッジ (↗) */
     &::after {
       content: "";
       position: absolute;
@@ -240,38 +240,36 @@ html {
       width: 1.5rem;
       height: 1.5rem;
       border-radius: 9999px;
-      background-color: rgba(0, 0, 0, 0.5);
+      background-color: rgba(0, 0, 0, 0.45);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
       background-repeat: no-repeat;
       background-position: 45% 45%;
       background-size: 0.95rem 0.95rem;
-      /* 矢印アイコンを FloatingMenu と同じ text-neutral-200 (#e5e5e5) に設定 */
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23e5e5e5' stroke-width='2.2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25'/%3E%3C/svg%3E");
       pointer-events: none;
-      /* サブピクセルジッター防止 */
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
       transform: translateZ(0);
-      transition: opacity 0.25s ease;
+      transition: opacity 0.2s ease;
     }
 
-    /* PC (マウス操作): 親ごと浮上＆バッジが滑らかにフェードイン */
+    /* PC (マウス操作): 浮上を-1.5pxに抑え、影もごく自然に */
     @media (hover: hover) and (pointer: fine) {
       &::after {
         opacity: 0;
       }
 
       &:hover {
-        transform: translateY(-4px);
+        transform: translateY(-1.5px);
 
         & img {
           border-color: var(--color-neutral-300);
           box-shadow:
-            0 6px 12px -2px rgba(0, 0, 0, 0.06),
-            0 16px 24px -4px rgba(0, 0, 0, 0.08);
+            0 4px 8px -2px rgba(0, 0, 0, 0.04),
+            0 8px 16px -4px rgba(0, 0, 0, 0.04);
         }
 
         &::after {
@@ -280,7 +278,7 @@ html {
       }
     }
 
-    /* スマホ・タッチ端末: 常時バッジを表示＆タップ・遷移時のアニメーションを解除 */
+    /* スマホ・タッチ端末 */
     @media (hover: none) or (pointer: coarse) {
       transition: none;
 
@@ -1189,6 +1187,191 @@ html {
       fill: #ffffff !important;
       padding: 0 !important;
       border-radius: 2px;
+    }
+  }
+}
+
+/* -------------------------------------------------------------
+ * OGP Link Card Styling (Modern Minimal / 控えめホバー & 画像全体表示)
+ * ------------------------------------------------------------- */
+.ogp-card-container {
+  margin: 2rem 0;
+}
+
+.blog-content a.ogp-card {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: stretch;
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+  border: 1px solid var(--color-neutral-200);
+  background-color: #ffffff;
+  text-decoration: none !important;
+  color: inherit !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+  min-height: 120px;
+
+  /* 矢印バッジの混入を遮断 */
+  &::after {
+    display: none !important;
+    content: none !important;
+  }
+
+  /* 控えめなホバー: 浮き上がらせず、境界線と微細な影のみ上品に反応 */
+  &:hover {
+    color: inherit !important;
+    border-color: var(--color-neutral-300);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+
+    & .ogp-card-title {
+      color: var(--color-neutral-950);
+    }
+  }
+
+  &:active {
+    background-color: var(--color-neutral-50);
+  }
+
+  /* テキスト側コンテナ */
+  & .ogp-card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* タイトル */
+  & .ogp-card-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.45;
+    letter-spacing: -0.01em;
+    color: var(--color-neutral-900);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 0.35rem;
+    transition: color 0.15s ease;
+  }
+
+  /* 説明文 */
+  & .ogp-card-description {
+    font-size: 0.8125rem;
+    line-height: 1.55;
+    color: var(--color-neutral-500);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+  }
+
+  /* フッター (ファビコン・ドメイン) */
+  & .ogp-card-footer {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.75rem;
+    color: var(--color-neutral-400);
+    margin-top: auto;
+  }
+
+  & .ogp-card-favicon {
+    width: 0.95rem;
+    height: 0.95rem;
+    border-radius: 3px;
+    object-fit: contain;
+    flex-shrink: 0;
+    border: none !important;
+    box-shadow: none !important;
+    cursor: inherit !important;
+  }
+
+  & .ogp-card-domain {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 450;
+    color: var(--color-neutral-500);
+  }
+
+  /* サムネイル画像コンテナ (中央配置＆余白背景) */
+  & .ogp-card-image-wrap {
+    width: 200px;
+    min-width: 200px;
+    position: relative;
+    background-color: #ffffff;
+    border-left: 1px solid var(--color-neutral-100);
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+
+  /* サムネイル画像 (トリミングせず全体をピッタリ収める) */
+  & .ogp-card-image {
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    margin: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    cursor: inherit !important;
+  }
+}
+
+/* スマホ表示 (640px以下) */
+@media (max-width: 640px) {
+  .blog-content a.ogp-card {
+    flex-direction: column-reverse;
+    min-height: auto;
+
+    & .ogp-card-image-wrap {
+      width: 100%;
+      min-width: 100%;
+      height: 180px;
+      aspect-ratio: auto;
+      border-left: none;
+      border-bottom: 1px solid var(--color-neutral-100);
+      padding: 0.75rem;
+    }
+
+    & .ogp-card-image {
+      object-fit: contain;
+    }
+
+    & .ogp-card-body {
+      padding: 0.875rem 1rem;
+    }
+
+    & .ogp-card-title {
+      font-size: 0.9rem;
+      margin-bottom: 0.25rem;
+    }
+
+    & .ogp-card-description {
+      font-size: 0.775rem;
+      margin-bottom: 0.5rem;
     }
   }
 }

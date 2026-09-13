@@ -13,6 +13,7 @@ import rehypeKatex from "rehype-katex"; // ★追加: 数式のHTMLレンダリ�
 import rehypeMermaid from "rehype-mermaid"; // ★追加: Mermaid図表のSVG変換 (20-22)
 import rehypePrettyCode from "rehype-pretty-code";
 import rehypeStringify from "rehype-stringify";
+import { getOgpData, OgpData } from "./ogp";
 
 const postsDirectory = path.join(process.cwd(), "content", "blog");
 
@@ -88,6 +89,120 @@ function rehypeOptimizeImages() {
   };
 }
 
+/**
+ * HTML文字列のエスケープ
+ */
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+/**
+ * OGPカードのHTMLレンダリング
+ */
+function renderOgpCardHtml(ogp: OgpData): string {
+  const safeUrl = escapeHtml(ogp.url);
+  const safeTitle = escapeHtml(ogp.title);
+  const safeDescription = ogp.description ? escapeHtml(ogp.description) : "";
+  const safeDomain = escapeHtml(ogp.domain);
+  const safeFavicon = ogp.favicon ? escapeHtml(ogp.favicon) : "";
+  const safeImage = ogp.image ? escapeHtml(ogp.image) : "";
+
+  return `
+<div class="ogp-card-container not-prose my-6">
+  <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="ogp-card group">
+    <div class="ogp-card-body">
+      <div class="ogp-card-title">${safeTitle}</div>
+      ${safeDescription ? `<p class="ogp-card-description">${safeDescription}</p>` : ""}
+      <div class="ogp-card-footer">
+        ${safeFavicon ? `<img src="${safeFavicon}" alt="" class="ogp-card-favicon" loading="lazy" />` : ""}
+        <span class="ogp-card-domain">${safeDomain}</span>
+      </div>
+    </div>
+    ${
+      safeImage
+        ? `<div class="ogp-card-image-wrap">
+        <img src="${safeImage}" alt="${safeTitle}" class="ogp-card-image" loading="lazy" />
+      </div>`
+        : ""
+    }
+  </a>
+</div>
+`.trim();
+}
+
+/**
+ * [card](url) 記法をOGPリンクカードに変換するRemarkプラグイン
+ */
+function remarkOgpCard() {
+  return async (tree: any) => {
+    async function processNodes(nodes: any[]): Promise<any[]> {
+      const newNodes: any[] = [];
+
+      for (const node of nodes) {
+        // 単独の段落にある [card](url) をチェック
+        if (node.type === "paragraph" && Array.isArray(node.children)) {
+          const nonWhitespace = node.children.filter(
+            (c: any) => !(c.type === "text" && c.value.trim() === "")
+          );
+
+          if (nonWhitespace.length === 1 && nonWhitespace[0].type === "link") {
+            const linkNode = nonWhitespace[0];
+            const linkText = (linkNode.children || [])
+              .map((c: any) => c.value || "")
+              .join("")
+              .trim();
+
+            if (linkText === "card" && linkNode.url) {
+              const ogp = await getOgpData(linkNode.url);
+              newNodes.push({
+                type: "html",
+                value: renderOgpCardHtml(ogp),
+              });
+              continue;
+            }
+          }
+        }
+
+        // それ以外でインラインの [card](url) があった場合も置換対応
+        if (Array.isArray(node.children)) {
+          const newChildren: any[] = [];
+          for (const child of node.children) {
+            if (child.type === "link") {
+              const linkText = (child.children || [])
+                .map((c: any) => c.value || "")
+                .join("")
+                .trim();
+              if (linkText === "card" && child.url) {
+                const ogp = await getOgpData(child.url);
+                newChildren.push({
+                  type: "html",
+                  value: renderOgpCardHtml(ogp),
+                });
+                continue;
+              }
+            }
+            newChildren.push(child);
+          }
+          node.children = await processNodes(newChildren);
+        }
+
+        newNodes.push(node);
+      }
+
+      return newNodes;
+    }
+
+    if (Array.isArray(tree.children)) {
+      tree.children = await processNodes(tree.children);
+    }
+  };
+}
+
 export async function getPostData(slug: string): Promise<PostData | null> {
   const fullPath = path.join(postsDirectory, `${slug}.md`);
 
@@ -105,7 +220,8 @@ export async function getPostData(slug: string): Promise<PostData | null> {
     .use(remarkDeflist)                     // 3. 定義リストを解析 (<dl>, <dt>, <dd>)
     .use(remarkGithubBlockquoteAlert)       // 4. [!NOTE] などのアラート記法を解析
     .use(remarkMath)                        // 5. $...$ や $$...$$ の数式記法を解析
-    .use(remarkRehype, { allowDangerousHtml: true }) // 6. AST を HTML構造 (rehype) に変換
+    .use(remarkOgpCard)                     // 6. [card](url) 記法をOGPカードに変換
+    .use(remarkRehype, { allowDangerousHtml: true }) // 7. AST を HTML構造 (rehype) に変換
     .use(rehypeRaw)                         // 7. 生HTMLノードを rehype AST 要素に変換
     .use(rehypeOptimizeImages)              // 8. 画像を WebP & srcset に自動変換
     .use(rehypeKatex)                       // 9. 数式を KaTeX による表示用HTMLへ変換

@@ -95,6 +95,14 @@ Reference-style link: [Markdown Guide][guide]
 
 [guide]: https://www.markdownguide.org/
 
+### OGP Card Link
+
+```markdown
+[card](https://github.com)
+```
+
+[card](https://github.com)
+
 ---
 
 ## 4. Paragraphs
