@@ -54,6 +54,8 @@ I also considered Cloudflare Pages, but ultimately chose Vercel for its seamless
 - **framer-motion**: Used for animations in the gallery albums.
 - **katex**: Used to render mathematical formulas in blog posts.
 
+---
+
 ## What I like
 
 ### Header Logo Animation
@@ -92,6 +94,8 @@ Used for blog post text. Its high legibility makes it ideal for long-form readin
 
 Used for photo titles in the gallery and on the 404 page. It's a charming handwritten font that works wonderfully as an accent.
 [card](https://fonts.google.com/specimen/Caveat)
+
+---
 
 ## Finally
 
