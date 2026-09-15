@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getPostData, getSortedPostsData } from "@/features/blog/posts";
+import { getPostData, getSortedPostsData, getPostMetadata } from "@/features/blog/posts";
 import { Inter } from "next/font/google";
 import MermaidScript from "@/components/markdown/MermaidScript";
 import CodeCopyScript from "@/components/markdown/CodeCopyScript";
@@ -21,10 +21,10 @@ export async function generateStaticParams() {
   }));
 }
 
-// 記事ごとにSEO用メタデータを動的作成
+// 記事ごとにSEO用メタデータを動的作成（フロントマターのみ高速取得）
 export async function generateMetadata({ params }: PostProps) {
   const { slug } = await params;
-  const post = await getPostData(slug);
+  const post = getPostMetadata(slug);
 
   if (!post) {
     return {
@@ -110,7 +110,7 @@ export default async function BlogPostPage({ params }: PostProps) {
               className="blog-content"
               dangerouslySetInnerHTML={{ __html: post.contentHtml }}
             />
-            <MermaidScript />
+            {post.hasMermaid && <MermaidScript />}
             <CodeCopyScript />
             <BlogImageModal />
           </>

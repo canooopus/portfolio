@@ -1,18 +1,52 @@
 "use client";
 
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, useSyncExternalStore } from "react";
 import { playlists } from "@/features/portfolio/playlists";
 
 interface PlaylistSectionProps {
   caveatClass: string;
 }
 
+function subscribeMediaQuery(callback: () => void) {
+  const mql = window.matchMedia("(min-width: 768px)");
+  mql.addEventListener("change", callback);
+  return () => mql.removeEventListener("change", callback);
+}
+
+function getSnapshotDesktop() {
+  return window.matchMedia("(min-width: 768px)").matches;
+}
+
+function getServerSnapshotDesktop() {
+  return false;
+}
+
 export function PlaylistSection({ caveatClass }: PlaylistSectionProps) {
-  const [playlistIndex, setPlaylistIndex] = useState(0);
+  // デバイス判定（PC vs モバイル）：useSyncExternalStoreで同期購読
+  const isDesktop = useSyncExternalStore(
+    subscribeMediaQuery,
+    getSnapshotDesktop,
+    getServerSnapshotDesktop
+  );
 
   // PC用無限ループカルーセルの制御用ステート (初期値 1: 本物の最初の要素)
   const [currentIndex, setCurrentIndex] = useState(1);
   const [isTransitioning, setIsTransitioning] = useState(true);
+
+  // モバイル用インデックス
+  const [mobilePlaylistIndex, setMobilePlaylistIndex] = useState(0);
+
+  // 表示用インデックス（PC版はcurrentIndexから即時算出、モバイルはスクロールから）
+  const pcPlaylistIndex = (currentIndex - 1 + playlists.length) % playlists.length;
+  const playlistIndex = isDesktop ? pcPlaylistIndex : mobilePlaylistIndex;
+
+  // ロード済みインデックス管理（初期表示のスライド 1 とその前後 0, 2 のみを初期ロード）
+  const [loadedPcIndices, setLoadedPcIndices] = useState<Set<number>>(
+    () => new Set([0, 1, 2])
+  );
+  const [loadedMobileIndices, setLoadedMobileIndices] = useState<Set<number>>(
+    () => new Set([0, 1, 2])
+  );
 
   // iframe操作用のオーバーレイ制御用ステート
   const [activeIframeIndex, setActiveIframeIndex] = useState<
@@ -28,33 +62,56 @@ export function PlaylistSection({ caveatClass }: PlaylistSectionProps) {
   const prevPlaylist = () => {
     if (!isTransitioning) return;
     setIsTransitioning(true);
-    setCurrentIndex((prev) => prev - 1);
+    const next = currentIndex - 1;
+    setCurrentIndex(next);
+    setLoadedPcIndices((prev) => {
+      const updated = new Set(prev);
+      updated.add(next);
+      updated.add(next - 1);
+      updated.add(next + 1);
+      return updated;
+    });
   };
 
   const nextPlaylist = () => {
     if (!isTransitioning) return;
     setIsTransitioning(true);
-    setCurrentIndex((prev) => prev + 1);
+    const next = currentIndex + 1;
+    setCurrentIndex(next);
+    setLoadedPcIndices((prev) => {
+      const updated = new Set(prev);
+      updated.add(next);
+      updated.add(next - 1);
+      updated.add(next + 1);
+      return updated;
+    });
   };
 
   // PC版：トランジション終了時の瞬間移動
   const handleTransitionEnd = () => {
     if (currentIndex === 0) {
       setIsTransitioning(false);
-      setCurrentIndex(playlists.length); // 本物の最後の要素へ瞬間移動
+      const target = playlists.length;
+      setCurrentIndex(target);
+      setLoadedPcIndices((prev) => {
+        const updated = new Set(prev);
+        updated.add(target);
+        updated.add(target - 1);
+        updated.add(target + 1);
+        return updated;
+      });
     } else if (currentIndex === playlists.length + 1) {
       setIsTransitioning(false);
-      setCurrentIndex(1); // 本物の最初の要素へ瞬間移動
+      setCurrentIndex(1);
+      setLoadedPcIndices((prev) => {
+        const updated = new Set(prev);
+        updated.add(1);
+        updated.add(0);
+        updated.add(2);
+        return updated;
+      });
     }
   };
-
-  // 表示用 playlistIndex の同期
-  useEffect(() => {
-    let index = currentIndex - 1;
-    if (index < 0) index = playlists.length - 1;
-    if (index >= playlists.length) index = 0;
-    setPlaylistIndex(index);
-  }, [currentIndex]);
 
   // transitionを有効に戻す
   useEffect(() => {
@@ -146,39 +203,48 @@ export function PlaylistSection({ caveatClass }: PlaylistSectionProps) {
                   }}
                   onTransitionEnd={handleTransitionEnd}
                 >
-                  {loopedPlaylists.map((url, i) => (
-                    <div
-                      key={i}
-                      className="w-full h-full shrink-0 relative"
-                      style={{
-                        backfaceVisibility: "hidden",
-                        transform: "translate3d(0,0,0)",
-                        willChange: "transform",
-                      }}
-                      onMouseLeave={() => setActiveIframeIndex(null)}
-                    >
-                      <iframe
-                        src={url}
-                        className="w-full h-full rounded-xl border-0 bg-transparent pointer-events-auto"
-                        allowFullScreen
-                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                        loading="lazy"
-                      />
-                      {/* 透明カバー。DOMに常にマウントし、pointer-eventsのみ制御 */}
+                  {loopedPlaylists.map((url, i) => {
+                    const shouldLoad =
+                      isDesktop === true && loadedPcIndices.has(i);
+
+                    return (
                       <div
-                        className={`absolute inset-0 w-full h-full cursor-pointer z-10 ${
-                          activeIframeIndex === i
-                            ? "pointer-events-none"
-                            : "pointer-events-auto"
-                        }`}
-                        onClick={() => setActiveIframeIndex(i)}
+                        key={i}
+                        className="w-full h-full shrink-0 relative"
                         style={{
                           backfaceVisibility: "hidden",
                           transform: "translate3d(0,0,0)",
+                          willChange: "transform",
                         }}
-                      />
-                    </div>
-                  ))}
+                        onMouseLeave={() => setActiveIframeIndex(null)}
+                      >
+                        {shouldLoad ? (
+                          <iframe
+                            src={url}
+                            className="w-full h-full rounded-xl border-0 bg-transparent pointer-events-auto"
+                            allowFullScreen
+                            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="w-full h-full rounded-xl bg-neutral-200/50" />
+                        )}
+                        {/* 透明カバー。DOMに常にマウントし、pointer-eventsのみ制御 */}
+                        <div
+                          className={`absolute inset-0 w-full h-full cursor-pointer z-10 ${
+                            activeIframeIndex === i
+                              ? "pointer-events-none"
+                              : "pointer-events-auto"
+                          }`}
+                          onClick={() => setActiveIframeIndex(i)}
+                          style={{
+                            backfaceVisibility: "hidden",
+                            transform: "translate3d(0,0,0)",
+                          }}
+                        />
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -231,11 +297,20 @@ export function PlaylistSection({ caveatClass }: PlaylistSectionProps) {
                     target.scrollTo({ top: step, behavior: "auto" });
                   }
 
-                  const index = Math.round(target.scrollTop / step) - 1;
+                  const rawIndex = Math.round(target.scrollTop / step);
+                  setLoadedMobileIndices((prev) => {
+                    const next = new Set(prev);
+                    next.add(rawIndex);
+                    next.add(rawIndex - 1);
+                    next.add(rawIndex + 1);
+                    return next.size === prev.size ? prev : next;
+                  });
+
+                  const index = rawIndex - 1;
                   const safeIndex =
                     (index + playlists.length) % playlists.length;
-                  if (safeIndex !== playlistIndex) {
-                    setPlaylistIndex(safeIndex);
+                  if (safeIndex !== mobilePlaylistIndex) {
+                    setMobilePlaylistIndex(safeIndex);
                   }
                 }}
               >
@@ -243,6 +318,9 @@ export function PlaylistSection({ caveatClass }: PlaylistSectionProps) {
                   const uniqueKey = `mobile-${index}`;
                   const isOverlayActive =
                     isScrolling || activeIframeIndex !== uniqueKey;
+                  const shouldLoad =
+                    isDesktop === false && loadedMobileIndices.has(index);
+
                   return (
                     <div
                       key={uniqueKey}
@@ -253,13 +331,17 @@ export function PlaylistSection({ caveatClass }: PlaylistSectionProps) {
                         willChange: "transform",
                       }}
                     >
-                      <iframe
-                        src={url}
-                        className="w-full h-full rounded-xl border-0 bg-transparent pointer-events-auto"
-                        allowFullScreen
-                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                        loading="lazy"
-                      />
+                      {shouldLoad ? (
+                        <iframe
+                          src={url}
+                          className="w-full h-full rounded-xl border-0 bg-transparent pointer-events-auto"
+                          allowFullScreen
+                          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-full h-full rounded-xl bg-neutral-200/50" />
+                      )}
                       {/* 透明カバー。DOMに常にマウントし、pointer-eventsのみ制御 */}
                       <div
                         className={`absolute inset-0 w-full h-full cursor-pointer z-10 ${

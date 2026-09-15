@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { cache } from "react";
 import matter from "gray-matter";
 import { unified } from "unified";
 import remarkParse from "remark-parse";
@@ -17,11 +18,35 @@ import { getOgpData, OgpData } from "./ogp";
 
 const postsDirectory = path.join(process.cwd(), "content", "blog");
 
-export interface PostData {
+export interface PostMetadata {
   slug: string;
   title: string;
   date: string;
+}
+
+export interface PostData extends PostMetadata {
   contentHtml?: string;
+  hasMermaid?: boolean;
+}
+
+/**
+ * メタデータ（title, date）のみを高速に取得（HTMLパースをスキップ）
+ */
+export function getPostMetadata(slug: string): PostMetadata | null {
+  const fullPath = path.join(postsDirectory, `${slug}.md`);
+
+  if (!fs.existsSync(fullPath)) {
+    return null;
+  }
+
+  const fileContents = fs.readFileSync(fullPath, "utf8");
+  const { data } = matter(fileContents);
+
+  return {
+    slug,
+    title: data.title || "No Title",
+    date: data.date || "1970-01-01",
+  };
 }
 
 export function getSortedPostsData(): PostData[] {
@@ -203,7 +228,7 @@ function remarkOgpCard() {
   };
 }
 
-export async function getPostData(slug: string): Promise<PostData | null> {
+export const getPostData = cache(async (slug: string): Promise<PostData | null> => {
   const fullPath = path.join(postsDirectory, `${slug}.md`);
 
   if (!fs.existsSync(fullPath)) {
@@ -236,11 +261,13 @@ export async function getPostData(slug: string): Promise<PostData | null> {
     .process(content);
 
   const contentHtml = processedContent.toString();
+  const hasMermaid = content.includes("```mermaid") || contentHtml.includes('class="mermaid"');
 
   return {
     slug,
     title: data.title || "No Title",
     date: data.date || "1970-01-01",
     contentHtml,
+    hasMermaid,
   };
-}
+});

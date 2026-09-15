@@ -7,6 +7,10 @@ export default function MermaidScript() {
     let isMounted = true;
 
     async function renderMermaid() {
+      // 1. まず DOM 内に .mermaid 要素が存在するかチェック（存在しない場合は巨大な mermaid ライブラリを読み込まない）
+      const elements = document.querySelectorAll(".mermaid");
+      if (elements.length === 0) return;
+
       try {
         const mermaidModule = await import("mermaid");
         const mermaid = mermaidModule.default;
@@ -57,12 +61,9 @@ export default function MermaidScript() {
           },
         });
 
-        const elements = document.querySelectorAll(".mermaid");
-        if (elements.length > 0) {
-          await mermaid.run({
-            querySelector: ".mermaid",
-          });
-        }
+        await mermaid.run({
+          querySelector: ".mermaid",
+        });
       } catch (error) {
         console.error("Failed to render Mermaid diagrams:", error);
       }
