@@ -1,6 +1,10 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getPostData, getSortedPostsData, getPostMetadata } from "@/features/blog/posts";
+import {
+  getPostData,
+  getSortedPostsData,
+  getPostMetadata,
+} from "@/features/blog/posts";
 import { Inter } from "next/font/google";
 import MermaidScript from "@/components/markdown/MermaidScript";
 import CodeCopyScript from "@/components/markdown/CodeCopyScript";
@@ -28,13 +32,19 @@ export async function generateMetadata({ params }: PostProps) {
 
   if (!post) {
     return {
-      title: "Not Found | Canooopus",
+      title: "Not Found",
     };
   }
 
   return {
-    title: `${post.title} | Canooopus`,
-    description: "Canooopus'blog",
+    title: post.title,
+    description: `${post.title} - Canooopus' blog`,
+    openGraph: {
+      title: post.title,
+      description: `${post.title} - Canooopus' blog`,
+      type: "article",
+      publishedTime: post.date,
+    },
   };
 }
 

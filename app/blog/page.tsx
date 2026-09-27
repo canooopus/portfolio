@@ -7,8 +7,8 @@ const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600"] });
 const caveat = Caveat({ subsets: ["latin"], weight: ["400", "600", "700"] });
 
 export const metadata = {
-  title: "Blog | Canooopus",
-  description: "Canooopus' blog",
+  title: "Blog",
+  description: "Canooopusの技術記事・思考メモ一覧です。",
 };
 
 export default function BlogListPage() {
