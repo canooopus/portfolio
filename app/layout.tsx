@@ -34,9 +34,9 @@ export const metadata: Metadata = {
     description: "Canooopusのポートフォリオ兼ブログサイトです。",
   },
   // Google Search Console の確認コードを取得したら、以下のコメントアウトを解除してコードを入れてください
-  // verification: {
-  //   google: "YOUR_GOOGLE_VERIFICATION_CODE",
-  // },
+  verification: {
+    google: "OLBliKq0-sRAuFQTuLAg7YnZtGuLSaF5OkNG18Se1eg",
+  },
 };
 
 export default function RootLayout({
