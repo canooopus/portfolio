@@ -93,7 +93,7 @@ export default function BlogListPage() {
                     return (
                       <article
                         key={post.slug}
-                        className="transition-opacity duration-200 group-hover/list:opacity-35 hover:!opacity-100"
+                        className="transition-opacity duration-200 group-hover/list:opacity-35 hover:opacity-100!"
                       >
                         <Link
                           href={`/blog/${post.slug}`}
@@ -109,7 +109,7 @@ export default function BlogListPage() {
                               <div className="inline-flex items-center gap-1 shrink-0 select-none leading-none pt-0.5 sm:pt-0">
                                 {/* 手書き風矢印（スマホ時は少し小さめにスケール） */}
                                 <svg
-                                  className="w-6 h-4 sm:w-7 sm:h-5 text-orange-500 shrink-0 -rotate-6 translate-y-[1px]"
+                                  className="w-6 h-4 sm:w-7 sm:h-5 text-orange-500 shrink-0 -rotate-6 translate-y-px"
                                   viewBox="0 0 42 20"
                                   fill="none"
                                   stroke="currentColor"
