@@ -16,7 +16,6 @@ The primary technologies and services used in this project are:
 
 - Next.js (App Router)
 - TypeScript / Tailwind CSS / React
-- Playwright
 - Sharp
 - Vercel
 
@@ -30,11 +29,6 @@ By leveraging Next.js's Static Site Generation (SSG), the site achieves fast loa
 Previously, I wrote raw JavaScript, HTML, and CSS directly. Moving to TypeScript, Tailwind CSS, and React has made the development workflow much more efficient and type-safe.
 Tailwind CSS in particular eliminates the need to constantly come up with class names, making styling concise and straightforward.
 In addition, React's component-based approach makes reusing code seamless.
-
-### Playwright
-
-While Playwright is an end-to-end testing tool developed by Microsoft, I used it here to convert Mermaid diagrams in blog posts into SVGs.
-Although there are npm packages available for Mermaid, they render diagrams on the client side at runtime, which can slow down page loading. By using Playwright during the build step, diagrams are pre-rendered into SVGs, keeping page loads fast.
 
 ### Sharp
 
@@ -53,6 +47,7 @@ I also considered Cloudflare Pages, but ultimately chose Vercel for its seamless
 - **shiki**: Used for syntax highlighting in code blocks within blog posts.
 - **framer-motion**: Used for animations in the gallery albums.
 - **katex**: Used to render mathematical formulas in blog posts.
+- **mermaid**: Dynamically loaded on the client side only when a post contains diagrams, keeping the initial bundle size small.
 
 ---
 
@@ -68,7 +63,7 @@ Generating the paths required tracing over the font manually, and crafting smoot
 ![Gallery Albums](/images/blog/building_my_personal_website/gallery.png)
 
 Simply displaying photos in a standard grid felt a bit plain, so I designed them to look like photo albums.
-Adding photos is easy: simply drop the image files into `public/home/gallery` and register the metadata in `galleryItems.ts`.
+Adding photos is easy: simply drop the image files into `public/images/home/gallery` and register the metadata in `galleryItems.ts`.
 
 ### Floating Menu
 
