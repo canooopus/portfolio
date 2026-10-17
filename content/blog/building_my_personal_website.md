@@ -71,6 +71,8 @@ I designed the floating menu inspired by Apple's Liquid Glass aesthetics.
 Personally, while Liquid Glass looks great, it can be tricky in terms of usability, so I opted for a subtle frosted blur effect that feels elevated.
 Currently, it only links to the Home and Blog pages, but I plan to expand its functionality in the future.
 
+---
+
 ## Typography
 
 All fonts used across the site are freely available on [Google Fonts](https://fonts.google.com/).
