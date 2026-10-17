@@ -20,6 +20,8 @@ export default function Footer() {
           <Link
             href="https://github.com/canooopus"
             target="_blank"
+            rel="noopener noreferrer"
+            aria-label="GitHub profile"
             className="hover:text-neutral-600 transition-colors underline decoration-1 underline-offset-4"
           >
             <svg
@@ -37,6 +39,8 @@ export default function Footer() {
           <Link
             href="https://x.com/Canopus1170612"
             target="_blank"
+            rel="noopener noreferrer"
+            aria-label="X (Twitter) profile"
             className="hover:text-neutral-600 transition-colors"
           >
             <svg

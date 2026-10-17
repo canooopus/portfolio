@@ -32,7 +32,7 @@ export interface PostData extends PostMetadata {
 /**
  * メタデータ（title, date）のみを高速に取得（HTMLパースをスキップ）
  */
-export function getPostMetadata(slug: string): PostMetadata | null {
+export const getPostMetadata = cache((slug: string): PostMetadata | null => {
   const fullPath = path.join(postsDirectory, `${slug}.md`);
 
   if (!fs.existsSync(fullPath)) {
@@ -47,9 +47,9 @@ export function getPostMetadata(slug: string): PostMetadata | null {
     title: data.title || "No Title",
     date: data.date || "1970-01-01",
   };
-}
+});
 
-export function getSortedPostsData(): PostData[] {
+export const getSortedPostsData = cache((): PostData[] => {
   if (!fs.existsSync(postsDirectory)) {
     return [];
   }
@@ -71,7 +71,7 @@ export function getSortedPostsData(): PostData[] {
     });
 
   return allPostsData.sort((a, b) => (a.date < b.date ? 1 : -1));
-}
+});
 
 /**
  * Markdown内の画像（<img src="...">）を事前生成WebP & srcsetに自動変換するRehypeプラグイン
@@ -165,61 +165,61 @@ function renderOgpCardHtml(ogp: OgpData): string {
  */
 function remarkOgpCard() {
   return async (tree: any) => {
-    async function processNodes(nodes: any[]): Promise<any[]> {
-      const newNodes: any[] = [];
+    async function processNode(node: any): Promise<any[]> {
+      // 単独の段落にある [card](url) をチェック
+      if (node.type === "paragraph" && Array.isArray(node.children)) {
+        const nonWhitespace = node.children.filter(
+          (c: any) => !(c.type === "text" && c.value.trim() === "")
+        );
 
-      for (const node of nodes) {
-        // 単独の段落にある [card](url) をチェック
-        if (node.type === "paragraph" && Array.isArray(node.children)) {
-          const nonWhitespace = node.children.filter(
-            (c: any) => !(c.type === "text" && c.value.trim() === "")
-          );
+        if (nonWhitespace.length === 1 && nonWhitespace[0].type === "link") {
+          const linkNode = nonWhitespace[0];
+          const linkText = (linkNode.children || [])
+            .map((c: any) => c.value || "")
+            .join("")
+            .trim();
 
-          if (nonWhitespace.length === 1 && nonWhitespace[0].type === "link") {
-            const linkNode = nonWhitespace[0];
-            const linkText = (linkNode.children || [])
+          if (linkText === "card" && linkNode.url) {
+            const ogp = await getOgpData(linkNode.url);
+            return [
+              {
+                type: "html",
+                value: renderOgpCardHtml(ogp),
+              },
+            ];
+          }
+        }
+      }
+
+      // それ以外でインラインの [card](url) があった場合も置換対応
+      if (Array.isArray(node.children)) {
+        const newChildren: any[] = [];
+        for (const child of node.children) {
+          if (child.type === "link") {
+            const linkText = (child.children || [])
               .map((c: any) => c.value || "")
               .join("")
               .trim();
-
-            if (linkText === "card" && linkNode.url) {
-              const ogp = await getOgpData(linkNode.url);
-              newNodes.push({
+            if (linkText === "card" && child.url) {
+              const ogp = await getOgpData(child.url);
+              newChildren.push({
                 type: "html",
                 value: renderOgpCardHtml(ogp),
               });
               continue;
             }
           }
+          newChildren.push(child);
         }
-
-        // それ以外でインラインの [card](url) があった場合も置換対応
-        if (Array.isArray(node.children)) {
-          const newChildren: any[] = [];
-          for (const child of node.children) {
-            if (child.type === "link") {
-              const linkText = (child.children || [])
-                .map((c: any) => c.value || "")
-                .join("")
-                .trim();
-              if (linkText === "card" && child.url) {
-                const ogp = await getOgpData(child.url);
-                newChildren.push({
-                  type: "html",
-                  value: renderOgpCardHtml(ogp),
-                });
-                continue;
-              }
-            }
-            newChildren.push(child);
-          }
-          node.children = await processNodes(newChildren);
-        }
-
-        newNodes.push(node);
+        node.children = await processNodes(newChildren);
       }
 
-      return newNodes;
+      return [node];
+    }
+
+    async function processNodes(nodes: any[]): Promise<any[]> {
+      const results = await Promise.all(nodes.map(processNode));
+      return results.flat();
     }
 
     if (Array.isArray(tree.children)) {

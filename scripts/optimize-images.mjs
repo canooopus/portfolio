@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 import sharp from "sharp";
 import { syncBlogFolders } from "./sync-blog-folders.mjs";
 
@@ -182,8 +183,7 @@ export async function optimizeImages() {
 // スクリプト直接実行時
 const isDirectRun =
   process.argv[1] &&
-  path.resolve(process.argv[1]) ===
-    path.resolve(new URL(import.meta.url).pathname.replace(/^\/([A-Z]:)/i, "$1"));
+  path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 
 if (isDirectRun) {
   optimizeImages().catch((err) => {

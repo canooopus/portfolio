@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { Image } from "@/components/common/Image";
 import { motion, AnimatePresence } from "framer-motion";
 import { GalleryItem } from "@/features/portfolio/types";
+import { useScrollLock } from "@/hooks/useScrollLock";
 
 interface ImageModalProps {
   selectedItem: GalleryItem | null;
@@ -18,38 +19,11 @@ export function ImageModal({
   caveatClass,
 }: ImageModalProps) {
   const [mounted, setMounted] = useState(false);
+  const { unlockScroll } = useScrollLock(Boolean(selectedItem));
 
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  // 画面全体のブラー適用 & ガター解除 & 余白補正
-  const lockScroll = () => {
-    const scrollbarWidth =
-      window.innerWidth - document.documentElement.clientWidth;
-
-    document.documentElement.style.scrollbarGutter = "auto";
-    document.documentElement.style.overflow = "hidden";
-    document.body.style.overflow = "hidden";
-
-    if (scrollbarWidth > 0) {
-      document.body.style.paddingRight = `${scrollbarWidth}px`;
-      // スクロールバー幅を CSS 変数としてセット（FloatingMenu などの位置補正用）
-      document.documentElement.style.setProperty(
-        "--scrollbar-width",
-        `${scrollbarWidth}px`,
-      );
-    }
-  };
-
-  // スクロールバーとガターの完全復元
-  const unlockScroll = () => {
-    document.documentElement.style.scrollbarGutter = "";
-    document.documentElement.style.overflow = "";
-    document.body.style.overflow = "";
-    document.body.style.paddingRight = "";
-    document.documentElement.style.removeProperty("--scrollbar-width");
-  };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -58,20 +32,12 @@ export function ImageModal({
 
     if (selectedItem) {
       window.addEventListener("keydown", handleKeyDown);
-      lockScroll();
     }
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [selectedItem, onClose]);
-
-  // コンポーネントアンマウント時の安全対策
-  useEffect(() => {
-    return () => {
-      unlockScroll();
-    };
-  }, []);
 
   if (!mounted) return null;
 
@@ -84,6 +50,9 @@ export function ImageModal({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
+          role="dialog"
+          aria-modal="true"
+          aria-label={selectedItem.description}
           className="fixed inset-0 z-100 flex items-center justify-center bg-black/30 backdrop-blur-md p-4 cursor-zoom-out select-none"
           onClick={onClose}
         >

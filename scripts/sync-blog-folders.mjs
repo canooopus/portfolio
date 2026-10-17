@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 
 const BLOG_CONTENT_DIR = "content/blog";
 const BLOG_IMAGES_DIR = "public/images/blog";
@@ -83,7 +84,9 @@ export function watchBlogFolders() {
 }
 
 // コマンドラインから直接実行された場合
-const isDirectRun = process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname.replace(/^\/([A-Z]:)/i, "$1"));
+const isDirectRun =
+  process.argv[1] &&
+  path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (process.argv.includes("--watch")) {
   watchBlogFolders();
 } else if (process.argv.includes("--sync") || isDirectRun) {

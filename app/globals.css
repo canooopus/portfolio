@@ -9,6 +9,12 @@ html {
   scrollbar-gutter: stable;
   scrollbar-width: thin;
   scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+  overscroll-behavior-y: none;
+  min-height: 100%;
+}
+
+body {
+  overflow-x: clip;
 }
 
 /* Webkit系 (Chrome, Safari, Edgeなど) */
@@ -42,7 +48,7 @@ html {
 }
 
 /* -------------------------------------------------------------
- * Page Transition / Fade-up Animation
+ * Page Transition / Animations
  * ------------------------------------------------------------- */
 @keyframes fade-up {
   from {
@@ -57,6 +63,13 @@ html {
 
 .animate-fade-up {
   animation: fade-up 1s ease-out forwards;
+}
+
+/* ブログの「New」バッジ手描き線アニメーション */
+@keyframes drawArrow {
+  to {
+    stroke-dashoffset: 0;
+  }
 }
 
 /* -------------------------------------------------------------

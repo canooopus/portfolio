@@ -59,20 +59,6 @@ export function PortfolioContainer({
         !showText ? "h-screen overflow-hidden" : "min-h-screen overflow-x-clip"
       }`}
     >
-      <style
-        dangerouslySetInnerHTML={{
-          __html: `
-        html {
-          overscroll-behavior-y: none;
-          min-height: 100%;
-          scrollbar-gutter: stable;
-        }
-        body {
-          overflow-x: clip; /* htmlではなく、bodyのみに設定します */
-        }
-      `,
-        }}
-      />
       <main className="max-w-2xl mx-auto px-6 pt-20 pb-0 md:pt-32 selection:bg-blue-100 flex flex-col items-start justify-center min-h-[50vh]">
         {/* ロゴセクション */}
         <AnimatedLogo onComplete={() => setShowText(true)} />

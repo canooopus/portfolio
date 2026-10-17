@@ -17,6 +17,9 @@ const CHECK_ICON = `
 
 export default function CodeCopyScript() {
   useEffect(() => {
+    const abortController = new AbortController();
+    const { signal } = abortController;
+
     const preElements = document.querySelectorAll<HTMLElement>(
       ".blog-content pre:not(.mermaid)",
     );
@@ -44,35 +47,40 @@ export default function CodeCopyScript() {
         </span>
       `;
 
-      button.addEventListener("click", async () => {
-        const codeElement = pre.querySelector("code");
-        const codeText =
-          (codeElement ? codeElement.innerText : pre.innerText) ?? "";
+      button.addEventListener(
+        "click",
+        async () => {
+          const codeElement = pre.querySelector("code");
+          const codeText =
+            (codeElement ? codeElement.innerText : pre.innerText) ?? "";
 
-        try {
-          await navigator.clipboard.writeText(codeText);
+          try {
+            await navigator.clipboard.writeText(codeText);
 
-          button.classList.add("copied");
+            button.classList.add("copied");
 
-          if (timeouts.has(button)) {
-            clearTimeout(timeouts.get(button)!);
+            if (timeouts.has(button)) {
+              clearTimeout(timeouts.get(button)!);
+            }
+
+            const timeout = setTimeout(() => {
+              button.classList.remove("copied");
+              timeouts.delete(button);
+            }, 2000);
+
+            timeouts.set(button, timeout);
+          } catch (err) {
+            console.error("Failed to copy code to clipboard:", err);
           }
-
-          const timeout = setTimeout(() => {
-            button.classList.remove("copied");
-            timeouts.delete(button);
-          }, 2000);
-
-          timeouts.set(button, timeout);
-        } catch (err) {
-          console.error("Failed to copy code to clipboard:", err);
-        }
-      });
+        },
+        { signal },
+      );
 
       wrapper.appendChild(button);
     });
 
     return () => {
+      abortController.abort();
       timeouts.forEach((timeout) => clearTimeout(timeout));
       timeouts.clear();
     };

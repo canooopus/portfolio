@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useMemo } from "react";
 import { usePathname } from "next/navigation";
 
 interface MenuContextType {
@@ -29,10 +29,13 @@ export const MenuProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [pathname]);
 
+  const value = useMemo(
+    () => ({ isReady, setIsReady, showFooter, setShowFooter }),
+    [isReady, showFooter],
+  );
+
   return (
-    <MenuContext.Provider
-      value={{ isReady, setIsReady, showFooter, setShowFooter }}
-    >
+    <MenuContext.Provider value={value}>
       {children}
     </MenuContext.Provider>
   );

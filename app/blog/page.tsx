@@ -50,15 +50,6 @@ export default function BlogListPage() {
     <div
       className={`w-full min-h-screen bg-white text-neutral-900 overflow-x-hidden ${inter.className}`}
     >
-      {/* 手描き線アニメーション用のキーフレーム定義 */}
-      <style>{`
-        @keyframes drawArrow {
-          to {
-            stroke-dashoffset: 0;
-          }
-        }
-      `}</style>
-
       <main className="max-w-2xl mx-auto px-6 pt-24 pb-24 selection:bg-blue-100 animate-fade-up">
         {/* ブログのヘッダーセクション */}
         <div className="mb-14">

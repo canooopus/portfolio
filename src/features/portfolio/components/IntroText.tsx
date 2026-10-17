@@ -17,6 +17,8 @@ export function IntroText({ novaMonoClass }: IntroTextProps) {
         I’m currently working on
         <Link
           href="https://robopro2.com/app/nagasima/LINE/"
+          target="_blank"
+          rel="noopener noreferrer"
           className="inline-flex items-center gap-1 align-middle ml-1 mb-1 hover:opacity-80 transition-opacity underline decoration-1 underline-offset-2"
         >
           <span className="h-[1em] w-[1em] flex items-center">

@@ -61,8 +61,15 @@ export default function FloatingMenu() {
       }
     };
 
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsMenuOpen(false);
+      }
+    };
+
     if (isMenuOpen) {
       document.addEventListener("mousedown", handleMouseDown);
+      document.addEventListener("keydown", handleKeyDown);
       document.addEventListener("touchstart", handleTouchStart, {
         passive: true,
       });
@@ -74,6 +81,7 @@ export default function FloatingMenu() {
 
     return () => {
       document.removeEventListener("mousedown", handleMouseDown);
+      document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("touchstart", handleTouchStart);
       document.removeEventListener("touchmove", handleTouchMove);
       document.removeEventListener("touchend", handleTouchEnd);
@@ -139,6 +147,7 @@ export default function FloatingMenu() {
               <button
                 onClick={() => setIsMenuOpen(false)}
                 className="p-1 cursor-pointer"
+                aria-label="Close menu"
               >
                 <svg
                   viewBox="0 0 24 24"
@@ -199,6 +208,8 @@ export default function FloatingMenu() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsMenuOpen(true)}
+            aria-label="Open menu"
+            aria-expanded={isMenuOpen}
             className="w-12 h-12 flex items-center justify-center rounded-full text-neutral-200 hover:bg-white/10 cursor-pointer"
           >
             <svg

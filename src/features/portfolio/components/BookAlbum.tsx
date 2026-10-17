@@ -26,8 +26,17 @@ export const AlbumPageContent: React.FC<AlbumPageContentProps> = ({
   return (
     <div className="w-full h-full relative bg-[#FAF9F5] p-4 flex flex-col items-center justify-center">
       <div
-        className="w-52 bg-white border border-neutral-200 p-3 shadow-md transition-transform hover:rotate-0 duration-300 cursor-pointer hover:shadow-lg"
+        className="w-52 bg-white border border-neutral-200 p-3 shadow-md transition-transform hover:rotate-0 duration-300 cursor-pointer hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-800"
         onClick={() => onItemClick?.(item)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onItemClick?.(item);
+          }
+        }}
+        role="button"
+        tabIndex={0}
+        aria-label={`View ${item.description}`}
       >
         <div className="relative w-full h-40 bg-neutral-100 overflow-hidden">
           <Image
@@ -35,7 +44,8 @@ export const AlbumPageContent: React.FC<AlbumPageContentProps> = ({
             alt={item.description}
             fill
             sizes="208px"
-            priority={true}
+            priority={priority}
+            loading={priority || eager ? "eager" : "lazy"}
             variant="thumb"
             className="object-cover"
           />
