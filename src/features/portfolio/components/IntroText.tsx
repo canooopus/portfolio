@@ -24,7 +24,7 @@ export function IntroText({ novaMonoClass }: IntroTextProps) {
           <span className="h-[1em] w-[1em] flex items-center">
             <Image
               src="/images/brand/Bond.svg"
-              alt="ロゴ"
+              alt=""
               width={100}
               height={100}
               priority
