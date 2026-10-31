@@ -161,7 +161,15 @@ export default async function Image({
       >
         <div
           style={{
-            fontSize: title.length > 50 ? 46 : title.length > 30 ? 56 : 64,
+            // 文字数に応じて全体的に 8〜16px 程度サイズアップ
+            fontSize:
+              title.length > 50
+                ? 54
+                : title.length > 30
+                  ? 66
+                  : title.length > 15
+                    ? 76
+                    : 84,
             fontFamily:
               fonts.length > 0
                 ? "'Roboto', 'Noto Sans JP', sans-serif"
@@ -169,7 +177,7 @@ export default async function Image({
             fontStyle: "italic",
             fontWeight: 400,
             color: "#000000",
-            lineHeight: 1.3,
+            lineHeight: 1.25, // フォント拡大に合わせて少しだけ詰めています
             letterSpacing: "-0.01em",
             wordBreak: "break-word",
           }}

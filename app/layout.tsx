@@ -19,10 +19,10 @@ export const metadata: Metadata = {
     default: "Canooopus",
     template: "%s | Canooopus",
   },
-  description: "Canooopusのポートフォリオ兼ブログサイトです。",
+  description: "Portfolio of Canooopus.",
   openGraph: {
     title: "Canooopus",
-    description: "Canooopusのポートフォリオ兼ブログサイトです。",
+    description: "Portfolio of Canooopus.",
     url: siteUrl,
     siteName: "Canooopus",
     locale: "ja_JP",
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Canooopus",
-    description: "Canooopusのポートフォリオ兼ブログサイトです。",
+    description: "Portfolio of Canooopus.",
   },
   // Google Search Console の確認コードを取得したら、以下のコメントアウトを解除してコードを入れてください
   verification: {
