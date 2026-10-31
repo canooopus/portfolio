@@ -9,6 +9,7 @@ import { Inter } from "next/font/google";
 import MermaidScript from "@/components/markdown/MermaidScript";
 import CodeCopyScript from "@/components/markdown/CodeCopyScript";
 import BlogImageModal from "@/components/markdown/BlogImageModal";
+import FootnoteScrollScript from "@/components/markdown/FootnoteScrollScript";
 
 // 1. weightの指定を外すことで、太字（Bold）が正しく適用されるようにします
 const inter = Inter({ subsets: ["latin"] });
@@ -123,6 +124,7 @@ export default async function BlogPostPage({ params }: PostProps) {
             {post.hasMermaid && <MermaidScript />}
             <CodeCopyScript />
             <BlogImageModal />
+            <FootnoteScrollScript />
           </>
         )}
       </main>
