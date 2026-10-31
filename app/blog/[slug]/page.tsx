@@ -46,6 +46,11 @@ export async function generateMetadata({ params }: PostProps) {
       type: "article",
       publishedTime: post.date,
     },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: `${post.title} - Canooopus' blog`,
+    },
   };
 }
 
