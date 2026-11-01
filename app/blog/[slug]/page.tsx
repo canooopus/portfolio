@@ -10,6 +10,7 @@ import MermaidScript from "@/components/markdown/MermaidScript";
 import CodeCopyScript from "@/components/markdown/CodeCopyScript";
 import BlogImageModal from "@/components/markdown/BlogImageModal";
 import FootnoteScrollScript from "@/components/markdown/FootnoteScrollScript";
+import TagList from "@/components/blog/TagList";
 
 // 1. weightの指定を外すことで、太字（Bold）が正しく適用されるようにします
 const inter = Inter({ subsets: ["latin"] });
@@ -45,6 +46,7 @@ export async function generateMetadata({ params }: PostProps) {
       description: `${post.title} - Canooopus' blog`,
       type: "article",
       publishedTime: post.date,
+      tags: post.tags,
     },
     twitter: {
       card: "summary_large_image",
@@ -117,6 +119,12 @@ export default async function BlogPostPage({ params }: PostProps) {
             <span className="text-neutral-400">Posted</span>
             <time className="text-neutral-800">{formatDate(post.date)}</time>
           </div>
+          {post.tags?.length ? (
+            <TagList
+              tags={post.tags}
+              className="mt-3 flex flex-wrap gap-1.5"
+            />
+          ) : null}
         </header>
 
         {/* 記事本文 */}

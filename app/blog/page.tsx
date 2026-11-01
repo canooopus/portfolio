@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getSortedPostsData } from "@/features/blog/posts";
+import TagList from "@/components/blog/TagList";
 import { Inter } from "next/font/google";
 import { Caveat } from "next/font/google";
 
@@ -97,55 +98,65 @@ export default function BlogListPage() {
                       >
                         <Link
                           href={`/blog/${post.slug}`}
-                          className="flex items-start sm:items-center justify-between py-3.5 w-full min-w-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 rounded"
+                          className="flex items-start justify-between py-3.5 w-full min-w-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 rounded"
                         >
-                          {/* 記事タイトル ＋ Newバッジ & 手書き矢印 */}
-                          <div className="flex items-start sm:items-center gap-2 min-w-0 pr-4">
-                            {/* スマホは text-sm かつ 2行、PCは text-base かつ 1行省略 */}
-                            <span className="text-sm sm:text-base font-medium text-neutral-900 line-clamp-2 sm:line-clamp-none sm:truncate">
-                              {post.title}
-                            </span>
-                            {isNew && (
-                              <div className="inline-flex items-center gap-1 shrink-0 select-none leading-none pt-0.5 sm:pt-0">
-                                {/* 手書き風矢印（スマホ時は少し小さめにスケール） */}
-                                <svg
-                                  className="w-6 h-4 sm:w-7 sm:h-5 text-orange-500 shrink-0 -rotate-6 translate-y-px"
-                                  viewBox="0 0 42 20"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="2"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  aria-hidden="true"
-                                >
-                                  <path
-                                    d="M 38 13 C 32 5 26 4 23 7 C 20 10 21 14 24 14 C 28 14 30 10 26 7 C 21 4 12 10 4 10"
-                                    style={{
-                                      strokeDasharray: 70,
-                                      strokeDashoffset: 70,
-                                      animation:
-                                        "drawArrow 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.85s forwards",
-                                    }}
-                                  />
-                                  <path
-                                    d="M 9 6 L 4 10 L 9 14"
-                                    style={{
-                                      strokeDasharray: 20,
-                                      strokeDashoffset: 20,
-                                      animation:
-                                        "drawArrow 0.25s ease-out 1.4s forwards",
-                                    }}
-                                  />
-                                </svg>
+                          <div className="flex flex-col gap-1.5 min-w-0 pr-4">
+                            {/* 記事タイトル ＋ Newバッジ & 手書き矢印 */}
+                            <div className="flex items-start sm:items-center gap-2 min-w-0">
+                              {/* スマホは text-sm かつ 2行、PCは text-base かつ 1行省略 */}
+                              <span className="text-sm sm:text-base font-medium text-neutral-900 line-clamp-2 sm:line-clamp-none sm:truncate">
+                                {post.title}
+                              </span>
+                              {isNew && (
+                                <div className="inline-flex items-center gap-1 shrink-0 select-none leading-none pt-0.5 sm:pt-0">
+                                  {/* 手書き風矢印（スマホ時は少し小さめにスケール） */}
+                                  <svg
+                                    className="w-6 h-4 sm:w-7 sm:h-5 text-orange-500 shrink-0 -rotate-6 translate-y-px"
+                                    viewBox="0 0 42 20"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    aria-hidden="true"
+                                  >
+                                    <path
+                                      d="M 38 13 C 32 5 26 4 23 7 C 20 10 21 14 24 14 C 28 14 30 10 26 7 C 21 4 12 10 4 10"
+                                      style={{
+                                        strokeDasharray: 70,
+                                        strokeDashoffset: 70,
+                                        animation:
+                                          "drawArrow 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.85s forwards",
+                                      }}
+                                    />
+                                    <path
+                                      d="M 9 6 L 4 10 L 9 14"
+                                      style={{
+                                        strokeDasharray: 20,
+                                        strokeDashoffset: 20,
+                                        animation:
+                                          "drawArrow 0.25s ease-out 1.4s forwards",
+                                      }}
+                                    />
+                                  </svg>
 
-                                {/* New文字（スマホ時は text-xl、PC時は text-2xl） */}
-                                <span
-                                  className={`inline-flex items-center text-xl sm:text-2xl font-regular text-orange-500 tracking-tight shrink-0 leading-none -translate-y-0.5 ${caveat.className}`}
-                                >
-                                  New
-                                </span>
-                              </div>
-                            )}
+                                  {/* New文字（スマホ時は text-xl、PC時は text-2xl） */}
+                                  <span
+                                    className={`inline-flex items-center text-xl sm:text-2xl font-regular text-orange-500 tracking-tight shrink-0 leading-none -translate-y-0.5 ${caveat.className}`}
+                                  >
+                                    New
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* タグ */}
+                            {post.tags?.length ? (
+                              <TagList
+                                tags={post.tags}
+                                className="flex flex-wrap gap-1"
+                              />
+                            ) : null}
                           </div>
 
                           {/* 日付（スマホ時は text-xs にしてタイトルを引き立てる） */}

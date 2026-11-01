@@ -22,6 +22,55 @@ export interface PostMetadata {
   slug: string;
   title: string;
   date: string;
+  tags?: string[];
+}
+
+/**
+ * フロントマターの tags を解釈する。
+ * - 未指定 / null / 空配列 → タグなし（undefined）
+ * - 配列以外 → ビルド時に落とす（書き間違いを検出するため）
+ * - 各要素は trim し、trim後に空ならエラー
+ * - 大文字小文字はそのまま保持し、重複のみ除去（表示順はフロントマター順）
+ *
+ * 原文を保持しているため、将来タグページを作る場合は呼び出し側で
+ * encodeURIComponent してURL化する想定。
+ */
+function parseTags(data: Record<string, unknown>, slug: string): string[] | undefined {
+  const raw = data.tags;
+
+  if (raw === undefined || raw === null) {
+    return undefined;
+  }
+
+  if (!Array.isArray(raw)) {
+    throw new Error(
+      `[blog] ${slug}.md: "tags" must be an array (e.g. ["Next.js", "TypeScript"])`,
+    );
+  }
+
+  const seen = new Set<string>();
+  const tags: string[] = [];
+
+  for (const item of raw) {
+    if (typeof item !== "string") {
+      throw new Error(`[blog] ${slug}.md: each tag must be a string`);
+    }
+
+    const tag = item.trim();
+
+    if (tag === "") {
+      throw new Error(`[blog] ${slug}.md: empty tag found`);
+    }
+
+    if (seen.has(tag)) {
+      continue;
+    }
+
+    seen.add(tag);
+    tags.push(tag);
+  }
+
+  return tags.length > 0 ? tags : undefined;
 }
 
 export interface PostData extends PostMetadata {
@@ -46,6 +95,7 @@ export const getPostMetadata = cache((slug: string): PostMetadata | null => {
     slug,
     title: data.title || "No Title",
     date: data.date || "1970-01-01",
+    tags: parseTags(data, slug),
   };
 });
 
@@ -67,6 +117,7 @@ export const getSortedPostsData = cache((): PostData[] => {
         slug,
         title: data.title || "No Title",
         date: data.date || "1970-01-01",
+        tags: parseTags(data, slug),
       } as PostData;
     });
 
@@ -267,6 +318,7 @@ export const getPostData = cache(async (slug: string): Promise<PostData | null> 
     slug,
     title: data.title || "No Title",
     date: data.date || "1970-01-01",
+    tags: parseTags(data, slug),
     contentHtml,
     hasMermaid,
   };

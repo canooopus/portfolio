@@ -1,6 +1,7 @@
 ---
 title: "Building My Personal Website"
 date: "2026-09-14"
+tags: ["Dev", "Design"]
 ---
 
 I recently built my own personal website.
