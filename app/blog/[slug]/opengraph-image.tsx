@@ -92,8 +92,8 @@ export default async function Image({
 
   const title = post?.title || "Blog Post";
 
-  // Roboto Medium Italic (weight: 400) のサブセットを取得
-  const robotoFont = await loadGoogleFont("Roboto", 400, true, title);
+  // Roboto (weight: 400, normal) のサブセットを取得
+  const robotoFont = await loadGoogleFont("Roboto", 400, false, title);
 
   // 日本語文字が含まれる場合は Noto Sans JP (weight: 400) も取得
   const hasJapanese = /[^\u0000-\u007F]/.test(title);
@@ -106,7 +106,7 @@ export default async function Image({
     fonts.push({
       name: "Roboto",
       data: robotoFont,
-      style: "italic",
+      style: "normal",
       weight: 400,
     });
   }
@@ -149,8 +149,8 @@ export default async function Image({
       <div
         style={{
           position: "absolute",
-          top: 70,
-          left: 72,
+          top: 50,
+          left: 65,
           width: 1056,
           height: 360,
           display: "flex",
@@ -174,10 +174,10 @@ export default async function Image({
               fonts.length > 0
                 ? "'Roboto', 'Noto Sans JP', sans-serif"
                 : "sans-serif",
-            fontStyle: "italic",
+            fontStyle: "normal",
             fontWeight: 400,
             color: "#000000",
-            lineHeight: 1.25, // フォント拡大に合わせて少しだけ詰めています
+            lineHeight: 1.25,
             letterSpacing: "-0.01em",
             wordBreak: "break-word",
           }}
