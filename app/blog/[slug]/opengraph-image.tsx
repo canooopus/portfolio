@@ -21,66 +21,31 @@ export function generateStaticParams() {
 
 interface FontConfig {
   name: string;
-  data: ArrayBuffer;
+  data: Buffer;
   style?: "normal" | "italic";
   weight?: 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
 }
 
-/**
- * Google FontsからTrueType形式のフォントサブセットを動的に取得
- */
-async function loadGoogleFont(
-  family: string,
-  weight: number,
-  italic: boolean,
-  text: string,
-): Promise<ArrayBuffer | null> {
-  try {
-    const familyQuery = italic
-      ? `${family}:ital,wght@1,${weight}`
-      : `${family}:wght@${weight}`;
-    const url = `https://fonts.googleapis.com/css2?family=${familyQuery}&text=${encodeURIComponent(
-      text,
-    )}`;
-
-    const cssResponse = await fetch(url, {
-      headers: {
-        // TrueType形式を返すレガシーSafari User-Agent
-        "User-Agent":
-          "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_8; de-at) AppleWebKit/533.21.1 (KHTML, like Gecko) Version/5.0.5 Safari/533.21.1",
-      },
-    });
-
-    if (!cssResponse.ok) return null;
-
-    const css = await cssResponse.text();
-    const resource = css.match(
-      /src:\s*url\((.+?)\)\s*format\(['"](?:opentype|truetype)['"]\)/i,
-    );
-
-    if (resource && resource[1]) {
-      const fontUrl = resource[1].replace(/['"]/g, "");
-      const fontResponse = await fetch(fontUrl);
-      if (fontResponse.ok) {
-        return await fontResponse.arrayBuffer();
-      }
-    }
-  } catch (error) {
-    console.warn(
-      `[OGP] Could not load dynamic Google Font (${family}):`,
-      error,
-    );
-  }
-
-  return null;
-}
-
 // Figmaからエクスポートされた背景画像（球体 + canooopus + グラデーションバー）をbase64として読み込み
-const bgData = await readFile(
-  join(process.cwd(), "public/images/brand/ogp.png"),
-  "base64",
-);
+// フォントはビルド時に Google Fonts へ問い合わせると Vercel のビルド環境で
+// タイムアウトし prerender が失敗するため、リポジトリに同梱したファイルを読み込む
+const [bgData, robotoFontData, notoSansJpFontData] = await Promise.all([
+  readFile(join(process.cwd(), "public/images/brand/ogp.png"), "base64"),
+  readFile(join(process.cwd(), "public/fonts/Roboto-Regular.ttf")),
+  readFile(join(process.cwd(), "public/fonts/NotoSansJP-Regular.ttf")),
+]);
+
 const bgSrc = `data:image/png;base64,${bgData}`;
+
+const fonts: FontConfig[] = [
+  { name: "Roboto", data: robotoFontData, style: "normal", weight: 400 },
+  {
+    name: "Noto Sans JP",
+    data: notoSansJpFontData,
+    style: "normal",
+    weight: 400,
+  },
+];
 
 export default async function Image({
   params,
@@ -91,33 +56,6 @@ export default async function Image({
   const post = getPostMetadata(slug);
 
   const title = post?.title || "Blog Post";
-
-  // Roboto (weight: 400, normal) のサブセットを取得
-  const robotoFont = await loadGoogleFont("Roboto", 400, false, title);
-
-  // 日本語文字が含まれる場合は Noto Sans JP (weight: 400) も取得
-  const hasJapanese = /[^\u0000-\u007F]/.test(title);
-  const notoFont = hasJapanese
-    ? await loadGoogleFont("Noto Sans JP", 400, false, title)
-    : null;
-
-  const fonts: FontConfig[] = [];
-  if (robotoFont) {
-    fonts.push({
-      name: "Roboto",
-      data: robotoFont,
-      style: "normal",
-      weight: 400,
-    });
-  }
-  if (notoFont) {
-    fonts.push({
-      name: "Noto Sans JP",
-      data: notoFont,
-      style: "normal",
-      weight: 400,
-    });
-  }
 
   return new ImageResponse(
     <div
@@ -170,10 +108,7 @@ export default async function Image({
                   : title.length > 15
                     ? 76
                     : 84,
-            fontFamily:
-              fonts.length > 0
-                ? "'Roboto', 'Noto Sans JP', sans-serif"
-                : "sans-serif",
+            fontFamily: "'Roboto', 'Noto Sans JP', sans-serif",
             fontStyle: "normal",
             fontWeight: 400,
             color: "#000000",
