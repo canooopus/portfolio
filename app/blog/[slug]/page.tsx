@@ -11,6 +11,7 @@ import CodeCopyScript from "@/components/markdown/CodeCopyScript";
 import BlogImageModal from "@/components/markdown/BlogImageModal";
 import FootnoteScrollScript from "@/components/markdown/FootnoteScrollScript";
 import TagList from "@/components/blog/TagList";
+import TableOfContents from "@/components/blog/TableOfContents";
 
 // 1. weightの指定を外すことで、太字（Bold）が正しく適用されるようにします
 const inter = Inter({ subsets: ["latin"] });
@@ -78,38 +79,58 @@ export default async function BlogPostPage({ params }: PostProps) {
     }
   };
 
+  const toc = post.toc ?? [];
+  const hasToc = toc.length >= 2;
+
   return (
     <div className={`w-full min-h-screen relative ${inter.className}`}>
       {/* ブログ一覧へ戻るナビゲーション */}
-      <div className="absolute lg:fixed top-6 left-6 z-10 animate-fade-up">
-        <Link
-          href="/blog"
-          className="text-neutral-500 hover:text-neutral-950 transition-colors inline-flex items-center"
-          aria-label="Back to Blog"
+      <div
+        className={`pointer-events-none absolute inset-x-0 top-6 z-10 animate-fade-up ${
+          hasToc ? "min-[1080px]:fixed min-[1080px]:top-25" : "fixed"
+        }`}
+      >
+        <div
+          className={
+            hasToc
+              ? "mx-auto max-w-2xl px-6 min-[1080px]:mx-0 min-[1080px]:max-w-none min-[1080px]:px-0"
+              : "mx-auto max-w-2xl px-6"
+          }
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.5em"
-            height="1.5em"
-            viewBox="0 0 24 24"
+          <Link
+            href="/blog"
+            className={`pointer-events-auto text-neutral-400 hover:text-neutral-950 transition-colors inline-flex items-center ${
+              hasToc ? "min-[1080px]:ml-[calc(25%-228px)]" : ""
+            }`}
+            aria-label="Back to Blog"
           >
-            <g
-              fill="none"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="1.5"
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="1.5em"
+              height="1.5em"
+              viewBox="0 0 24 24"
             >
-              <path d="m9 14l-4-4l4-4" />
-              <path d="M5 10h11a4 4 0 1 1 0 8h-1" />
-            </g>
-          </svg>
-        </Link>
+              <g
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="1.25"
+              >
+                <path d="m9 14l-4-4l4-4" />
+                <path d="M5 10h11a4 4 0 1 1 0 8h-1" />
+              </g>
+            </svg>
+          </Link>
+        </div>
       </div>
+
+      {/* 目次（記事の外側・左側に固定表示。h2 が2つ以上ある場合のみ） */}
+      {hasToc && <TableOfContents items={toc} />}
 
       <main className="max-w-2xl mx-auto px-6 pt-24 pb-20 selection:bg-blue-100 animate-fade-up">
         {/* 記事のタイトル・投稿日ヘッダー */}
-        <header className="mb-10 lg:mt-14">
+        <header className="mb-10">
           {/* タイトルを上に配置 */}
           <h1 className="text-2xl font-bold text-neutral-900 tracking-tight leading-snug mb-5">
             {post.title}
@@ -120,10 +141,7 @@ export default async function BlogPostPage({ params }: PostProps) {
             <time className="text-neutral-800">{formatDate(post.date)}</time>
           </div>
           {post.tags?.length ? (
-            <TagList
-              tags={post.tags}
-              className="mt-3 flex flex-wrap gap-1.5"
-            />
+            <TagList tags={post.tags} className="mt-3 flex flex-wrap gap-1.5" />
           ) : null}
         </header>
 

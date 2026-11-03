@@ -50,6 +50,7 @@ Next.js 16 App Router portfolio + Markdown blog (SSG, deployed on Vercel).
 - Frontmatter: `title`, `date` (YYYY-MM-DD), optional `tags` as a YAML array. Non-array, empty, or non-string tags throw during build.
 - Enabled Markdown: GFM, definition lists, GitHub alerts (`> [!NOTE]`), KaTeX (`$...$`, `$$...$$`), Mermaid, `[card](url)` OGP cards, pretty-code highlighting.
 - `[card](url)` fetches OGP metadata at render/build (4s timeout) and caches in `content/.cache/ogp-cache.json`; delete that entry to refresh a card.
+- Headings get `id`s from `rehype-slug`; `getPostData` collects `h2`s into `PostData.toc`, rendered by `src/components/blog/TableOfContents.tsx` (fixed left, 1080px+ only, hidden when fewer than 2 `h2`s).
 
 ## Conventions
 

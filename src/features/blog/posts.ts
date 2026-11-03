@@ -4,7 +4,7 @@ import { cache } from "react";
 import type { Root as HastRoot, RootContent as HastNode } from "hast";
 import type { Root as MdastRoot, RootContent as MdastNode } from "mdast";
 import matter from "gray-matter";
-import { unified } from "unified";
+import { unified, type Transformer } from "unified";
 import remarkParse from "remark-parse";
 import remarkGfm from "remark-gfm";
 import remarkDeflist from "remark-deflist"; // ★追加: 定義リスト (17. Definition Lists)
@@ -15,6 +15,7 @@ import rehypeRaw from "rehype-raw";
 import rehypeKatex from "rehype-katex"; // ★追加: 数式のHTMLレンダリング
 import rehypeMermaid from "rehype-mermaid"; // ★追加: Mermaid図表のSVG変換 (20-22)
 import rehypePrettyCode from "rehype-pretty-code";
+import rehypeSlug from "rehype-slug";
 import rehypeStringify from "rehype-stringify";
 import {
   RESPONSIVE_IMAGE_SIZES,
@@ -79,9 +80,15 @@ function parseTags(data: Record<string, unknown>, slug: string): string[] | unde
   return tags.length > 0 ? tags : undefined;
 }
 
+export interface TocItem {
+  id: string;
+  text: string;
+}
+
 export interface PostData extends PostMetadata {
   contentHtml?: string;
   hasMermaid?: boolean;
+  toc?: TocItem[];
 }
 
 /**
@@ -178,6 +185,48 @@ function rehypeOptimizeImages() {
   }
 
   return (tree: HastRoot) => {
+    visit(tree);
+  };
+}
+
+/**
+ * 見出し要素などのテキストを再帰的に抽出する
+ */
+function getNodeText(node: HastRoot | HastNode): string {
+  if (node.type === "text") {
+    return node.value;
+  }
+
+  if ("children" in node && Array.isArray(node.children)) {
+    return node.children.map((child) => getNodeText(child)).join("");
+  }
+
+  return "";
+}
+
+/**
+ * h2 だけを目次用に収集するRehypeプラグイン。
+ * `rehype-slug` で付与された id をそのまま使う。
+ */
+function rehypeCollectToc(toc: TocItem[]): Transformer<HastRoot> {
+  return (tree) => {
+    function visit(node: HastRoot | HastNode) {
+      if (node.type === "element" && node.tagName === "h2") {
+        const id = node.properties.id;
+        const text = getNodeText(node).replace(/\s+/g, " ").trim();
+
+        if (typeof id === "string" && id && text) {
+          toc.push({ id, text });
+        }
+      }
+
+      if ("children" in node && Array.isArray(node.children)) {
+        for (const child of node.children) {
+          visit(child);
+        }
+      }
+    }
+
     visit(tree);
   };
 }
@@ -307,6 +356,8 @@ export const getPostData = cache(async (slug: string): Promise<PostData | null> 
   const fileContents = fs.readFileSync(fullPath, "utf8");
   const { data, content } = matter(fileContents);
 
+  const toc: TocItem[] = [];
+
   // unifiedエコシステムで Markdown -> HTML 変換
   const processedContent = await unified()
     .use(remarkParse)                       // 1. Markdown をASTにパース
@@ -317,16 +368,18 @@ export const getPostData = cache(async (slug: string): Promise<PostData | null> 
     .use(remarkOgpCard)                     // 6. [card](url) 記法をOGPカードに変換
     .use(remarkRehype, { allowDangerousHtml: true }) // 7. AST を HTML構造 (rehype) に変換
     .use(rehypeRaw)                         // 7. 生HTMLノードを rehype AST 要素に変換
-    .use(rehypeOptimizeImages)              // 8. 画像を WebP & srcset に自動変換
-    .use(rehypeKatex)                       // 9. 数式を KaTeX による表示用HTMLへ変換
-    .use(rehypeMermaid, {                   // 10. Mermaid コードブロックを pre.mermaid に変換 (ビルド時エラー防止)
+    .use(rehypeSlug)                        // 8. 見出しに id を付与（目次のアンカー用）
+    .use(rehypeCollectToc, toc)             // 9. h2 のみを目次データとして収集
+    .use(rehypeOptimizeImages)              // 10. 画像を WebP & srcset に自動変換
+    .use(rehypeKatex)                       // 11. 数式を KaTeX による表示用HTMLへ変換
+    .use(rehypeMermaid, {                   // 12. Mermaid コードブロックを pre.mermaid に変換 (ビルド時エラー防止)
       strategy: "pre-mermaid",
     })
-    .use(rehypePrettyCode, {                // 11. コードブロックのシンタックスハイライト
+    .use(rehypePrettyCode, {                // 13. コードブロックのシンタックスハイライト
       theme: "github-light",
       keepBackground: false,
     })
-    .use(rehypeStringify, { allowDangerousHtml: true }) // 12. HTML文字列として出力
+    .use(rehypeStringify, { allowDangerousHtml: true }) // 14. HTML文字列として出力
     .process(content);
 
   const contentHtml = processedContent.toString();
@@ -339,5 +392,6 @@ export const getPostData = cache(async (slug: string): Promise<PostData | null> 
     tags: parseTags(data, slug),
     contentHtml,
     hasMermaid,
+    toc,
   };
 });
