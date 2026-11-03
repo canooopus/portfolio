@@ -16,11 +16,52 @@ const ACTIVE_OFFSET = 128;
  * - 1080px 未満では表示しない（記事幅 672px + 左右の余白を確保できないため）
  * - スクロール位置から現在のセクションを判定し、それ以外は薄く表示する
  * - 目次が縦に長い場合は目次内だけスクロールする
+ * - 遷移先の見出しは脚注ジャンプと同じハイライトを一瞬だけ表示する
  */
 export default function TableOfContents({ items }: TableOfContentsProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const listRef = useRef<HTMLUListElement>(null);
+  const highlightTimerRef = useRef<number | null>(null);
+  const scrollWaitCleanupRef = useRef<(() => void) | null>(null);
+
+  const removeHighlightClasses = () => {
+    document
+      .querySelectorAll(".footnote-highlight-active, .footnote-highlight-hold")
+      .forEach((el) => {
+        el.classList.remove(
+          "footnote-highlight-active",
+          "footnote-highlight-hold",
+        );
+      });
+  };
+
+  // 脚注ジャンプと同じハイライト（.footnote-highlight-active）を付けてフェードさせる
+  const fadeHighlight = (element: HTMLElement) => {
+    removeHighlightClasses();
+
+    // 直前まで保持用クラスで色が付いていたので、リフローを挟んでアニメーションを最初から再生する
+    void element.offsetWidth;
+    element.classList.add("footnote-highlight-active");
+
+    if (highlightTimerRef.current !== null) {
+      window.clearTimeout(highlightTimerRef.current);
+    }
+    highlightTimerRef.current = window.setTimeout(() => {
+      element.classList.remove("footnote-highlight-active");
+      highlightTimerRef.current = null;
+    }, 2600);
+  };
+
+  // アンマウント時にハイライト用のタイマーとスクロール待機を片付ける
+  useEffect(() => {
+    return () => {
+      if (highlightTimerRef.current !== null) {
+        window.clearTimeout(highlightTimerRef.current);
+      }
+      scrollWaitCleanupRef.current?.();
+    };
+  }, []);
 
   useEffect(() => {
     let frameId = 0;
@@ -118,11 +159,72 @@ export default function TableOfContents({ items }: TableOfContentsProps) {
       "(prefers-reduced-motion: reduce)",
     ).matches;
 
+    // 前回の待機・タイマー・ハイライトを片付ける
+    scrollWaitCleanupRef.current?.();
+    scrollWaitCleanupRef.current = null;
+    if (highlightTimerRef.current !== null) {
+      window.clearTimeout(highlightTimerRef.current);
+      highlightTimerRef.current = null;
+    }
+    removeHighlightClasses();
+
     heading.scrollIntoView({
       behavior: prefersReducedMotion ? "auto" : "smooth",
       block: "start",
     });
     setActiveId(id);
+
+    // スクロールが発生しない場合はそのままフェードを開始する
+    const scrollMarginTop =
+      parseFloat(window.getComputedStyle(heading).scrollMarginTop) || 0;
+    const alreadyAtTarget =
+      Math.abs(heading.getBoundingClientRect().top - scrollMarginTop) < 2;
+
+    if (prefersReducedMotion || alreadyAtTarget) {
+      fadeHighlight(heading);
+      return;
+    }
+
+    // スクロール中は色を保持し、止まってから一定時間フェードさせる
+    // （スクロールの所要時間でハイライトの見える時間が変わらないようにする）
+    void heading.offsetWidth;
+    heading.classList.add("footnote-highlight-hold");
+
+    let settled = false;
+    let idleTimer = 0;
+    let maxTimer = 0;
+
+    const settle = () => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      cleanup();
+      fadeHighlight(heading);
+    };
+
+    const onScroll = () => {
+      window.clearTimeout(idleTimer);
+      idleTimer = window.setTimeout(settle, 150);
+    };
+
+    const cleanup = () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("scrollend", settle);
+      window.clearTimeout(idleTimer);
+      window.clearTimeout(maxTimer);
+      if (scrollWaitCleanupRef.current === cleanup) {
+        scrollWaitCleanupRef.current = null;
+      }
+    };
+
+    scrollWaitCleanupRef.current = cleanup;
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("scrollend", settle, { once: true });
+
+    // スクロールが始まらない場合の初回判定と、念のための上限
+    idleTimer = window.setTimeout(settle, 300);
+    maxTimer = window.setTimeout(settle, 4000);
   };
 
   return (

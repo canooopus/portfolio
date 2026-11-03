@@ -89,6 +89,8 @@ export interface PostData extends PostMetadata {
   contentHtml?: string;
   hasMermaid?: boolean;
   toc?: TocItem[];
+  /** フロントマター `toc: false` のとき false（目次を出さない） */
+  showToc?: boolean;
 }
 
 /**
@@ -393,5 +395,7 @@ export const getPostData = cache(async (slug: string): Promise<PostData | null> 
     contentHtml,
     hasMermaid,
     toc,
+    // フロントマターで `toc: false` を指定した記事は目次を表示しない
+    showToc: data.toc !== false,
   };
 });

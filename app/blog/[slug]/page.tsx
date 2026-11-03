@@ -80,14 +80,14 @@ export default async function BlogPostPage({ params }: PostProps) {
   };
 
   const toc = post.toc ?? [];
-  const hasToc = toc.length >= 2;
+  const hasToc = post.showToc !== false && toc.length >= 2;
 
   return (
     <div className={`w-full min-h-screen relative ${inter.className}`}>
       {/* ブログ一覧へ戻るナビゲーション */}
       <div
-        className={`pointer-events-none absolute inset-x-0 top-6 z-10 animate-fade-up ${
-          hasToc ? "min-[1080px]:fixed min-[1080px]:top-25" : "fixed"
+        className={`pointer-events-none absolute inset-x-0 top-16 z-10 animate-fade-up ${
+          hasToc ? "min-[1080px]:fixed min-[1080px]:top-25" : ""
         }`}
       >
         <div
@@ -106,8 +106,8 @@ export default async function BlogPostPage({ params }: PostProps) {
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="1.5em"
-              height="1.5em"
+              width="1.125em"
+              height="1.125em"
               viewBox="0 0 24 24"
             >
               <g
@@ -115,12 +115,15 @@ export default async function BlogPostPage({ params }: PostProps) {
                 stroke="currentColor"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                strokeWidth="1.25"
+                strokeWidth="2"
               >
                 <path d="m9 14l-4-4l4-4" />
                 <path d="M5 10h11a4 4 0 1 1 0 8h-1" />
               </g>
             </svg>
+            <span className="ml-1 text-sm font-normal selection:bg-blue-100">
+              Archive
+            </span>
           </Link>
         </div>
       </div>
@@ -128,7 +131,12 @@ export default async function BlogPostPage({ params }: PostProps) {
       {/* 目次（記事の外側・左側に固定表示。h2 が2つ以上ある場合のみ） */}
       {hasToc && <TableOfContents items={toc} />}
 
-      <main className="max-w-2xl mx-auto px-6 pt-24 pb-20 selection:bg-blue-100 animate-fade-up">
+      {/* 目次が非表示のときは上部の余白を広めに取る */}
+      <main
+        className={`max-w-2xl mx-auto px-6 pb-20 selection:bg-blue-100 animate-fade-up pt-32 ${
+          hasToc ? "min-[1080px]:pt-24" : ""
+        }`}
+      >
         {/* 記事のタイトル・投稿日ヘッダー */}
         <header className="mb-10">
           {/* タイトルを上に配置 */}

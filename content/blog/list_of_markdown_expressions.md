@@ -2,6 +2,7 @@
 title: "List of Markdown expressions"
 date: "2026-09-13"
 tags: ["Dev"]
+toc: false
 ---
 
 Here is a list of Markdown syntax you can use in this blog.
