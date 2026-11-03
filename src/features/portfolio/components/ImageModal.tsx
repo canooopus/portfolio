@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Image } from "@/components/common/Image";
 import { motion, AnimatePresence } from "framer-motion";
 import { GalleryItem } from "@/features/portfolio/types";
+import { useIsMounted } from "@/hooks/useIsMounted";
 import { useScrollLock } from "@/hooks/useScrollLock";
 
 interface ImageModalProps {
@@ -18,12 +19,8 @@ export function ImageModal({
   onClose,
   caveatClass,
 }: ImageModalProps) {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useIsMounted();
   const { unlockScroll } = useScrollLock(Boolean(selectedItem));
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

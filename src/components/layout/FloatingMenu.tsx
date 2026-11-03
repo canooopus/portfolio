@@ -10,18 +10,17 @@ import { useMenu } from "@/context/MenuContext";
 const inter = Inter({ subsets: ["latin"], weight: "400" });
 
 export default function FloatingMenu() {
-  const { isReady, setIsReady } = useMenu();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
+  const { isReady } = useMenu();
   const pathname = usePathname();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [activePathname, setActivePathname] = useState(pathname);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  // トップページ以外（ブログ等）でもメニューを確実に表示し、ページ遷移時にメニューを閉じる
-  useEffect(() => {
-    if (pathname !== "/") {
-      setIsReady(true);
-    }
+  // ページ遷移時にメニューを閉じる（レンダー中のstate調整。ガードにより1回だけ実行）
+  if (pathname !== activePathname) {
+    setActivePathname(pathname);
     setIsMenuOpen(false);
-  }, [pathname, setIsReady]);
+  }
 
   // スマホのスクロールとタップを区別してメニューを閉じる処理
   useEffect(() => {

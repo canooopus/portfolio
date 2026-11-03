@@ -71,14 +71,6 @@ export function BookAlbum({
   novaMonoClass,
   onImageClick,
 }: BookAlbumProps) {
-  if (!galleryItems || galleryItems.length === 0) {
-    return (
-      <div className="py-8 text-neutral-400 text-center">
-        No images available
-      </div>
-    );
-  }
-
   const [currentSheet, setCurrentSheet] = useState(0);
   const [scale, setScale] = useState(1);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -114,6 +106,14 @@ export function BookAlbum({
     observer.observe(containerRef.current);
     return () => observer.disconnect();
   }, []);
+
+  if (galleryItems.length === 0) {
+    return (
+      <div className="py-8 text-neutral-400 text-center">
+        No images available
+      </div>
+    );
+  }
 
   const goNext = () =>
     currentSheet < sheets.length && setCurrentSheet((prev) => prev + 1);

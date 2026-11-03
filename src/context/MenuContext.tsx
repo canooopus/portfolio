@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, useMemo } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
 import { usePathname } from "next/navigation";
 
 interface MenuContextType {
@@ -18,20 +24,22 @@ const MenuContext = createContext<MenuContextType>({
 });
 
 export const MenuProvider = ({ children }: { children: React.ReactNode }) => {
-  const [isReady, setIsReady] = useState(false);
+  const [hasCompletedIntro, setHasCompletedIntro] = useState(false);
   const [showFooter, setShowFooter] = useState(true); // フッター表示フラグを追加
   const pathname = usePathname();
 
-  // トップページ以外では最初からメニューを表示する
-  useEffect(() => {
-    if (pathname !== "/") {
-      setIsReady(true);
+  // トップページのロゴ描画が終わるまではメニューを隠す。トップ以外では常に表示する
+  const isReady = pathname !== "/" || hasCompletedIntro;
+
+  const setIsReady = useCallback((ready: boolean) => {
+    if (ready) {
+      setHasCompletedIntro(true);
     }
-  }, [pathname]);
+  }, []);
 
   const value = useMemo(
     () => ({ isReady, setIsReady, showFooter, setShowFooter }),
-    [isReady, showFooter],
+    [isReady, setIsReady, showFooter],
   );
 
   return (

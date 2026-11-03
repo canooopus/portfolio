@@ -1,6 +1,8 @@
 import fs from "fs";
 import path from "path";
 import { cache } from "react";
+import type { Root as HastRoot, RootContent as HastNode } from "hast";
+import type { Root as MdastRoot, RootContent as MdastNode } from "mdast";
 import matter from "gray-matter";
 import { unified } from "unified";
 import remarkParse from "remark-parse";
@@ -128,18 +130,24 @@ export const getSortedPostsData = cache((): PostData[] => {
  * Markdown内の画像（<img src="...">）を事前生成WebP & srcsetに自動変換するRehypeプラグイン
  */
 function rehypeOptimizeImages() {
-  function visit(node: any) {
-    if (!node || typeof node !== "object") return;
-
-    if (node.type === "element" && node.tagName === "img" && node.properties?.src) {
-      const src = String(node.properties.src);
+  function visit(node: HastRoot | HastNode) {
+    if (
+      node.type === "element" &&
+      node.tagName === "img" &&
+      node.properties.src
+    ) {
+      const src = node.properties.src;
 
       if (!src.startsWith("/images/optimized/")) {
-        const match = src.match(/^\/images\/(?:(.+)\/)?([^/]+)\.(jpg|jpeg|png|webp)$/i);
+        const match = src.match(
+          /^\/images\/(?:(.+)\/)?([^/]+)\.(jpg|jpeg|png|webp)$/i,
+        );
         if (match) {
           const subDir = match[1] || "";
           const baseName = match[2];
-          const prefix = subDir ? `/images/optimized/${subDir}` : `/images/optimized`;
+          const prefix = subDir
+            ? `/images/optimized/${subDir}`
+            : `/images/optimized`;
 
           const thumbSrc = `${prefix}/${baseName}-thumb.webp`;
           const mediumSrc = `${prefix}/${baseName}-medium.webp`;
@@ -153,14 +161,14 @@ function rehypeOptimizeImages() {
       }
     }
 
-    if (Array.isArray(node.children)) {
+    if ("children" in node && Array.isArray(node.children)) {
       for (const child of node.children) {
         visit(child);
       }
     }
   }
 
-  return (tree: any) => {
+  return (tree: HastRoot) => {
     visit(tree);
   };
 }
@@ -215,18 +223,18 @@ function renderOgpCardHtml(ogp: OgpData): string {
  * [card](url) 記法をOGPリンクカードに変換するRemarkプラグイン
  */
 function remarkOgpCard() {
-  return async (tree: any) => {
-    async function processNode(node: any): Promise<any[]> {
+  return async (tree: MdastRoot) => {
+    async function processNode(node: MdastNode): Promise<MdastNode[]> {
       // 単独の段落にある [card](url) をチェック
-      if (node.type === "paragraph" && Array.isArray(node.children)) {
+      if (node.type === "paragraph") {
         const nonWhitespace = node.children.filter(
-          (c: any) => !(c.type === "text" && c.value.trim() === "")
+          (c) => !(c.type === "text" && c.value.trim() === ""),
         );
 
         if (nonWhitespace.length === 1 && nonWhitespace[0].type === "link") {
           const linkNode = nonWhitespace[0];
-          const linkText = (linkNode.children || [])
-            .map((c: any) => c.value || "")
+          const linkText = linkNode.children
+            .map((c) => ("value" in c ? c.value : ""))
             .join("")
             .trim();
 
@@ -243,12 +251,12 @@ function remarkOgpCard() {
       }
 
       // それ以外でインラインの [card](url) があった場合も置換対応
-      if (Array.isArray(node.children)) {
-        const newChildren: any[] = [];
+      if ("children" in node && Array.isArray(node.children)) {
+        const newChildren: MdastNode[] = [];
         for (const child of node.children) {
           if (child.type === "link") {
-            const linkText = (child.children || [])
-              .map((c: any) => c.value || "")
+            const linkText = child.children
+              .map((c) => ("value" in c ? c.value : ""))
               .join("")
               .trim();
             if (linkText === "card" && child.url) {
@@ -262,13 +270,14 @@ function remarkOgpCard() {
           }
           newChildren.push(child);
         }
-        node.children = await processNodes(newChildren);
+        (node as { children: MdastNode[] }).children =
+          await processNodes(newChildren);
       }
 
       return [node];
     }
 
-    async function processNodes(nodes: any[]): Promise<any[]> {
+    async function processNodes(nodes: MdastNode[]): Promise<MdastNode[]> {
       const results = await Promise.all(nodes.map(processNode));
       return results.flat();
     }

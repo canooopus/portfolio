@@ -65,8 +65,12 @@ export function PortfolioContainer({
 
         {/* コンテンツセクション */}
         <div
+          inert={!showText}
+          aria-hidden={!showText}
           className={`w-full transition-all duration-1000 ease-out ${
-            showText ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+            showText
+              ? "opacity-100 translate-y-0"
+              : "opacity-0 translate-y-4 pointer-events-none"
           }`}
         >
           <IntroText novaMonoClass={novaMonoClass} />

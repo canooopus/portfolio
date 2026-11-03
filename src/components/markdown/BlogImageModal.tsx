@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { useIsMounted } from "@/hooks/useIsMounted";
 import { useScrollLock } from "@/hooks/useScrollLock";
 
 interface SelectedImage {
@@ -14,12 +15,8 @@ export default function BlogImageModal() {
   const [selectedImage, setSelectedImage] = useState<SelectedImage | null>(
     null,
   );
-  const [mounted, setMounted] = useState(false);
+  const mounted = useIsMounted();
   const { unlockScroll } = useScrollLock(Boolean(selectedImage));
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
