@@ -1,6 +1,10 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import {
+  resolveOptimizedImage,
+  type ImageVariant,
+} from "@/lib/imageVariants";
 
 export interface CustomImageProps
   extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, "src" | "srcSet"> {
@@ -15,50 +19,7 @@ export interface CustomImageProps
   srcSet?: string;
   className?: string;
   style?: React.CSSProperties;
-  variant?: "thumb" | "medium" | "large" | "auto";
-}
-
-/**
- * ギャラリー画像などのパスから最適化済み WebP の srcset / src を解決するヘルパー
- */
-function resolveOptimizedSrc(
-  src: string,
-  variant: "thumb" | "medium" | "large" | "auto" = "auto"
-): { defaultSrc: string; srcSet?: string } {
-  // 既に optimized 配下のパスが直接指定されている場合はそのまま返す
-  if (src.startsWith("/images/optimized/")) {
-    return { defaultSrc: src };
-  }
-
-  // /images/(任意の階層/)?(ファイル名).(jpg|jpeg|png|webp) の形式を判定
-  const match = src.match(/^\/images\/(?:(.+)\/)?([^/]+)\.(jpg|jpeg|png|webp)$/i);
-  if (!match) {
-    return { defaultSrc: src };
-  }
-
-  const subDir = match[1] || ""; // 例: "gallery", "home/gallery", "blog/hello-world", または ""
-  const baseName = match[2]; // 例: "photo1", "eyecatch"
-
-  const prefix = subDir ? `/images/optimized/${subDir}` : `/images/optimized`;
-  const thumbSrc = `${prefix}/${baseName}-thumb.webp`;
-  const mediumSrc = `${prefix}/${baseName}-medium.webp`;
-  const largeSrc = `${prefix}/${baseName}-large.webp`;
-
-  if (variant === "thumb") {
-    return { defaultSrc: thumbSrc };
-  }
-  if (variant === "medium") {
-    return { defaultSrc: mediumSrc };
-  }
-  if (variant === "large") {
-    return { defaultSrc: largeSrc };
-  }
-
-  // auto: 複数解像度の srcset を生成
-  return {
-    defaultSrc: mediumSrc,
-    srcSet: `${thumbSrc} 480w, ${mediumSrc} 800w, ${largeSrc} 1280w`,
-  };
+  variant?: ImageVariant;
 }
 
 export function Image({
@@ -82,7 +43,10 @@ export function Image({
   const [isLoaded, setIsLoaded] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
 
-  const { defaultSrc, srcSet: autoSrcSet } = resolveOptimizedSrc(src, variant);
+  const { defaultSrc, srcSet: autoSrcSet } = resolveOptimizedImage(
+    src,
+    variant,
+  );
   const finalSrcSet = customSrcSet || autoSrcSet;
 
   const computedLoading = priority ? "eager" : loading || "lazy";

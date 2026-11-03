@@ -7,6 +7,9 @@ import { syncBlogFolders } from "./sync-blog-folders.mjs";
 const BASE_IMAGE_DIR = "public/images";
 const OUTPUT_DIR = "public/images/optimized";
 
+// 生成した画像の実寸を記録するマニフェスト（srcset の幅記述子に使用）
+const MANIFEST_PATH = path.join("src", "generated", "image-manifest.json");
+
 // 最適化する幅のバリエーション
 const SIZES = [
   { name: "thumb", width: 480, quality: 80 },
@@ -85,6 +88,36 @@ export function cleanupOrphanOptimizedFiles(dir = OUTPUT_DIR) {
 }
 
 /**
+ * 画像の実寸マニフェストを書き出す。
+ *
+ * `withoutEnlargement: true` により元画像が小さい場合は拡張されないため、
+ * srcset の幅記述子（480w / 800w / 1280w 固定）と実ファイルの幅がずれる。
+ * そのずれがスマホ（高 DPR）で画像が小さく表示される原因になるので、
+ * 実際に生成された幅を JSON に保存して srcset 生成側で参照する。
+ */
+function writeImageManifest(manifest) {
+  const sorted = Object.fromEntries(
+    Object.keys(manifest)
+      .sort()
+      .map((key) => [key, manifest[key]])
+  );
+  const content = JSON.stringify(sorted, null, 2) + "\n";
+
+  if (
+    fs.existsSync(MANIFEST_PATH) &&
+    fs.readFileSync(MANIFEST_PATH, "utf8") === content
+  ) {
+    return;
+  }
+
+  fs.mkdirSync(path.dirname(MANIFEST_PATH), { recursive: true });
+  fs.writeFileSync(MANIFEST_PATH, content);
+  console.log(
+    `📝 [Manifest] 実寸を書き出し: ${MANIFEST_PATH} (${Object.keys(sorted).length} images)`
+  );
+}
+
+/**
  * 画像最適化メイン処理
  */
 export async function optimizeImages() {
@@ -101,6 +134,7 @@ export async function optimizeImages() {
   console.log("🚀 Starting image optimization with sharp...");
   const imageFiles = getAllImageFiles(BASE_IMAGE_DIR);
   let processedCount = 0;
+  const manifest = {};
 
   for (const inputPath of imageFiles) {
     const ext = path.extname(inputPath).toLowerCase();
@@ -108,6 +142,10 @@ export async function optimizeImages() {
     const baseName = path.basename(inputPath, ext);
 
     const relativeDir = path.relative(BASE_IMAGE_DIR, path.dirname(inputPath));
+    const relativeImagePath = path
+      .relative(BASE_IMAGE_DIR, inputPath)
+      .split(path.sep)
+      .join("/");
     const targetOutputDir = relativeDir
       ? path.join(OUTPUT_DIR, relativeDir)
       : OUTPUT_DIR;
@@ -134,44 +172,59 @@ export async function optimizeImages() {
       }
     }
 
-    if (!needOptimization) {
-      continue;
-    }
+    let sourceWidth;
 
-    console.log(
-      `\n📸 Processing: ${path.join(relativeDir, fileName)} (${(
-        originalSize /
-        1024 /
-        1024
-      ).toFixed(2)} MB)`
-    );
-
-    const image = sharp(inputPath);
-    const metadata = await image.metadata();
-
-    for (const size of SIZES) {
-      const targetWidth = Math.min(size.width, metadata.width || size.width);
-      const outputFileName = `${baseName}-${size.name}.webp`;
-      const outputPath = path.join(targetOutputDir, outputFileName);
-
-      await sharp(inputPath)
-        .resize({ width: targetWidth, withoutEnlargement: true })
-        .webp({ quality: size.quality, effort: 4 })
-        .toFile(outputPath);
-
-      const newSize = fs.statSync(outputPath).size;
+    if (needOptimization) {
       console.log(
-        `  -> Generated ${path.join(relativeDir, outputFileName)}: ${(
-          newSize / 1024
-        ).toFixed(1)} KB (w: ${targetWidth}px)`
+        `\n📸 Processing: ${path.join(relativeDir, fileName)} (${(
+          originalSize /
+          1024 /
+          1024
+        ).toFixed(2)} MB)`
       );
+
+      const image = sharp(inputPath);
+      const metadata = await image.metadata();
+      sourceWidth = metadata.width;
+
+      for (const size of SIZES) {
+        const targetWidth = Math.min(size.width, metadata.width || size.width);
+        const outputFileName = `${baseName}-${size.name}.webp`;
+        const outputPath = path.join(targetOutputDir, outputFileName);
+
+        await sharp(inputPath)
+          .resize({ width: targetWidth, withoutEnlargement: true })
+          .webp({ quality: size.quality, effort: 4 })
+          .toFile(outputPath);
+
+        const newSize = fs.statSync(outputPath).size;
+        console.log(
+          `  -> Generated ${path.join(relativeDir, outputFileName)}: ${(
+            newSize / 1024
+          ).toFixed(1)} KB (w: ${targetWidth}px)`
+        );
+      }
+
+      processedCount++;
+    } else {
+      // 生成済みでも実寸を記録するために元画像の幅だけ取得
+      const metadata = await sharp(inputPath).metadata();
+      sourceWidth = metadata.width;
     }
 
-    processedCount++;
+    // withoutEnlargement により元画像より大きくはならないため、実寸を記録する
+    manifest[relativeImagePath] = Object.fromEntries(
+      SIZES.map((size) => [
+        size.name,
+        Math.min(size.width, sourceWidth || size.width),
+      ])
+    );
   }
 
   // 終了後に空ディレクトリを再クリーンアップ
   cleanupOrphanOptimizedFiles();
+
+  writeImageManifest(manifest);
 
   if (processedCount > 0) {
     console.log(`\n✨ Finished optimizing ${processedCount} images!`);

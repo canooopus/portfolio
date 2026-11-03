@@ -16,6 +16,10 @@ import rehypeKatex from "rehype-katex"; // ★追加: 数式のHTMLレンダリ�
 import rehypeMermaid from "rehype-mermaid"; // ★追加: Mermaid図表のSVG変換 (20-22)
 import rehypePrettyCode from "rehype-pretty-code";
 import rehypeStringify from "rehype-stringify";
+import {
+  RESPONSIVE_IMAGE_SIZES,
+  resolveOptimizedImage,
+} from "@/lib/imageVariants";
 import { getOgpData, OgpData } from "./ogp";
 
 const postsDirectory = path.join(process.cwd(), "content", "blog");
@@ -128,36 +132,41 @@ export const getSortedPostsData = cache((): PostData[] => {
 
 /**
  * Markdown内の画像（<img src="...">）を事前生成WebP & srcsetに自動変換するRehypeプラグイン
+ *
+ * srcset の幅は `scripts/optimize-images.mjs` が出力した実寸マニフェストを参照する。
+ * 固定値だと元画像が小さいときに記述子と実ファイル幅がずれ、高 DPR 端末で
+ * 画像が想定より小さい CSS 幅で表示されてしまう。
  */
 function rehypeOptimizeImages() {
   function visit(node: HastRoot | HastNode) {
     if (
       node.type === "element" &&
       node.tagName === "img" &&
-      node.properties.src
+      typeof node.properties.src === "string"
     ) {
-      const src = node.properties.src;
+      const originalSrc = node.properties.src;
+      const resolved = resolveOptimizedImage(originalSrc);
 
-      if (!src.startsWith("/images/optimized/")) {
-        const match = src.match(
-          /^\/images\/(?:(.+)\/)?([^/]+)\.(jpg|jpeg|png|webp)$/i,
-        );
-        if (match) {
-          const subDir = match[1] || "";
-          const baseName = match[2];
-          const prefix = subDir
-            ? `/images/optimized/${subDir}`
-            : `/images/optimized`;
+      if (resolved.defaultSrc !== originalSrc) {
+        node.properties.src = resolved.defaultSrc;
 
-          const thumbSrc = `${prefix}/${baseName}-thumb.webp`;
-          const mediumSrc = `${prefix}/${baseName}-medium.webp`;
-          const largeSrc = `${prefix}/${baseName}-large.webp`;
+        if (resolved.srcSet) {
+          node.properties.srcSet = resolved.srcSet;
 
-          node.properties.src = mediumSrc;
-          node.properties.srcSet = `${thumbSrc} 480w, ${mediumSrc} 800w, ${largeSrc} 1280w`;
-          node.properties.loading = node.properties.loading || "lazy";
-          node.properties.decoding = node.properties.decoding || "async";
+          // width 属性やインライン style でサイズ指定されている画像には
+          // 誤った sizes ヒントを与えない
+          const hasExplicitWidth =
+            node.properties.width !== undefined ||
+            (typeof node.properties.style === "string" &&
+              /(?:^|;)\s*width\s*:/.test(node.properties.style));
+
+          if (!hasExplicitWidth) {
+            node.properties.sizes = RESPONSIVE_IMAGE_SIZES;
+          }
         }
+
+        node.properties.loading = node.properties.loading || "lazy";
+        node.properties.decoding = node.properties.decoding || "async";
       }
     }
 
