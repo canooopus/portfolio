@@ -1,7 +1,7 @@
 ---
 title: "Building a Custom Image Optimization Pipeline with Sharp"
 date: "2026-11-05"
-tags: ["Dev", "Performance"]
+tags: ["Dev"]
 ---
 
 This site uses Next.js with Static Site Generation (SSG). Everything—from article images to the homepage gallery—lives directly in the repository.  
