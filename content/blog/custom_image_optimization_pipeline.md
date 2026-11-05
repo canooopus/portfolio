@@ -1,5 +1,5 @@
 ---
-title: "Building a Custom Image Optimization Pipeline with Sharp"
+title: "Image Optimization with Sharp"
 date: "2026-11-05"
 tags: ["Dev"]
 ---
