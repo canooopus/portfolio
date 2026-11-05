@@ -45,10 +45,10 @@ I also considered Cloudflare Pages, but ultimately chose Vercel for its seamless
 
 ### Other Packages
 
-- **shiki**: Used for syntax highlighting in code blocks within blog posts.
-- **framer-motion**: Used for animations in the gallery albums.
-- **katex**: Used to render mathematical formulas in blog posts.
-- **mermaid**: Dynamically loaded on the client side only when a post contains diagrams, keeping the initial bundle size small.
+- **Shiki**: Used for syntax highlighting in code blocks within blog posts.
+- **Motion**: Used for animations in the gallery albums.
+- **Katex**: Used to render mathematical formulas in blog posts.
+- **Mermaid**: Dynamically loaded on the client side only when a post contains diagrams, keeping the initial bundle size small.
 
 ---
 

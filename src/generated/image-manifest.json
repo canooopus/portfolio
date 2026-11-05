@@ -4,6 +4,16 @@
     "medium": 772,
     "large": 772
   },
+  "blog/custom_image_optimization_pipeline/sample(1).jpg": {
+    "thumb": 480,
+    "medium": 800,
+    "large": 1280
+  },
+  "blog/custom_image_optimization_pipeline/sample(2).jpg": {
+    "thumb": 480,
+    "medium": 800,
+    "large": 1280
+  },
   "blog/list_of_markdown_expressions/sample(1).jpg": {
     "thumb": 480,
     "medium": 800,
