@@ -17,6 +17,7 @@ Next.js 16 App Router portfolio + Markdown blog (SSG, deployed on Vercel).
 - `npm run dev` — custom wrapper (`scripts/dev.mjs`): optimizes images, syncs blog image folders, starts watchers, then runs `next dev`. Use this; plain `next dev` skips the image pipeline.
 - `npm run build` — plain `next build`. Images are **not** optimized or published during the Vercel build; do that locally with `images:publish`.
 - `npm run images:publish` — optimize, then upload `public/images/optimized/**` to R2 (`--prune` removes stale remote files, `--with-originals` backs up originals under `originals/`, `--dry-run` lists targets).
+- `npm run images:pull` — restore originals from R2 `originals/**` into `public/images/**` (use on a fresh clone or another machine; only works if `images:publish --with-originals` was used).
 - `npm run images:deploy` — deploy `worker/` (R2 image proxy) to Cloudflare Workers.
 - `npm run lint` — ESLint flat config (`eslint.config.mjs`).
 - `npx tsc --noEmit` — the only typecheck; there is no `typecheck` script.
@@ -44,6 +45,7 @@ Next.js 16 App Router portfolio + Markdown blog (SSG, deployed on Vercel).
 - Images are hosted on **Cloudflare R2** and served by `worker/` (`images/optimized/**` only). The site still deploys to Vercel; `NEXT_PUBLIC_IMAGE_BASE_URL` points at the Worker (`https://<worker>.<account>.workers.dev`) or a custom domain. If unset, `src/lib/imageVariants.ts` falls back to local `/images/optimized/...` for development.
 - Add originals under `public/images/**` (local only, gitignored) and reference the original path in Markdown (`/images/blog/<slug>/foo.jpg`) or data files. The pipeline generates `-thumb` 480, `-medium` 800, `-large` 1280 WebP variants.
 - Publishing: `npm run images:publish` optimizes locally and uploads to R2 (`R2_*` in `.env.local`, see `.env.example`). `--prune` deletes remote files whose originals are gone; `--with-originals` backs up originals under `originals/**`, which the Worker never serves. Vercel does **not** run this step.
+- If the originals are not local but exist in R2 (`originals/**`), restore them with `npm run images:pull` **before** optimizing or running `--prune`. Pruning with missing local originals deletes the remote optimized files they belong to.
 - `scripts/optimize-images.mjs` also writes `src/generated/image-manifest.json` with each variant's actual width (committed). `src/lib/imageVariants.ts` uses it for `srcset` descriptors, because small originals are not upscaled and fixed `480w/800w/1280w` labels would shrink images on high-DPR phones. Don't edit the manifest by hand.
 - When no source images exist (fresh clone, Vercel build), `optimizeImages()` skips cleanup and manifest writing, so the committed manifest and local `optimized/` are not wiped. Use `--allow-empty` only when intentionally removing every image.
 - `getPostData` (rehype plugin) and `src/components/common/Image.tsx` rewrite `/images/...` to `<base>/images/optimized/...`; don't reference `/images/optimized` paths by hand.
@@ -58,6 +60,17 @@ Next.js 16 App Router portfolio + Markdown blog (SSG, deployed on Vercel).
 - Enabled Markdown: GFM, definition lists, GitHub alerts (`> [!NOTE]`), KaTeX (`$...$`, `$$...$$`), Mermaid, `[card](url)` OGP cards, pretty-code highlighting.
 - `[card](url)` fetches OGP metadata at render/build (4s timeout) and caches in `content/.cache/ogp-cache.json`; delete that entry to refresh a card.
 - Headings get `id`s from `rehype-slug`; `getPostData` collects `h2`s into `PostData.toc`, rendered by `src/components/blog/TableOfContents.tsx` (fixed left, 1080px+ only, hidden when fewer than 2 `h2`s).
+
+## Git hooks
+
+`npm install` の `prepare` で `core.hooksPath=.githooks` を設定する（`.githooks/*` は `.gitattributes` で LF 固定。CRLF だと `bad interpreter` になる）。
+
+- `pre-commit` — `optimize-images` → 更新された `image-manifest.json` を自動ステージ → ステージした JS/TS に ESLint、TS があれば `tsc --noEmit`。失敗するとコミット中止。
+- `pre-push` — **全ブランチ**で `images:publish --with-originals`（元画像も `originals/**` にバックアップ。`--prune` は自動化しない）。R2 認証情報が無い / アップロード失敗時は push 中止。
+- `post-merge` / `post-rewrite` / `post-checkout` — manifest か `content/blog/*.md` が変わったら `images:pull`（認証情報が無ければ警告のみ）。
+- clone 後は `npm install` がフック登録と初回 `images:pull` を行う（`.env.local` 未設定ならスキップ）。
+
+手動実行は `npm run git:sync` / `npm run git:publish`。回避は `git commit --no-verify` / `SKIP_IMAGE_PUBLISH=1 git push`。`worker/**` を変更した場合は `npm run images:deploy` を手動で実行する。
 
 ## Conventions
 

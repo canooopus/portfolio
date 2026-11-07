@@ -7,7 +7,11 @@
     "build": "next build",
     "optimize-images": "node scripts/optimize-images.mjs",
     "images:publish": "node scripts/publish-images.mjs",
+    "images:pull": "node scripts/pull-originals.mjs",
     "images:deploy": "wrangler deploy -c worker/wrangler.toml",
+    "git:sync": "node scripts/pull-originals.mjs",
+    "git:publish": "node scripts/publish-images.mjs",
+    "prepare": "node scripts/install-git-hooks.mjs",
     "sync-blog": "node scripts/sync-blog-folders.mjs",
     "start": "next start",
     "lint": "eslint"

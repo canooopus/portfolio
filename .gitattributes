@@ -1,0 +1,2 @@
+# Git フックは sh が直接実行するため LF 固定（CRLF だと bad interpreter になる）
+.githooks/* text eol=lf

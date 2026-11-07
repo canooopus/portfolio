@@ -30,5 +30,12 @@
     "image": "https://www.gstatic.com/images/icons/material/apps/fonts/1x/catalog/v5/opengraph_color.png",
     "domain": "fonts.google.com",
     "favicon": "https://www.google.com/s2/favicons?domain=fonts.google.com&sz=64"
+  },
+  "https://open.spotify.com/embed/track/51CpRSb1XBOdlZq3Q7rmUi?utm_source=generator": {
+    "url": "https://open.spotify.com/embed/track/51CpRSb1XBOdlZq3Q7rmUi?utm_source=generator",
+    "title": "open.spotify.com",
+    "description": "",
+    "domain": "open.spotify.com",
+    "favicon": "https://www.google.com/s2/favicons?domain=open.spotify.com&sz=64"
   }
 }

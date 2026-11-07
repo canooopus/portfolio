@@ -136,6 +136,24 @@ function writeImageManifest(manifest) {
 }
 
 /**
+ * 既存 manifest を読み込む。
+ *
+ * 元画像がローカルに無い画像（別マシンで追加された等）の実寸を
+ * 失わないよう、生成結果は既存 manifest にマージする。
+ */
+function readImageManifest() {
+  if (!fs.existsSync(MANIFEST_PATH)) return {};
+  try {
+    return JSON.parse(fs.readFileSync(MANIFEST_PATH, "utf8"));
+  } catch {
+    console.warn(
+      `⚠️  ${MANIFEST_PATH} を読み込めませんでした。新規に作り直します。`
+    );
+    return {};
+  }
+}
+
+/**
  * 画像最適化メイン処理
  */
 export async function optimizeImages({ allowEmpty = false } = {}) {
@@ -163,7 +181,9 @@ export async function optimizeImages({ allowEmpty = false } = {}) {
 
   console.log("🚀 Starting image optimization with sharp...");
   let processedCount = 0;
-  const manifest = {};
+  // ローカルに無い画像のエントリを保持するため、既存 manifest を引き継ぐ。
+  // --allow-empty は「すべての画像を意図的に消した」ときの明示フラグ。
+  const manifest = allowEmpty ? {} : readImageManifest();
 
   for (const inputPath of imageFiles) {
     // ファイル名からは元の拡張子で取り除く

@@ -2,8 +2,13 @@ import fs from "fs";
 import path from "path";
 import crypto from "crypto";
 import { fileURLToPath } from "url";
-import { AwsClient } from "aws4fetch";
 import { optimizeImages } from "./optimize-images.mjs";
+import {
+  createR2Client,
+  encodeKey,
+  listRemoteKeys,
+} from "./r2.mjs";
+import { loadEnvLocal } from "./env.mjs";
 
 const PUBLIC_DIR = "public";
 const OPTIMIZED_DIR = path.join(PUBLIC_DIR, "images", "optimized");
@@ -24,6 +29,7 @@ if (args.has("--help") || args.has("-h")) {
 
   --dry-run          R2 へ接続せず、アップロード対象を表示
   --prune            リモートに残っている不要な images/optimized/** を削除
+                     （元画像がローカルに無いものは削除せず保護します）
   --with-originals   元画像も originals/** にバックアップ（Worker からは配信されない）
   --no-optimize      最適化をスキップしてアップロードだけ行う
   --force            既存ファイルでも強制的にアップロード
@@ -35,56 +41,9 @@ if (args.has("--help") || args.has("-h")) {
 }
 
 /**
- * .env.local を読み込む。Next.js 以外（Node スクリプト）では自動で
- * 読み込まれないため、ここで補う。
+ * .env.local を読み込む（Node スクリプトでは自動で読み込まれないため）
  */
-function loadEnvLocal() {
-  const envPath = ".env.local";
-  if (!fs.existsSync(envPath)) return;
-
-  if (typeof process.loadEnvFile === "function") {
-    try {
-      process.loadEnvFile(envPath);
-      return;
-    } catch {
-      // 古い Node などで失敗した場合は簡易パーサーにフォールバック
-    }
-  }
-
-  for (const line of fs.readFileSync(envPath, "utf8").split(/\r?\n/)) {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith("#")) continue;
-
-    const separator = trimmed.indexOf("=");
-    if (separator === -1) continue;
-
-    const key = trimmed.slice(0, separator).trim();
-    let value = trimmed.slice(separator + 1).trim();
-
-    if (
-      (value.startsWith('"') && value.endsWith('"')) ||
-      (value.startsWith("'") && value.endsWith("'"))
-    ) {
-      value = value.slice(1, -1);
-    }
-
-    if (key && process.env[key] === undefined) {
-      process.env[key] = value;
-    }
-  }
-}
-
 loadEnvLocal();
-
-function requireEnv(name) {
-  const value = process.env[name];
-  if (!value) {
-    throw new Error(
-      `環境変数 ${name} が未設定です。.env.local を確認してください（.env.example 参照）。`
-    );
-  }
-  return value;
-}
 
 function walkFiles(dir) {
   if (!fs.existsSync(dir)) return [];
@@ -105,13 +64,6 @@ function toKey(fullPath, baseDir) {
   return path
     .relative(baseDir, fullPath)
     .split(path.sep)
-    .join("/");
-}
-
-function encodeKey(key) {
-  return key
-    .split("/")
-    .map((segment) => encodeURIComponent(segment))
     .join("/");
 }
 
@@ -164,28 +116,6 @@ async function mapWithConcurrency(items, limit, fn) {
   return results;
 }
 
-function createR2Client() {
-  if (DRY_RUN) return null;
-
-  const accessKeyId = requireEnv("R2_ACCESS_KEY_ID");
-  const secretAccessKey = requireEnv("R2_SECRET_ACCESS_KEY");
-  const bucket = process.env.R2_BUCKET || "portfolio-assets";
-
-  const client = new AwsClient({
-    accessKeyId,
-    secretAccessKey,
-    service: "s3",
-    region: "auto",
-  });
-
-  // 通常は R2 の S3 エンドポイント。テストや S3 互換ストレージ向けに上書き可能。
-  const endpoint =
-    process.env.R2_ENDPOINT?.replace(/\/+$/, "") ||
-    `https://${requireEnv("R2_ACCOUNT_ID")}.r2.cloudflarestorage.com/${bucket}`;
-
-  return { client, endpoint, bucket };
-}
-
 async function objectUrl(r2, key) {
   return `${r2.endpoint}/${encodeKey(key)}`;
 }
@@ -219,46 +149,6 @@ async function putObject(r2, key, body, contentType, cacheControl) {
       `PUT ${key} に失敗しました: ${response.status} ${await response.text()}`
     );
   }
-}
-
-async function listRemoteKeys(r2, prefix) {
-  const keys = [];
-  let continuationToken;
-
-  do {
-    const url = new URL(r2.endpoint);
-    url.searchParams.set("list-type", "2");
-    url.searchParams.set("prefix", prefix);
-    if (continuationToken) {
-      url.searchParams.set("continuation-token", continuationToken);
-    }
-
-    const response = await r2.client.fetch(url.toString());
-    if (!response.ok) {
-      throw new Error(
-        `LIST ${prefix} に失敗しました: ${response.status} ${await response.text()}`
-      );
-    }
-
-    const xml = await response.text();
-    for (const match of xml.matchAll(/<Key>([^<]+)<\/Key>/g)) {
-      keys.push(decodeXml(match[1]));
-    }
-
-    continuationToken =
-      /<NextContinuationToken>([^<]+)<\/NextContinuationToken>/.exec(xml)?.[1];
-  } while (continuationToken);
-
-  return keys;
-}
-
-function decodeXml(value) {
-  return value
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&apos;/g, "'");
 }
 
 async function deleteObject(r2, key) {
@@ -305,16 +195,105 @@ async function syncFiles(files, r2, cacheControl) {
   return { uploaded, skipped };
 }
 
-async function pruneRemote(r2, prefix, localKeys) {
+const MANIFEST_PATH = path.join("src", "generated", "image-manifest.json");
+
+/** manifest に記録されている画像の相対パス一覧 */
+function readManifestKeys() {
+  if (!fs.existsSync(MANIFEST_PATH)) return [];
+  try {
+    return Object.keys(JSON.parse(fs.readFileSync(MANIFEST_PATH, "utf8")));
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * manifest のキーに対応する元画像がローカルにあるか。
+ * 拡張子の大文字・小文字や jpg/jpeg の違いも吸収する。
+ */
+function originalExists(relativePath) {
+  const fullPath = path.join(IMAGES_DIR, relativePath);
+  if (fs.existsSync(fullPath)) return true;
+
+  const dir = path.dirname(fullPath);
+  if (!fs.existsSync(dir)) return false;
+
+  const baseName = path
+    .basename(fullPath, path.extname(fullPath))
+    .toLowerCase();
+
+  return fs.readdirSync(dir).some((name) => {
+    const ext = path.extname(name).toLowerCase();
+    return (
+      [".jpg", ".jpeg", ".png", ".webp"].includes(ext) &&
+      path.basename(name, path.extname(name)).toLowerCase() === baseName
+    );
+  });
+}
+
+/**
+ * 元画像がローカルに無い画像の optimized キー。
+ * --prune で R2 から消してしまうと記事が 404 になるため保護する。
+ */
+function protectedOptimizedKeys() {
+  const keys = new Set();
+
+  for (const relativePath of readManifestKeys()) {
+    if (originalExists(relativePath)) continue;
+
+    const ext = path.extname(relativePath);
+    const withoutExt = relativePath
+      .slice(0, relativePath.length - ext.length)
+      .replace(/\\/g, "/");
+
+    for (const variant of ["thumb", "medium", "large"]) {
+      keys.add(`${OPTIMIZED_KEY_PREFIX}${withoutExt}-${variant}.webp`);
+    }
+  }
+
+  return keys;
+}
+
+/** 元画像がローカルに無い画像の originals キー（バックアップを消さない） */
+function protectedOriginalKeys() {
+  const keys = new Set();
+
+  for (const relativePath of readManifestKeys()) {
+    if (originalExists(relativePath)) continue;
+    keys.add(
+      `${ORIGINALS_KEY_PREFIX}${relativePath.replace(/\\/g, "/")}`
+    );
+  }
+
+  return keys;
+}
+
+async function pruneRemote(r2, prefix, localKeys, protectedKeys = new Set()) {
   if (DRY_RUN) {
     console.log(
-      `  [dry-run] ${prefix} 配下の不要ファイルを削除（ローカルに ${localKeys.size} 件）`
+      `  [dry-run] ${prefix} 配下の不要ファイルを削除（ローカルに ${localKeys.size} 件 / 保護 ${protectedKeys.size} 件）`
     );
     return 0;
   }
 
   const remoteKeys = await listRemoteKeys(r2, prefix);
-  const orphans = remoteKeys.filter((key) => !localKeys.has(key));
+  const orphans = [];
+  let kept = 0;
+
+  for (const key of remoteKeys) {
+    if (localKeys.has(key)) continue;
+    if (protectedKeys.has(key)) {
+      kept++;
+      continue;
+    }
+    orphans.push(key);
+  }
+
+  if (kept > 0) {
+    console.log(
+      `  🛡️  元画像がローカルに無いため保持: ${kept} 件（削除するには元画像を npm run images:pull で復元）`
+    );
+  }
 
   for (const key of orphans) {
     await deleteObject(r2, key);
@@ -363,7 +342,7 @@ async function main() {
         }))
     : [];
 
-  const r2 = createR2Client();
+  const r2 = createR2Client({ dryRun: DRY_RUN });
   const publicBaseUrl = (process.env.NEXT_PUBLIC_IMAGE_BASE_URL || "").replace(
     /\/+$/,
     ""
@@ -397,14 +376,16 @@ async function main() {
     pruned += await pruneRemote(
       r2,
       OPTIMIZED_KEY_PREFIX,
-      new Set(optimizedFiles.map((file) => file.key))
+      new Set(optimizedFiles.map((file) => file.key)),
+      protectedOptimizedKeys()
     );
 
     if (WITH_ORIGINALS) {
       pruned += await pruneRemote(
         r2,
         ORIGINALS_KEY_PREFIX,
-        new Set(originalFiles.map((file) => file.key))
+        new Set(originalFiles.map((file) => file.key)),
+        protectedOriginalKeys()
       );
     }
   }
