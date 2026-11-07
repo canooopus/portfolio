@@ -74,8 +74,12 @@ export function cleanupOrphanOptimizedFiles(dir = OUTPUT_DIR) {
           : BASE_IMAGE_DIR;
 
         // 元画像が存在するか確認
+        // （大文字拡張子のファイルでも一致するよう、ファイル名を小文字化して比較する）
+        const sourceFileNames = fs.existsSync(originalDir)
+          ? fs.readdirSync(originalDir).map((name) => name.toLowerCase())
+          : [];
         const originalExists = EXTENSIONS.some((ext) =>
-          fs.existsSync(path.join(originalDir, `${baseName}${ext}`))
+          sourceFileNames.includes(`${baseName}${ext}`.toLowerCase())
         );
 
         if (!originalExists) {
@@ -137,9 +141,11 @@ export async function optimizeImages() {
   const manifest = {};
 
   for (const inputPath of imageFiles) {
-    const ext = path.extname(inputPath).toLowerCase();
+    // ファイル名からは元の拡張子で取り除く
+    // （`IMG_1234.JPG` を `IMG_1234.JPG-thumb.webp` にしてしまわないため）
+    const originalExt = path.extname(inputPath);
     const fileName = path.basename(inputPath);
-    const baseName = path.basename(inputPath, ext);
+    const baseName = path.basename(inputPath, originalExt);
 
     const relativeDir = path.relative(BASE_IMAGE_DIR, path.dirname(inputPath));
     const relativeImagePath = path

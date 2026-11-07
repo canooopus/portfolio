@@ -96,6 +96,17 @@ body {
   }
 }
 
+/* 動きを減らす設定では、ハイライトのフェードを実質無効化する */
+@media (prefers-reduced-motion: reduce) {
+  .blog-content h2.footnote-highlight-active::before,
+  .blog-content h3.footnote-highlight-active::before,
+  .blog-content p.footnote-highlight-active::before,
+  .blog-content section[data-footnotes] li.footnote-highlight-active::after,
+  .blog-content a[data-footnote-ref].footnote-highlight-active {
+    animation-duration: 1ms;
+  }
+}
+
 /* -------------------------------------------------------------
  * Blog Article Styling (No Tailwind Typography)
  * ------------------------------------------------------------- */

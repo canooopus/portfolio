@@ -65,15 +65,18 @@ export default function TableOfContents({ items }: TableOfContentsProps) {
 
   useEffect(() => {
     let frameId = 0;
+    const desktopQuery = window.matchMedia("(min-width: 1080px)");
+
+    // id と要素の対応はマウント中に変わらないため、1 回だけ解決する
+    const headings = items
+      .map((item) => document.getElementById(item.id))
+      .filter((heading): heading is HTMLElement => heading !== null);
 
     const updateActive = () => {
       frameId = 0;
 
-      const headings = items
-        .map((item) => document.getElementById(item.id))
-        .filter((heading): heading is HTMLElement => heading !== null);
-
-      if (headings.length === 0) {
+      // 目次は 1080px 未満では非表示なので、スクロールごとの計測をスキップする
+      if (!desktopQuery.matches || headings.length === 0) {
         return;
       }
 
@@ -147,6 +150,17 @@ export default function TableOfContents({ items }: TableOfContentsProps) {
   }, [activeId]);
 
   const handleClick = (event: MouseEvent<HTMLAnchorElement>, id: string) => {
+    // 修飾キー付きクリックはブラウザ標準の動作（新規タブ等）に任せる
+    if (
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey ||
+      event.button !== 0
+    ) {
+      return;
+    }
+
     const heading = document.getElementById(id);
     if (!heading) {
       return;

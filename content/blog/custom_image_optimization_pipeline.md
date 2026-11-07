@@ -77,7 +77,7 @@ flowchart TD
     K --> L["Output src / srcset"]
 ```
 
-Both the generated assets and the manifest file are committed to git. Although the script still runs during Vercel builds, existing images are detected and skipped, resulting in almost zero impact on deployment build times.
+Both the generated assets and the manifest file are committed to git. Although the script still runs during Vercel builds, existing images are normally detected and skipped, so incremental builds usually add little time. Because the check relies on file modification times (which Git does not preserve), a fresh checkout can occasionally re-encode everything; content-based caching would make this fully deterministic in the future.
 
 ---
 

@@ -215,10 +215,18 @@ function rehypeCollectToc(toc: TocItem[]): Transformer<HastRoot> {
     function visit(node: HastRoot | HastNode) {
       if (node.type === "element" && node.tagName === "h2") {
         const id = node.properties.id;
-        const text = getNodeText(node).replace(/\s+/g, " ").trim();
+        const className = node.properties.className;
+        // GFM の脚注見出し（sr-only の "Footnotes"）など、非表示の見出しは目次に含めない
+        const isHidden =
+          id === "footnote-label" ||
+          (Array.isArray(className) && className.includes("sr-only"));
 
-        if (typeof id === "string" && id && text) {
-          toc.push({ id, text });
+        if (!isHidden) {
+          const text = getNodeText(node).replace(/\s+/g, " ").trim();
+
+          if (typeof id === "string" && id && text) {
+            toc.push({ id, text });
+          }
         }
       }
 
