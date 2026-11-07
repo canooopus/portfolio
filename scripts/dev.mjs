@@ -5,7 +5,6 @@ import { watchBlogFolders } from "./sync-blog-folders.mjs";
 import { optimizeImages } from "./optimize-images.mjs";
 
 const BASE_IMAGE_DIR = "public/images";
-const OUTPUT_DIR = "public/images/optimized";
 
 // 1. 初回最適化＆ブログフォルダ同期
 try {

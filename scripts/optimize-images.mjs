@@ -19,6 +19,11 @@ const SIZES = [
 
 const EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp"];
 
+// Git 管理下に置く共通アセットは最適化対象外。
+// これらを対象にすると、元画像が無い新規クローンでも「元画像あり」と
+// 判定されてしまい、manifest を縮小してしまうため。
+const EXCLUDED_SOURCE_DIRS = new Set(["brand"]);
+
 /**
  * ディレクトリ内を再帰的に走査し、画像ファイルの一覧を取得
  */
@@ -35,6 +40,15 @@ function getAllImageFiles(dir, fileList = []) {
       if (path.resolve(fullPath) === path.resolve(OUTPUT_DIR)) {
         continue;
       }
+
+      const relativeDir = path
+        .relative(BASE_IMAGE_DIR, fullPath)
+        .split(path.sep)[0]
+        .toLowerCase();
+      if (EXCLUDED_SOURCE_DIRS.has(relativeDir)) {
+        continue;
+      }
+
       getAllImageFiles(fullPath, fileList);
     } else {
       const ext = path.extname(file).toLowerCase();
@@ -124,7 +138,7 @@ function writeImageManifest(manifest) {
 /**
  * 画像最適化メイン処理
  */
-export async function optimizeImages() {
+export async function optimizeImages({ allowEmpty = false } = {}) {
   // 1. ブログ画像用フォルダを md ファイルと同期
   syncBlogFolders();
 
@@ -132,11 +146,22 @@ export async function optimizeImages() {
     fs.mkdirSync(OUTPUT_DIR, { recursive: true });
   }
 
+  const imageFiles = getAllImageFiles(BASE_IMAGE_DIR);
+
+  // 元画像は Git 管理外（ローカルのみ）なので、新規クローンや CI では
+  // 1 枚も存在しないことがある。その状態で cleanup や manifest の書き出しを
+  // 行うと、コミット済みの manifest と optimized を消してしまうため何もしない。
+  if (imageFiles.length === 0 && !allowEmpty) {
+    console.log(
+      "ℹ️  元画像が見つからないため画像最適化をスキップしました（manifest / optimized はそのまま保持）"
+    );
+    return { processedCount: 0, skipped: true };
+  }
+
   // 2. 元画像が削除された WebP をクリーンアップ
   cleanupOrphanOptimizedFiles();
 
   console.log("🚀 Starting image optimization with sharp...");
-  const imageFiles = getAllImageFiles(BASE_IMAGE_DIR);
   let processedCount = 0;
   const manifest = {};
 
@@ -237,6 +262,8 @@ export async function optimizeImages() {
   } else {
     console.log("✨ All images are already up-to-date.");
   }
+
+  return { processedCount, skipped: false };
 }
 
 // スクリプト直接実行時
@@ -245,8 +272,10 @@ const isDirectRun =
   path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 
 if (isDirectRun) {
-  optimizeImages().catch((err) => {
-    console.error("Error optimizing images:", err);
-    process.exit(1);
-  });
+  optimizeImages({ allowEmpty: process.argv.includes("--allow-empty") }).catch(
+    (err) => {
+      console.error("Error optimizing images:", err);
+      process.exit(1);
+    }
+  );
 }

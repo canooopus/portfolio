@@ -16,6 +16,14 @@ const normalizedWidths = new Map(
 
 const VARIANT_ORDER: ImageVariantName[] = ["thumb", "medium", "large"];
 
+// 最適化済み画像の公開先（Cloudflare R2 + Worker など）。
+// 未設定なら従来どおり public/images/optimized から配信する（ローカル開発用）。
+const IMAGE_BASE_URL = (process.env.NEXT_PUBLIC_IMAGE_BASE_URL ?? "").replace(
+  /\/+$/,
+  "",
+);
+const OPTIMIZED_PREFIX = `${IMAGE_BASE_URL}/images/optimized`;
+
 // ブログ本文（max-w-2xl = 672px / px-6 = 24px）に合わせた表示幅
 export const RESPONSIVE_IMAGE_SIZES =
   "(min-width: 672px) 624px, calc(100vw - 48px)";
@@ -39,9 +47,14 @@ export function resolveOptimizedImage(
   src: string,
   variant: ImageVariant = "auto",
 ): ResolvedImageSource {
-  // 既に optimized 配下のパスが直接指定されている場合はそのまま返す
-  if (src.startsWith("/images/optimized/")) {
+  // 外部URL・data URL などはそのまま返す
+  if (/^(?:https?:|data:|blob:)/i.test(src)) {
     return { defaultSrc: src };
+  }
+
+  // 既に optimized 配下のパスが直接指定されている場合はベースURLだけ付与する
+  if (src.startsWith("/images/optimized/")) {
+    return { defaultSrc: `${IMAGE_BASE_URL}${src}` };
   }
 
   const match = src.match(LOCAL_IMAGE_PATTERN);
@@ -51,7 +64,9 @@ export function resolveOptimizedImage(
 
   const subDir = match[1] || "";
   const baseName = match[2];
-  const prefix = subDir ? `/images/optimized/${subDir}` : `/images/optimized`;
+  const prefix = subDir
+    ? `${OPTIMIZED_PREFIX}/${subDir}`
+    : OPTIMIZED_PREFIX;
   const srcFor = (name: ImageVariantName) => `${prefix}/${baseName}-${name}.webp`;
 
   if (variant !== "auto") {

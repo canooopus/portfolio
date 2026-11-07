@@ -32,6 +32,16 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+.dev.vars
+
+# image assets are published to Cloudflare R2 (keep only committed brand assets)
+/public/images/blog/
+/public/images/home/
+/public/images/optimized/
+
+# wrangler
+/.wrangler/
 
 # vercel
 .vercel

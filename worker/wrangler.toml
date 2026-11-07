@@ -1,0 +1,9 @@
+name = "portfolio-assets"
+main = "src/index.js"
+compatibility_date = "2026-11-01"
+workers_dev = true
+
+# R2 バケット名を変えた場合はここも合わせる
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "portfolio-assets"
