@@ -1,2 +1,2 @@
 #!/bin/sh
-exec node "$(git rev-parse --show-toplevel)/scripts/git-sync.mjs" post-merge
+exec "$(git rev-parse --show-toplevel)/node_modules/.bin/lefthook" run post-merge "$@"

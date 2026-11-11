@@ -48,6 +48,8 @@
     "aws4fetch": "^1.0.20",
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
+    "lefthook": "^2.2.2",
+    "lefthook": "^2.2.2",
     "playwright": "^1.62.1",
     "tailwindcss": "^4",
     "typescript": "^5",
