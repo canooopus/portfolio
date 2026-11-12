@@ -5,7 +5,7 @@ import { Inter } from "next/font/google";
 import { Caveat } from "next/font/google";
 
 const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600"] });
-const caveat = Caveat({ subsets: ["latin"], weight: ["400", "600", "700"] });
+const caveat = Caveat({ subsets: ["latin"], weight: ["400", "500", "600", "700"] });
 
 export const metadata = {
   title: "Blog",
@@ -62,14 +62,16 @@ export default function BlogListPage() {
 
       <main className="max-w-2xl mx-auto px-6 pt-24 pb-24 selection:bg-blue-100 animate-fade-up">
         {/* ブログのヘッダーセクション */}
-        <div className="mb-14">
-          <h1 className="text-3xl font-bold tracking-tight text-neutral-900">
+        <header className="mb-14">
+          <h1
+            className={`text-3xl font-medium tracking-tight text-neutral-900 ${caveat.className}`}
+          >
             Blog
           </h1>
           <p className="mt-4 text-sm text-neutral-500 leading-relaxed">
             Technical writing, thoughts, and updates.
           </p>
-        </div>
+        </header>
 
         {/* 記事一覧コンテナ */}
         {sortedYears.length === 0 ? (

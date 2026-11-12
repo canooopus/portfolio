@@ -59,6 +59,26 @@
     "medium": 800,
     "large": 1280
   },
+  "home/gallery/photo10.jpg": {
+    "thumb": 480,
+    "medium": 800,
+    "large": 1280
+  },
+  "home/gallery/photo11.jpeg": {
+    "thumb": 480,
+    "medium": 800,
+    "large": 1280
+  },
+  "home/gallery/photo12.jpeg": {
+    "thumb": 480,
+    "medium": 800,
+    "large": 1280
+  },
+  "home/gallery/photo13.jpg": {
+    "thumb": 480,
+    "medium": 800,
+    "large": 1280
+  },
   "home/gallery/photo2.jpg": {
     "thumb": 480,
     "medium": 800,
@@ -83,5 +103,20 @@
     "thumb": 480,
     "medium": 800,
     "large": 1280
+  },
+  "home/gallery/photo7.jpeg": {
+    "thumb": 480,
+    "medium": 800,
+    "large": 1280
+  },
+  "home/gallery/photo8.jpeg": {
+    "thumb": 480,
+    "medium": 800,
+    "large": 1280
+  },
+  "home/gallery/photo9.jpeg": {
+    "thumb": 480,
+    "medium": 800,
+    "large": 1109
   }
 }
