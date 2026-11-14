@@ -15,6 +15,8 @@ const csp = [
   "font-src 'self' data:",
   `connect-src 'self' https:${isDev ? " ws: wss:" : ""}`,
   "media-src 'self' https:",
+  // Spotify の埋め込みプレイヤーを許可（未指定だと default-src 'self' でブロックされる）
+  "frame-src 'self' https://open.spotify.com https://embed.spotify.com",
   "worker-src 'self' blob:",
   "object-src 'none'",
   "base-uri 'self'",
