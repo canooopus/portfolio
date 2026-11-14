@@ -60,10 +60,17 @@ ${SOCIAL_LINKS.map((link) => `- [${link.label}](${link.url}): ${link.description
 
 - [Full archive (llms-full.txt)](${SITE_URL}/llms-full.txt): Every blog post in plain Markdown, plus the site overview.
 - [Markdown negotiation](${SITE_URL}/api/markdown?path=/blog): Send \`Accept: text/markdown\` to any HTML page URL to receive a Markdown representation.
-- [OpenAPI catalog](${SITE_URL}/openapi.json): Machine-readable list of the discovery and Markdown endpoints.
+- [OpenAPI specification](${SITE_URL}/openapi.json): Machine-readable list of discovery and content endpoints.
+- [API Catalog (RFC 9727)](${SITE_URL}/.well-known/api-catalog): Linkset format catalog of APIs, docs, and health endpoint.
+- [Agent Skills Index](${SITE_URL}/.well-known/agent-skills/index.json): Discovery index for AI agent skills per RFC v0.2.0.
+- [MCP Server Card](${SITE_URL}/.well-known/mcp/server-card.json): Model Context Protocol server capabilities and SSE transport.
+- [A2A Agent Card](${SITE_URL}/.well-known/agent-card.json): Agent-to-Agent discovery manifest.
+- [ARD Catalog](${SITE_URL}/.well-known/ai-catalog.json): Agentic Resource Discovery manifest.
+- [Poppy Manifest](${SITE_URL}/.well-known/poppy.json): Personal Agent Protocol discovery.
+- [Agent Auth (auth.md)](${SITE_URL}/auth.md): Agent registration and authentication guide.
 - [AI plugin manifest](${SITE_URL}/.well-known/ai-plugin.json): Discovery manifest pointing at the OpenAPI catalog.
 - [Sitemap](${SITE_URL}/sitemap.xml): All public HTML pages.
-- [Robots policy](${SITE_URL}/robots.txt): Crawler rules; AI crawlers are explicitly allowed.
+- [Robots policy](${SITE_URL}/robots.txt): Crawler rules and Content-Signal declarations.
 `;
 
   return new Response(content, {

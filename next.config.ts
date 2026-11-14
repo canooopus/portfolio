@@ -49,6 +49,9 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
+  outputFileTracingIncludes: {
+    "/api/markdown": ["./content/blog/**/*"],
+  },
   async headers() {
     return [
       {

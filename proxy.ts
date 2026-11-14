@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { SITE_URL } from "@/lib/site";
 
 /**
  * Markdown negotiation。
@@ -21,12 +22,10 @@ export function proxy(request: NextRequest) {
   const wantsMarkdown = markdownQuality > 0 && markdownQuality >= htmlQuality;
 
   if (wantsMarkdown) {
-    const url = new URL("/api/markdown", request.url);
-    // キャッシュキーをページごとに分けるため、クエリにもパスを入れる。
+    const url = request.nextUrl.clone();
+    url.pathname = "/api/markdown";
     url.searchParams.set("path", pathname);
 
-    // Proxy のリライトでは route handler 側でクエリが失われることがあるため、
-    // 対象パスはヘッダーでも渡す（/api/markdown はクエリも受け付ける）。
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set("x-markdown-path", pathname);
 
@@ -38,13 +37,12 @@ export function proxy(request: NextRequest) {
   const response = NextResponse.next();
 
   // HTML ページから Markdown 版とサイト要約を発見できるようにする
-  const alternate = new URL("/api/markdown", request.url);
-  alternate.searchParams.set("path", pathname);
+  const alternateUrl = `${SITE_URL}/api/markdown?path=${encodeURIComponent(pathname)}`;
   response.headers.set(
     "Link",
     [
-      `<${request.nextUrl.origin}${alternate.pathname}${alternate.search}>; rel="alternate"; type="text/markdown"`,
-      `<${request.nextUrl.origin}/llms.txt>; rel="describedby"; type="text/plain"`,
+      `<${alternateUrl}>; rel="alternate"; type="text/markdown"`,
+      `<${SITE_URL}/llms.txt>; rel="describedby"; type="text/plain"`,
     ].join(", "),
   );
 

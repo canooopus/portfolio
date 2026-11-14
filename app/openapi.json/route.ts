@@ -117,13 +117,72 @@ export async function GET() {
         get: {
           summary: "Crawler policy",
           description:
-            "Crawler rules. AI crawlers are explicitly allowed and the sitemap URL is listed.",
+            "Crawler rules with Content Signals declaring AI usage preferences.",
           operationId: "getRobotsTxt",
           responses: {
             "200": {
               description: "robots.txt",
               content: {
                 "text/plain": {
+                  schema: { type: "string" },
+                },
+              },
+            },
+          },
+        },
+      },
+      "/api/health": {
+        get: {
+          summary: "API Health status",
+          description: "Health status endpoint referenced in RFC 9727 API Catalog.",
+          operationId: "getHealth",
+          responses: {
+            "200": {
+              description: "Health status",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      status: { type: "string" },
+                      timestamp: { type: "string" },
+                      service: { type: "string" },
+                      version: { type: "string" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      "/.well-known/api-catalog": {
+        get: {
+          summary: "RFC 9727 API Catalog",
+          description: "Linkset discovery catalog for site APIs.",
+          operationId: "getApiCatalog",
+          responses: {
+            "200": {
+              description: "API Catalog in linkset+json format",
+              content: {
+                "application/linkset+json": {
+                  schema: { type: "object" },
+                },
+              },
+            },
+          },
+        },
+      },
+      "/auth.md": {
+        get: {
+          summary: "Agent authentication policy (auth.md)",
+          description: "Agent registration and authentication metadata.",
+          operationId: "getAuthMd",
+          responses: {
+            "200": {
+              description: "Markdown documentation for agent authentication",
+              content: {
+                "text/markdown": {
                   schema: { type: "string" },
                 },
               },

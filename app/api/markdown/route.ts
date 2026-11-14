@@ -15,27 +15,28 @@ import {
  * `proxy.ts` が `Accept: text/markdown` を検知したときに内部リライトしてくる。
  */
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const targetPath =
-    request.headers.get("x-markdown-path") ||
-    searchParams.get("path") ||
-    "/";
+  try {
+    const searchParams = request.nextUrl.searchParams;
+    const targetPath =
+      request.headers.get("x-markdown-path") ||
+      searchParams.get("path") ||
+      "/";
 
-  // 末尾スラッシュを除去（ルート "/" はそのまま）
-  const normalizedPath =
-    targetPath.length > 1 && targetPath.endsWith("/")
-      ? targetPath.replace(/\/+$/, "")
-      : targetPath;
+    // 末尾スラッシュを除去（ルート "/" はそのまま）
+    const normalizedPath =
+      targetPath.length > 1 && targetPath.endsWith("/")
+        ? targetPath.replace(/\/+$/, "")
+        : targetPath;
 
-  const markdownHeaders = {
-    "Content-Type": "text/markdown; charset=utf-8",
-    Vary: "Accept, x-markdown-path",
-    "Cache-Control": "public, max-age=3600, stale-while-revalidate=86400",
-    "Access-Control-Allow-Origin": "*",
-    // HTML 版が canonical。Markdown 版は検索インデックス対象にしない。
-    "X-Robots-Tag": "noindex",
-    Link: `<${SITE_URL}${normalizedPath}>; rel="canonical"`,
-  };
+    const markdownHeaders = {
+      "Content-Type": "text/markdown; charset=utf-8",
+      Vary: "Accept, x-markdown-path",
+      "Cache-Control": "public, max-age=3600, stale-while-revalidate=86400",
+      "Access-Control-Allow-Origin": "*",
+      // HTML 版が canonical。Markdown 版は検索インデックス対象にしない。
+      "X-Robots-Tag": "noindex",
+      Link: `<${SITE_URL}${normalizedPath}>; rel="canonical"`,
+    };
 
   // 1. トップページ
   if (normalizedPath === "" || normalizedPath === "/") {
@@ -160,6 +161,21 @@ ${photos || "No photographs yet."}
   }
 
   return notFoundMarkdown(targetPath, markdownHeaders);
+  } catch (error) {
+    console.error("Markdown negotiation error:", error);
+    return new Response(
+      `# 500 — Server Error
+
+An error occurred while generating the Markdown representation.
+`,
+      {
+        status: 500,
+        headers: {
+          "Content-Type": "text/markdown; charset=utf-8",
+        },
+      },
+    );
+  }
 }
 
 function notFoundMarkdown(

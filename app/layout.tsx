@@ -5,7 +5,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { MenuProvider } from "@/context/MenuContext";
 import FloatingMenu from "@/components/layout/FloatingMenu";
 import Footer from "@/components/layout/Footer";
-import { ScrollRestoration } from "@/components/common";
+import { ScrollRestoration, WebMcpProvider } from "@/components/common";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import "katex/dist/katex.min.css";
 
@@ -48,6 +48,7 @@ export default function RootLayout({
     <html lang="ja">
       <body className={rubik.className}>
         <ScrollRestoration />
+        <WebMcpProvider />
         <MenuProvider>
           <div className="flex flex-col min-h-screen">
             <main className="grow">{children}</main>

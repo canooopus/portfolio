@@ -75,7 +75,7 @@ Next.js 16 App Router portfolio + Markdown blog (SSG, deployed on Vercel).
 ## AI / agent discovery
 
 - Site-wide metadata (URL, description, social links, Bond, AI crawler list) lives in `src/lib/site.ts`. Use it instead of re-declaring constants.
-- Discovery endpoints: `/llms.txt`, `/llms-full.txt`, `/robots.txt`, `/sitemap.xml`, `/openapi.json`, `/.well-known/ai-plugin.json`.
+- Discovery endpoints: `/llms.txt`, `/llms-full.txt`, `/robots.txt`, `/sitemap.xml`, `/openapi.json`, `/.well-known/ai-plugin.json`, `/.well-known/api-catalog`, `/.well-known/agent-card.json`, `/.well-known/mcp/server-card.json`, `/.well-known/agent-skills/index.json`, `/.well-known/ai-catalog.json`, `/.well-known/poppy.json`, `/auth.md`, `/.well-known/oauth-protected-resource`, `/.well-known/oauth-authorization-server`. WebMCP tools registered via `src/components/common/WebMcpProvider.tsx`.
 - `proxy.ts` implements Markdown negotiation: HTML pages return Markdown when `Accept: text/markdown` is preferred. The handler lives in `app/api/markdown/route.ts` and accepts a `path` query (`/api/markdown?path=/blog/...`) or the `x-markdown-path` header used by the proxy.
 - JSON-LD lives in `src/lib/structuredData.ts`; pages render it through `JsonLd` from `@/components/common`.
 - Security headers (CSP, X-Frame-Options, Referrer-Policy, HSTS, Permissions-Policy) are set in `next.config.ts`. If you add a third-party script/style/font provider, update the CSP there too.
