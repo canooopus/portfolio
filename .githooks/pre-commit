@@ -1,2 +1,2 @@
 #!/bin/sh
-exec "$(git rev-parse --show-toplevel)/node_modules/.bin/lefthook" run pre-commit "$@"
+exec node "$(git rev-parse --show-toplevel)/scripts/git-sync.mjs" pre-commit
