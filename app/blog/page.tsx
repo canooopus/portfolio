@@ -106,7 +106,7 @@ export default function BlogListPage() {
                             {/* 記事タイトル ＋ Newバッジ & 手書き矢印 */}
                             <div className="flex items-start sm:items-center gap-2 min-w-0">
                               {/* スマホは text-sm かつ 2行、PCは text-base かつ 1行省略 */}
-                              <span className="text-sm sm:text-base font-normal text-neutral-900 line-clamp-2 sm:line-clamp-none sm:truncate">
+                              <span className="text-sm sm:text-base font-medium text-neutral-900 line-clamp-2 sm:line-clamp-none sm:truncate">
                                 {post.title}
                               </span>
                               {isNew && (
