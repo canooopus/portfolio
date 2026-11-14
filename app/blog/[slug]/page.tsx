@@ -12,10 +12,6 @@ import BlogImageModal from "@/components/markdown/BlogImageModal";
 import FootnoteScrollScript from "@/components/markdown/FootnoteScrollScript";
 import TagList from "@/components/blog/TagList";
 import TableOfContents from "@/components/blog/TableOfContents";
-import { JsonLd } from "@/components/common";
-
-const BASE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://canooopus-me.vercel.app";
 
 // 1. weightの指定を外すことで、太字（Bold）が正しく適用されるようにします
 const inter = Inter({ subsets: ["latin"] });
@@ -86,29 +82,8 @@ export default async function BlogPostPage({ params }: PostProps) {
   const toc = post.toc ?? [];
   const hasToc = post.showToc !== false && toc.length >= 2;
 
-  const postJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "BlogPosting",
-    headline: post.title,
-    datePublished: post.date,
-    dateModified: post.date,
-    description: `${post.title} - Canooopus' blog`,
-    url: `${BASE_URL}/blog/${slug}`,
-    mainEntityOfPage: {
-      "@type": "WebPage",
-      "@id": `${BASE_URL}/blog/${slug}`,
-    },
-    author: {
-      "@type": "Person",
-      name: "Canooopus",
-      url: BASE_URL,
-    },
-    keywords: post.tags,
-  };
-
   return (
     <div className={`w-full min-h-screen relative ${inter.className}`}>
-      <JsonLd data={postJsonLd} />
       {/* ブログ一覧へ戻るナビゲーション */}
       <div
         className={`pointer-events-none absolute inset-x-0 top-16 z-10 animate-fade-up ${

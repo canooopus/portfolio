@@ -114,32 +114,6 @@ export const getPostMetadata = cache((slug: string): PostMetadata | null => {
   };
 });
 
-/**
- * Markdown本文（生テキスト）とメタデータを取得（AI/エージェント/Content Negotiation用）
- */
-export const getRawPostContent = cache(
-  (slug: string): { metadata: PostMetadata; content: string } | null => {
-    const fullPath = path.join(postsDirectory, `${slug}.md`);
-
-    if (!fs.existsSync(fullPath)) {
-      return null;
-    }
-
-    const fileContents = fs.readFileSync(fullPath, "utf8");
-    const { data, content } = matter(fileContents);
-
-    return {
-      metadata: {
-        slug,
-        title: data.title || "No Title",
-        date: data.date || "1970-01-01",
-        tags: parseTags(data, slug),
-      },
-      content,
-    };
-  },
-);
-
 export const getSortedPostsData = cache((): PostData[] => {
   if (!fs.existsSync(postsDirectory)) {
     return [];

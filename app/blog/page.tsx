@@ -3,13 +3,9 @@ import { getSortedPostsData } from "@/features/blog/posts";
 import TagList from "@/components/blog/TagList";
 import { Inter } from "next/font/google";
 import { Caveat } from "next/font/google";
-import { JsonLd } from "@/components/common";
 
 const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600"] });
 const caveat = Caveat({ subsets: ["latin"], weight: ["400", "500", "600", "700"] });
-
-const BASE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://canooopus-me.vercel.app";
 
 export const metadata = {
   title: "Blog",
@@ -51,30 +47,10 @@ export default function BlogListPage() {
     }
   };
 
-  const blogJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Blog",
-    name: "Canooopus' Blog",
-    url: `${BASE_URL}/blog`,
-    description: "Canooopusの技術記事・思考メモ一覧です。",
-    author: {
-      "@type": "Person",
-      name: "Canooopus",
-      url: BASE_URL,
-    },
-    blogPost: allPosts.map((post) => ({
-      "@type": "BlogPosting",
-      headline: post.title,
-      url: `${BASE_URL}/blog/${post.slug}`,
-      datePublished: post.date,
-    })),
-  };
-
   return (
     <div
       className={`w-full min-h-screen bg-white text-neutral-900 overflow-x-hidden ${inter.className}`}
     >
-      <JsonLd data={blogJsonLd} />
       {/* 手描き線アニメーション用のキーフレーム定義 */}
       <style>{`
         @keyframes drawArrow {
