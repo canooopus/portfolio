@@ -140,7 +140,7 @@ export default async function BlogPostPage({ params }: PostProps) {
         {/* 記事のタイトル・投稿日ヘッダー */}
         <header className="mb-10">
           {/* タイトルを上に配置 */}
-          <h1 className="text-2xl font-bold text-neutral-900 tracking-tight leading-snug mb-5">
+          <h1 className="text-base font-semibold text-neutral-900 tracking-tight leading-snug mb-3">
             {post.title}
           </h1>
           {/* 日付を下に配置し、「posted」と日付で色を分けています */}

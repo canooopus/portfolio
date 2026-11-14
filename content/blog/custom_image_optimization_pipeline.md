@@ -9,8 +9,6 @@ Initially, I relied on `next/image`. However, Vercel’s free tier imposes limit
 
 In this post, I'll walk through why I decided to build it myself, how the pipeline is designed, and how I tackled an issue with `srcset` width descriptors along the way.
 
----
-
 ## Why Drop next/image
 
 `next/image` transforms images on-demand on Vercel's edge and serves them via CDN. While convenient, every transformation counts toward the monthly free quota.
@@ -25,8 +23,6 @@ In other words, on-demand conversion on every request is unnecessary. Generating
 
 > [!NOTE]
 > Maintaining an in-house pipeline means taking full responsibility for adding new image sizes or handling AVIF support down the road. Still, I prioritized low-latency static delivery without worrying about request quotas over out-of-the-box convenience.
-
----
 
 ## Design
 
@@ -55,8 +51,6 @@ const SIZES = [
 ];
 ```
 
----
-
 ## Pipeline Overview
 
 The optimization script runs on `npm run dev` startup and during the `prebuild` hook right before `npm run build`.
@@ -78,8 +72,6 @@ flowchart TD
 ```
 
 Both the generated assets and the manifest file are committed to git. Although the script still runs during Vercel builds, existing images are normally detected and skipped, so incremental builds usually add little time. Because the check relies on file modification times (which Git does not preserve), a fresh checkout can occasionally re-encode everything; content-based caching would make this fully deterministic in the future.
-
----
 
 ## Implementation Highlights
 
@@ -161,8 +153,6 @@ fs.watch(BASE_IMAGE_DIR, { recursive: true }, (eventType, filename) => {
 
 Ignoring events inside `optimized/` is crucial; otherwise, newly created WebP files will trigger watch events and cause an infinite loop.
 
----
-
 ## The srcset Width Trap
 
 This was where I spent the most time debugging.
@@ -203,8 +193,6 @@ const candidates = [...byWidth.entries()].sort(([a], [b]) => a - b);
 
 For images not listed in the manifest, the component falls back to using just `medium` without misrepresenting widths.
 
----
-
 ## Path Rewriting
 
 In Markdown, authors simply write standard paths pointing to the source image:
@@ -235,8 +223,6 @@ However, images that explicitly define a `width` attribute or an inline `style="
 
 When rendering images directly in JSX, I use `@/components/common/Image` instead of `next/image`. It shares the same path-resolution logic as the rehype plugin, applying `loading="lazy"` and `decoding="async"` by default unless `priority` is specified.
 
----
-
 ## Results
 
 Comparing file sizes before and after shows that `medium` variants (used in article content) are reduced to just a small fraction of their original size:
@@ -262,8 +248,6 @@ The images embedded in this article are processed through this exact pipeline. B
 
 Interestingly, `sample(2)` (a 36MP image) resulted in a smaller file than `sample(1)` due to differences in original compression and image details. Optimization ratios depend not only on resolution, but also heavily on the encoding characteristics of the source file.
 
----
-
 ## Trade-offs & Next Steps
 
 Going the custom route comes with trade-offs:
@@ -273,8 +257,6 @@ Going the custom route comes with trade-offs:
 - **Build times scale with image count**: Incremental skips mitigate this for now, but a significantly larger library would require a more scalable architecture.
 
 Future enhancements I’m considering include adding AVIF support, implementing content-hash cache busting in filenames, and generating low-quality image placeholders (LQIP).
-
----
 
 ## Conclusion
 

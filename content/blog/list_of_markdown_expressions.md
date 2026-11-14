@@ -7,8 +7,6 @@ toc: false
 
 Here is a list of Markdown syntax you can use in this blog.
 
----
-
 ## 1. Headings
 
 ```markdown
@@ -37,8 +35,6 @@ Here is a list of Markdown syntax you can use in this blog.
 
 ###### Heading 6
 
----
-
 ## 2. Text Formatting
 
 ```markdown
@@ -66,8 +62,6 @@ _Italic text_
 `Inline code`
 
 **Bold text with _nested italic_**
-
----
 
 ## 3. Links
 
@@ -105,8 +99,6 @@ Reference-style link: [Markdown Guide][guide]
 
 [card](https://github.com)
 
----
-
 ## 4. Paragraphs
 
 ```markdown
@@ -124,8 +116,6 @@ This is the second paragraph.
 
 This line ends with two spaces.  
 This line starts on a new line.
-
----
 
 ## 5. Blockquotes
 
@@ -151,8 +141,6 @@ This line starts on a new line.
 >
 > > This is a nested blockquote.
 
----
-
 ## 6. Unordered Lists
 
 ```markdown
@@ -176,8 +164,6 @@ This line starts on a new line.
 - Backend
   - Python
   - Go
-
----
 
 ## 7. Ordered Lists
 
@@ -205,8 +191,6 @@ This line starts on a new line.
 6. Build the application.
 7. Deploy the application.
 
----
-
 ## 8. Task Lists
 
 ```markdown
@@ -222,8 +206,6 @@ This line starts on a new line.
 - [x] Write documentation
 - [ ] Add unit tests
 - [ ] Deploy to production
-
----
 
 ## 9. Code
 
@@ -385,8 +367,6 @@ WHERE active = true
 ORDER BY name ASC;
 ```
 
----
-
 ## 10. Code Block Without Language
 
 ````markdown
@@ -408,8 +388,6 @@ This is a plain code block.
 
 No syntax highlighting is specified.
 ```
-
----
 
 ## 11. Horizontal Rules
 
@@ -454,8 +432,6 @@ No syntax highlighting is specified.
 | D    |   E    |     F |
 | G    |   H    |     I |
 
----
-
 ## 13. Escaping Characters
 
 ```markdown
@@ -488,8 +464,6 @@ Escaped characters:
 
 \* \_ \# \+ \- \. \! \[ \] \( \) \{ \} \> \| \~
 
----
-
 ## 14. HTML
 
 ```markdown
@@ -521,8 +495,6 @@ E = mc<sup>2</sup>
 Press <kbd>Ctrl</kbd> + <kbd>C</kbd> to copy.
 
 Press <kbd>Ctrl</kbd> + <kbd>V</kbd> to paste.
-
----
 
 ## 15. HTML Block
 
@@ -564,8 +536,6 @@ This content is hidden until the section is expanded.
 
 </details>
 
----
-
 ## 16. Footnotes
 
 ```markdown
@@ -586,8 +556,6 @@ You can also use named footnotes.[^note]
 
 [^note]: This is a named footnote.
 
----
-
 ## 17. Definition Lists
 
 ```markdown
@@ -603,8 +571,6 @@ Term
 
 Markdown
 : A lightweight markup language.
-
----
 
 ## 18. Alerts
 
@@ -639,8 +605,6 @@ Markdown
 
 > [!CAUTION]
 > This operation cannot easily be undone.
-
----
 
 ## 19. Mathematical Expressions
 
@@ -679,8 +643,6 @@ $$
 =
 \frac{n(n+1)}{2}
 $$
-
----
 
 ## 20. Mermaid
 
@@ -768,8 +730,6 @@ classDiagram
     User <|-- Admin
 ```
 
----
-
 ## 23. HTML Comments
 
 ```markdown
@@ -791,8 +751,6 @@ when the Markdown is rendered.
 -->
 
 Visible text after the comment.
-
----
 
 ## 24. Nested Formatting
 
@@ -824,8 +782,6 @@ Visible text after the comment.
 - [Linked list item](https://example.com)
 - `Code list item`
 
----
-
 ## 25. Link Variations
 
 ```markdown
@@ -849,8 +805,6 @@ _[Italic link](https://example.com)_
 **_[Bold italic link](https://example.com)_**
 
 [Link with title](https://example.com "This is a title")
-
----
 
 ## 26. Images
 

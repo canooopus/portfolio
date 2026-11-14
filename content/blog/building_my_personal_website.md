@@ -9,8 +9,6 @@ I recently built my own personal website.
 Until now, I had been publishing pages using plain HTML, CSS, and JavaScript. However, I’ve been interested in Next.js, and this felt like the perfect opportunity to finally build a dedicated personal site.
 In this post, I'll share some of the technical details and design highlights of the project.
 
----
-
 ## Tech Stack
 
 The primary technologies and services used in this project are:
@@ -50,8 +48,6 @@ I also considered Cloudflare Pages, but ultimately chose Vercel for its seamless
 - **Katex**: Used to render mathematical formulas in blog posts.
 - **Mermaid**: Dynamically loaded on the client side only when a post contains diagrams, keeping the initial bundle size small.
 
----
-
 ## What I like
 
 ### Header Logo Animation
@@ -72,8 +68,6 @@ I designed the floating menu inspired by Apple's Liquid Glass aesthetics.
 Personally, while Liquid Glass looks great, it can be tricky in terms of usability, so I opted for a subtle frosted blur effect that feels elevated.
 Currently, it only links to the Home and Blog pages, but I plan to expand its functionality in the future.
 
----
-
 ## Typography
 
 All fonts used across the site are freely available on [Google Fonts](https://fonts.google.com/).
@@ -92,8 +86,6 @@ Used for blog post text. Its high legibility makes it ideal for long-form readin
 
 Used for photo titles in the gallery and on the 404 page. It's a charming handwritten font that works wonderfully as an accent.
 [card](https://fonts.google.com/specimen/Caveat)
-
----
 
 ## Finally
 

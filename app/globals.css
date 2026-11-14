@@ -125,10 +125,13 @@ body {
   );
   --marker-radius: 1.8em 0.6em 1.4em 0.8em / 0.8em 1.3em 0.7em 1.4em;
 
-  /* 見出し */
+  /* 見出し
+     本文（p）と同じ文字サイズに揃え、太さ・色・行間・余白で段落と区別する
+     （h1 / h2 は末尾に区切り線を伸ばす） */
   & h1 {
-    font-size: 1.75rem;
-    font-weight: 700;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.5;
     margin-top: 2.5rem;
     margin-bottom: 1rem;
     color: var(--color-neutral-900);
@@ -136,8 +139,9 @@ body {
   }
 
   & h2 {
-    font-size: 1.4rem;
-    font-weight: 700;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.5;
     margin-top: 2.25rem;
     margin-bottom: 0.875rem;
     color: var(--color-neutral-900);
@@ -173,22 +177,55 @@ body {
     }
   }
 
+  /* h1 / h2 は文字の末尾から線を伸ばしてセクションを区切る
+     （Markdown の水平線 `---` と同じ見た目に揃える） */
+  & h1,
+  & h2 {
+    display: flex;
+    align-items: center;
+
+    &::after {
+      content: "";
+      flex: 1;
+      margin-left: 0.75rem;
+      border-top: 1px solid var(--color-neutral-200);
+    }
+  }
+
   & h3 {
-    font-size: 1.2rem;
-    font-weight: 600;
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.5;
     margin-top: 1.75rem;
     margin-bottom: 0.75rem;
     color: var(--color-neutral-900);
   }
 
-  & h4,
-  & h5,
-  & h6 {
+  & h4 {
     font-size: 1rem;
-    font-weight: 600;
+    font-weight: 500;
+    line-height: 1.5;
     margin-top: 1.5rem;
     margin-bottom: 0.5rem;
     color: var(--color-neutral-800);
+  }
+
+  & h5 {
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--color-neutral-700);
+  }
+
+  & h6 {
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--color-neutral-600);
   }
 
   /* 段落と強調表現 */
@@ -216,7 +253,7 @@ body {
   }
 
   & strong {
-    font-weight: 700;
+    font-weight: 600;
     color: var(--color-neutral-900);
   }
 
