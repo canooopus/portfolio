@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Caveat, Inter } from "next/font/google";
 import { PhotographyGallery } from "@/features/photography/components";
+import { JsonLd } from "@/components/common";
+import { photographyStructuredData } from "@/lib/structuredData";
 
 const inter = Inter({ subsets: ["latin"] });
 const caveat = Caveat({
@@ -18,6 +20,7 @@ export default function PhotographyPage() {
     <div
       className={`min-h-screen w-full overflow-x-clip bg-white ${inter.className}`}
     >
+      <JsonLd data={photographyStructuredData()} />
       <main className="mx-auto w-full max-w-4xl animate-fade-up px-6 pt-24 pb-24 selection:bg-blue-100 md:pt-32">
         <header className="mb-14">
           <h1

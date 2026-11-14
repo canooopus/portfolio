@@ -3,6 +3,8 @@ import { getSortedPostsData } from "@/features/blog/posts";
 import TagList from "@/components/blog/TagList";
 import { Inter } from "next/font/google";
 import { Caveat } from "next/font/google";
+import { JsonLd } from "@/components/common";
+import { blogListStructuredData } from "@/lib/structuredData";
 
 const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600"] });
 const caveat = Caveat({ subsets: ["latin"], weight: ["400", "500", "600", "700"] });
@@ -51,6 +53,7 @@ export default function BlogListPage() {
     <div
       className={`w-full min-h-screen bg-white text-neutral-900 overflow-x-hidden ${inter.className}`}
     >
+      <JsonLd data={blogListStructuredData(allPosts)} />
       {/* 手描き線アニメーション用のキーフレーム定義 */}
       <style>{`
         @keyframes drawArrow {

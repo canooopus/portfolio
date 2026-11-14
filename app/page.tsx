@@ -1,5 +1,7 @@
 import { Nova_Mono, Caveat } from "next/font/google";
 import { PortfolioContainer } from "@/features/portfolio/components";
+import { JsonLd } from "@/components/common";
+import { homeStructuredData } from "@/lib/structuredData";
 
 export type { GalleryItem } from "@/features/portfolio/types";
 
@@ -15,9 +17,12 @@ const caveat = Caveat({
 
 export default function Home() {
   return (
-    <PortfolioContainer
-      novaMonoClass={novaMono.className}
-      caveatClass={caveat.className}
-    />
+    <>
+      <JsonLd data={homeStructuredData()} />
+      <PortfolioContainer
+        novaMonoClass={novaMono.className}
+        caveatClass={caveat.className}
+      />
+    </>
   );
 }

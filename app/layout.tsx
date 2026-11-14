@@ -6,32 +6,32 @@ import { MenuProvider } from "@/context/MenuContext";
 import FloatingMenu from "@/components/layout/FloatingMenu";
 import Footer from "@/components/layout/Footer";
 import { ScrollRestoration } from "@/components/common";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import "katex/dist/katex.min.css";
 
 const rubik = Rubik({ subsets: ["latin"] });
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://canooopus-me.vercel.app";
-
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: "Canooopus",
-    template: "%s | Canooopus",
+    default: SITE_NAME,
+    template: `%s | ${SITE_NAME}`,
   },
-  description: "Portfolio of Canooopus.",
+  description: SITE_DESCRIPTION,
+  authors: [{ name: SITE_NAME, url: SITE_URL }],
+  creator: SITE_NAME,
   openGraph: {
-    title: "Canooopus",
-    description: "Portfolio of Canooopus.",
-    url: siteUrl,
-    siteName: "Canooopus",
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    siteName: SITE_NAME,
     locale: "ja_JP",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Canooopus",
-    description: "Portfolio of Canooopus.",
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
   },
   // Google Search Console の確認コードを取得したら、以下のコメントアウトを解除してコードを入れてください
   verification: {

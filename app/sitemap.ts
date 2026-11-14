@@ -1,15 +1,20 @@
 import type { MetadataRoute } from "next";
 import { getSortedPostsData } from "@/features/blog/posts";
+import { SITE_URL } from "@/lib/site";
 
-const BASE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://canooopus-me.vercel.app";
-
+/**
+ * sitemap.xml には HTML ページだけを含める（llms.txt などのアセットは含めない）。
+ */
 export default function sitemap(): MetadataRoute.Sitemap {
   const posts = getSortedPostsData();
+  const latestPostDate = posts[0]?.date ? new Date(posts[0].date) : new Date();
+  const latestModified = isNaN(latestPostDate.getTime())
+    ? new Date()
+    : latestPostDate;
 
   // ブログ個別記事の URL 一覧
   const postUrls: MetadataRoute.Sitemap = posts.map((post) => {
-    let lastModified = new Date();
+    let lastModified = latestModified;
     if (post.date) {
       const parsedDate = new Date(post.date);
       if (!isNaN(parsedDate.getTime())) {
@@ -18,7 +23,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }
 
     return {
-      url: `${BASE_URL}/blog/${post.slug}`,
+      url: `${SITE_URL}/blog/${post.slug}`,
       lastModified,
       changeFrequency: "monthly",
       priority: 0.7,
@@ -28,21 +33,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
   // 静的ページの URL
   const staticUrls: MetadataRoute.Sitemap = [
     {
-      url: BASE_URL,
-      lastModified: new Date(),
+      url: SITE_URL,
+      lastModified: latestModified,
       changeFrequency: "weekly",
       priority: 1.0,
     },
     {
-      url: `${BASE_URL}/photography`,
-      lastModified: new Date(),
+      url: `${SITE_URL}/photography`,
+      lastModified: latestModified,
       changeFrequency: "monthly",
       priority: 0.8,
     },
     {
-      url: `${BASE_URL}/blog`,
-      lastModified: new Date(),
-      changeFrequency: "daily",
+      url: `${SITE_URL}/blog`,
+      lastModified: latestModified,
+      changeFrequency: "weekly",
       priority: 0.8,
     },
   ];

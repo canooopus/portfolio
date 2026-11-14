@@ -12,6 +12,8 @@ import BlogImageModal from "@/components/markdown/BlogImageModal";
 import FootnoteScrollScript from "@/components/markdown/FootnoteScrollScript";
 import TagList from "@/components/blog/TagList";
 import TableOfContents from "@/components/blog/TableOfContents";
+import { JsonLd } from "@/components/common";
+import { blogPostStructuredData } from "@/lib/structuredData";
 
 // 1. weightの指定を外すことで、太字（Bold）が正しく適用されるようにします
 const inter = Inter({ subsets: ["latin"] });
@@ -84,6 +86,7 @@ export default async function BlogPostPage({ params }: PostProps) {
 
   return (
     <div className={`w-full min-h-screen relative ${inter.className}`}>
+      <JsonLd data={blogPostStructuredData(post)} />
       {/* ブログ一覧へ戻るナビゲーション */}
       <div
         className={`pointer-events-none absolute inset-x-0 top-16 z-10 animate-fade-up ${

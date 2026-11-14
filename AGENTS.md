@@ -72,6 +72,15 @@ Next.js 16 App Router portfolio + Markdown blog (SSG, deployed on Vercel).
 
 手動実行は `npm run git:sync` / `npm run git:publish`。回避は `git commit --no-verify` / `SKIP_IMAGE_PUBLISH=1 git push`。`worker/**` を変更した場合は `npm run images:deploy` を手動で実行する。
 
+## AI / agent discovery
+
+- Site-wide metadata (URL, description, social links, Bond, AI crawler list) lives in `src/lib/site.ts`. Use it instead of re-declaring constants.
+- Discovery endpoints: `/llms.txt`, `/llms-full.txt`, `/robots.txt`, `/sitemap.xml`, `/openapi.json`, `/.well-known/ai-plugin.json`.
+- `proxy.ts` implements Markdown negotiation: HTML pages return Markdown when `Accept: text/markdown` is preferred. The handler lives in `app/api/markdown/route.ts` and accepts a `path` query (`/api/markdown?path=/blog/...`) or the `x-markdown-path` header used by the proxy.
+- JSON-LD lives in `src/lib/structuredData.ts`; pages render it through `JsonLd` from `@/components/common`.
+- Security headers (CSP, X-Frame-Options, Referrer-Policy, HSTS, Permissions-Policy) are set in `next.config.ts`. If you add a third-party script/style/font provider, update the CSP there too.
+- Keep `sitemap.xml` limited to HTML pages; discovery files are not listed there.
+
 ## Conventions
 
 - UI copy and comments are mostly Japanese; keep that style.

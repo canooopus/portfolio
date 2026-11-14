@@ -1,14 +1,20 @@
 import type { MetadataRoute } from "next";
-
-const BASE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://canooopus-me.vercel.app";
+import { AI_CRAWLERS, SITE_URL } from "@/lib/site";
 
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: {
-      userAgent: "*",
-      allow: "/",
-    },
-    sitemap: `${BASE_URL}/sitemap.xml`,
+    rules: [
+      {
+        // AI / LLM クローラーを明示的に許可する
+        userAgent: [...AI_CRAWLERS],
+        allow: "/",
+      },
+      {
+        userAgent: "*",
+        allow: "/",
+      },
+    ],
+    sitemap: `${SITE_URL}/sitemap.xml`,
+    host: new URL(SITE_URL).host,
   };
 }
