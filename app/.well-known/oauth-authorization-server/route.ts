@@ -26,9 +26,10 @@ export async function GET() {
       // 公開サイトのため匿名アクセスが唯一の登録方法。
       // service / API キーは必要になった時点で追加する。
       identity_types_supported: ["anonymous"],
+      // claim_uri は agent_auth 直下に置く（スキャナの anonymous 検証要件）
+      claim_uri: `${SITE_URL}/auth.md`,
       anonymous: {
         credential_types_supported: ["none"],
-        claim_uri: `${SITE_URL}/auth.md`,
       },
     },
   };

@@ -3,17 +3,29 @@
 `isitagentready.com` の `checks.discoverability.dnsAid` を通すための DNS レコード例です。
 レコード本体は [`dns-aid.zone`](./dns-aid.zone) にあります。
 
-## 前提: `*.vercel.app` では設定できない
+## 現状: 独自ドメインがないため合格不可
 
-このサイトの既定 URL は `https://canooopus-me.vercel.app` です。
-`vercel.app` は Vercel が管理するドメインなので、`_agents` サブドメインの
-SVCB / HTTPS レコードを追加できません。DNS-AID を公開するには、
-**独自ドメインを Vercel に接続し、そのドメインの DNS を管理している
-プロバイダ（Cloudflare など）でレコードを追加**してください。
+現在のサイトは `https://canooopus-me.vercel.app` のみで運用されています。
+`vercel.app` は Vercel が管理するドメインであり、利用者は `_agents` サブドメインの
+SVCB / HTTPS レコードを追加できません。**このチェックは独自ドメインを取得して
+Vercel に接続するまで pass しません。** アプリ側のコード変更では解決できません。
 
-1. Vercel の Project → Settings → Domains に独自ドメインを追加
-2. `NEXT_PUBLIC_SITE_URL` を `https://<独自ドメイン>` に変更して再デプロイ
-3. 次のレコードを追加（`example.com` を独自ドメインに置換）
+### 必要な作業（独自ドメインを取得する場合）
+
+1. **ドメイン取得**: Cloudflare Registrar、Namecheap、お名前.com などで取得
+   （例: `canooopus.com`）
+2. **DNS を Cloudflare に移管**: 取得元でネームサーバーを Cloudflare に向ける
+   （Cloudflare Registrar なら自動。無料プランで可）
+3. **Vercel に接続**: Vercel の Project → Settings → Domains に独自ドメインを追加し、
+   Cloudflare 側に表示される A / CNAME を登録
+4. **環境変数を更新**: `NEXT_PUBLIC_SITE_URL=https://<独自ドメイン>` にして再デプロイ
+5. **DNS-AID レコードを追加**: 下記のレコードを Cloudflare に登録
+6. **DNSSEC を有効化**: Cloudflare DNS → Settings → DNSSEC → Enable し、
+   表示される `DS` レコードをレジストラに登録
+7. **検証**: 本 README 末尾の DoH / スキャンで `status: "pass"` を確認
+
+独自ドメインを取得しない場合は、この項目だけが fail のまま残ります
+（他の discovery チェックには影響しません）。
 
 ## 追加するレコード
 

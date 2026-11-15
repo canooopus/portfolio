@@ -30,9 +30,9 @@ All standard discovery and content endpoints on this site are **public and requi
 - **Supported Identity Types**: \`anonymous\`, \`service\`
 - **Credential Types**: \`none\` (public)
 - **Supported Scopes**: \`read\`
-- **OAuth Authorization Server**: \`${SITE_URL}/.well-known/oauth-authorization-server\`
-- **OAuth Protected Resource**: \`${SITE_URL}/.well-known/oauth-protected-resource\`
-- **OpenID Configuration**: \`${SITE_URL}/.well-known/openid-configuration\`
+- **OAuth Authorization Server**: ${SITE_URL}/.well-known/oauth-authorization-server
+- **OAuth Protected Resource**: ${SITE_URL}/.well-known/oauth-protected-resource
+- **OpenID Configuration**: ${SITE_URL}/.well-known/openid-configuration
 
 ## Agent Registration
 
@@ -64,7 +64,7 @@ For special access requests, partnership queries, or abuse reporting, contact th
 - **Maintainer**: ${SITE_AUTHOR.name}
 - **Contact Email**: ${SITE_AUTHOR.email}
 - **Developer Profile**: ${SITE_AUTHOR.github}
-- **Registration URI**: \`${SITE_URL}/auth.md\`
+- **Registration URI**: ${SITE_URL}/auth.md
 `;
 
   return new Response(content, {
