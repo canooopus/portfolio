@@ -14,10 +14,6 @@ interface MenuContextType {
   setIsReady: (val: boolean) => void;
   showFooter: boolean;
   setShowFooter: (val: boolean) => void;
-  isTocOpen: boolean;
-  setIsTocOpen: (val: boolean) => void;
-  isNavMenuOpen: boolean;
-  setIsNavMenuOpen: (val: boolean) => void;
 }
 
 const MenuContext = createContext<MenuContextType>({
@@ -25,17 +21,11 @@ const MenuContext = createContext<MenuContextType>({
   setIsReady: () => {},
   showFooter: true,
   setShowFooter: () => {},
-  isTocOpen: false,
-  setIsTocOpen: () => {},
-  isNavMenuOpen: false,
-  setIsNavMenuOpen: () => {},
 });
 
 export const MenuProvider = ({ children }: { children: React.ReactNode }) => {
   const [hasCompletedIntro, setHasCompletedIntro] = useState(false);
   const [showFooter, setShowFooter] = useState(true); // フッター表示フラグを追加
-  const [isTocOpen, setIsTocOpen] = useState(false);
-  const [isNavMenuOpen, setIsNavMenuOpen] = useState(false);
   const pathname = usePathname();
 
   // トップページのロゴ描画が終わるまではメニューを隠す。トップ以外では常に表示する
@@ -48,17 +38,8 @@ export const MenuProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const value = useMemo(
-    () => ({
-      isReady,
-      setIsReady,
-      showFooter,
-      setShowFooter,
-      isTocOpen,
-      setIsTocOpen,
-      isNavMenuOpen,
-      setIsNavMenuOpen,
-    }),
-    [isReady, setIsReady, showFooter, isTocOpen, isNavMenuOpen],
+    () => ({ isReady, setIsReady, showFooter, setShowFooter }),
+    [isReady, setIsReady, showFooter],
   );
 
   return (

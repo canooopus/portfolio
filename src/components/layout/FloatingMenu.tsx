@@ -10,21 +10,11 @@ import { useMenu } from "@/context/MenuContext";
 const inter = Inter({ subsets: ["latin"], weight: "400" });
 
 export default function FloatingMenu() {
-  const { isReady, isTocOpen, setIsNavMenuOpen } = useMenu();
+  const { isReady } = useMenu();
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activePathname, setActivePathname] = useState(pathname);
   const menuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setIsNavMenuOpen(isMenuOpen);
-  }, [isMenuOpen, setIsNavMenuOpen]);
-
-  useEffect(() => {
-    return () => {
-      setIsNavMenuOpen(false);
-    };
-  }, [setIsNavMenuOpen]);
 
   // ページ遷移時にメニューを閉じる（レンダー中のstate調整。ガードにより1回だけ実行）
   if (pathname !== activePathname) {
@@ -117,7 +107,7 @@ export default function FloatingMenu() {
       ref={menuRef}
       data-floating-menu
       style={{
-        pointerEvents: isReady && !isTocOpen ? "auto" : "none",
+        pointerEvents: isReady ? "auto" : "none",
         // モーダル開閉によるビューポート幅の変動を相殺し、画面上の絶対位置を完全に固定
         right: "calc(1rem + var(--scrollbar-width, 0px))",
       }}
@@ -133,9 +123,8 @@ export default function FloatingMenu() {
         width: isMenuOpen ? 160 : 48,
         height: isMenuOpen ? 160 : 48,
         borderRadius: isMenuOpen ? 20 : 24,
-        opacity: !isReady || isTocOpen ? 0 : 1,
+        opacity: isReady ? 1 : 0,
         y: isReady ? 0 : 15,
-        scale: isTocOpen ? 0.9 : 1,
       }}
       transition={{ type: "spring", damping: 24, stiffness: 280 }}
       // className から `right-4` を除外して style 側の calc に一本化
