@@ -105,7 +105,6 @@ export default function FloatingMenu() {
   return (
     <motion.div
       ref={menuRef}
-      data-floating-menu
       style={{
         pointerEvents: isReady ? "auto" : "none",
         // モーダル開閉によるビューポート幅の変動を相殺し、画面上の絶対位置を完全に固定
