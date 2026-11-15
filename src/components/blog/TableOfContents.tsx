@@ -1,14 +1,33 @@
 "use client";
 
-import { useEffect, useRef, useState, type MouseEvent } from "react";
+import { useRef, useState, useSyncExternalStore } from "react";
 import type { TocItem } from "@/features/blog/posts";
+import { useTocNavigation } from "@/hooks/useTocNavigation";
+import {
+  useActiveTocItem,
+  useRevealActiveTocItem,
+} from "@/hooks/useActiveTocItem";
 
 interface TableOfContentsProps {
   items: TocItem[];
 }
 
-// 画面上端からこの位置を越えた見出しを「読んでいるセクション」とみなす
-const ACTIVE_OFFSET = 128;
+// 固定目次を表示する幅（これ未満では非表示なのでスクロール計測も行わない）
+const DESKTOP_MEDIA_QUERY = "(min-width: 1080px)";
+
+function subscribeDesktopMediaQuery(callback: () => void) {
+  const mql = window.matchMedia(DESKTOP_MEDIA_QUERY);
+  mql.addEventListener("change", callback);
+  return () => mql.removeEventListener("change", callback);
+}
+
+function getIsDesktop() {
+  return window.matchMedia(DESKTOP_MEDIA_QUERY).matches;
+}
+
+function getIsDesktopServer() {
+  return true;
+}
 
 /**
  * 記事の h2 だけを表示する固定目次。
@@ -19,227 +38,19 @@ const ACTIVE_OFFSET = 128;
  * - 遷移先の見出しは脚注ジャンプと同じハイライトを一瞬だけ表示する
  */
 export default function TableOfContents({ items }: TableOfContentsProps) {
-  const [activeId, setActiveId] = useState<string | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const listRef = useRef<HTMLUListElement>(null);
-  const highlightTimerRef = useRef<number | null>(null);
-  const scrollWaitCleanupRef = useRef<(() => void) | null>(null);
+  const { handleClick } = useTocNavigation();
 
-  const removeHighlightClasses = () => {
-    document
-      .querySelectorAll(".footnote-highlight-active, .footnote-highlight-hold")
-      .forEach((el) => {
-        el.classList.remove(
-          "footnote-highlight-active",
-          "footnote-highlight-hold",
-        );
-      });
-  };
-
-  // 脚注ジャンプと同じハイライト（.footnote-highlight-active）を付けてフェードさせる
-  const fadeHighlight = (element: HTMLElement) => {
-    removeHighlightClasses();
-
-    // 直前まで保持用クラスで色が付いていたので、リフローを挟んでアニメーションを最初から再生する
-    void element.offsetWidth;
-    element.classList.add("footnote-highlight-active");
-
-    if (highlightTimerRef.current !== null) {
-      window.clearTimeout(highlightTimerRef.current);
-    }
-    highlightTimerRef.current = window.setTimeout(() => {
-      element.classList.remove("footnote-highlight-active");
-      highlightTimerRef.current = null;
-    }, 2600);
-  };
-
-  // アンマウント時にハイライト用のタイマーとスクロール待機を片付ける
-  useEffect(() => {
-    return () => {
-      if (highlightTimerRef.current !== null) {
-        window.clearTimeout(highlightTimerRef.current);
-      }
-      scrollWaitCleanupRef.current?.();
-    };
-  }, []);
-
-  useEffect(() => {
-    let frameId = 0;
-    const desktopQuery = window.matchMedia("(min-width: 1080px)");
-
-    // id と要素の対応はマウント中に変わらないため、1 回だけ解決する
-    const headings = items
-      .map((item) => document.getElementById(item.id))
-      .filter((heading): heading is HTMLElement => heading !== null);
-
-    const updateActive = () => {
-      frameId = 0;
-
-      // 目次は 1080px 未満では非表示なので、スクロールごとの計測をスキップする
-      if (!desktopQuery.matches || headings.length === 0) {
-        return;
-      }
-
-      // ページ最下部まで到達したら最後の見出しを選択状態にする
-      // （スクロールできない短いページでは何も選択しない）
-      const isScrollable =
-        document.documentElement.scrollHeight > window.innerHeight;
-      const isAtBottom =
-        isScrollable &&
-        window.scrollY > 0 &&
-        window.innerHeight + window.scrollY >=
-          document.documentElement.scrollHeight - 2;
-
-      if (isAtBottom) {
-        setActiveId(items[items.length - 1].id);
-        return;
-      }
-
-      // まだどの見出しも通過していない（前置きを読んでいる）間は未選択にする
-      let current: string | null = null;
-      for (const heading of headings) {
-        if (heading.getBoundingClientRect().top <= ACTIVE_OFFSET) {
-          current = heading.id;
-        } else {
-          break;
-        }
-      }
-      setActiveId(current);
-    };
-
-    const handleScroll = () => {
-      if (frameId !== 0) {
-        return;
-      }
-      frameId = window.requestAnimationFrame(updateActive);
-    };
-
-    updateActive();
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("resize", handleScroll);
-
-    return () => {
-      if (frameId !== 0) {
-        window.cancelAnimationFrame(frameId);
-      }
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", handleScroll);
-    };
-  }, [items]);
+  const isDesktop = useSyncExternalStore(
+    subscribeDesktopMediaQuery,
+    getIsDesktop,
+    getIsDesktopServer,
+  );
+  const [activeId, setActiveId] = useActiveTocItem(items, isDesktop);
 
   // 選択中の項目が目次の表示範囲外なら、目次内だけスクロールして追従する
-  useEffect(() => {
-    const list = listRef.current;
-    const active = list?.querySelector<HTMLElement>('[data-active="true"]');
-    if (!list || !active) {
-      return;
-    }
-
-    if (list.scrollHeight <= list.clientHeight) {
-      return;
-    }
-
-    const listRect = list.getBoundingClientRect();
-    const activeRect = active.getBoundingClientRect();
-
-    if (activeRect.top < listRect.top) {
-      list.scrollTop -= listRect.top - activeRect.top;
-    } else if (activeRect.bottom > listRect.bottom) {
-      list.scrollTop += activeRect.bottom - listRect.bottom;
-    }
-  }, [activeId]);
-
-  const handleClick = (event: MouseEvent<HTMLAnchorElement>, id: string) => {
-    // 修飾キー付きクリックはブラウザ標準の動作（新規タブ等）に任せる
-    if (
-      event.metaKey ||
-      event.ctrlKey ||
-      event.shiftKey ||
-      event.altKey ||
-      event.button !== 0
-    ) {
-      return;
-    }
-
-    const heading = document.getElementById(id);
-    if (!heading) {
-      return;
-    }
-
-    event.preventDefault();
-    history.replaceState(null, "", `#${id}`);
-
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-
-    // 前回の待機・タイマー・ハイライトを片付ける
-    scrollWaitCleanupRef.current?.();
-    scrollWaitCleanupRef.current = null;
-    if (highlightTimerRef.current !== null) {
-      window.clearTimeout(highlightTimerRef.current);
-      highlightTimerRef.current = null;
-    }
-    removeHighlightClasses();
-
-    heading.scrollIntoView({
-      behavior: prefersReducedMotion ? "auto" : "smooth",
-      block: "start",
-    });
-    setActiveId(id);
-
-    // スクロールが発生しない場合はそのままフェードを開始する
-    const scrollMarginTop =
-      parseFloat(window.getComputedStyle(heading).scrollMarginTop) || 0;
-    const alreadyAtTarget =
-      Math.abs(heading.getBoundingClientRect().top - scrollMarginTop) < 2;
-
-    if (prefersReducedMotion || alreadyAtTarget) {
-      fadeHighlight(heading);
-      return;
-    }
-
-    // スクロール中は色を保持し、止まってから一定時間フェードさせる
-    // （スクロールの所要時間でハイライトの見える時間が変わらないようにする）
-    void heading.offsetWidth;
-    heading.classList.add("footnote-highlight-hold");
-
-    let settled = false;
-    let idleTimer = 0;
-    let maxTimer = 0;
-
-    const settle = () => {
-      if (settled) {
-        return;
-      }
-      settled = true;
-      cleanup();
-      fadeHighlight(heading);
-    };
-
-    const onScroll = () => {
-      window.clearTimeout(idleTimer);
-      idleTimer = window.setTimeout(settle, 150);
-    };
-
-    const cleanup = () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("scrollend", settle);
-      window.clearTimeout(idleTimer);
-      window.clearTimeout(maxTimer);
-      if (scrollWaitCleanupRef.current === cleanup) {
-        scrollWaitCleanupRef.current = null;
-      }
-    };
-
-    scrollWaitCleanupRef.current = cleanup;
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("scrollend", settle, { once: true });
-
-    // スクロールが始まらない場合の初回判定と、念のための上限
-    idleTimer = window.setTimeout(settle, 300);
-    maxTimer = window.setTimeout(settle, 4000);
-  };
+  useRevealActiveTocItem(listRef, activeId, isDesktop);
 
   return (
     <nav
@@ -258,7 +69,11 @@ export default function TableOfContents({ items }: TableOfContentsProps) {
                 href={`#${item.id}`}
                 data-active={item.id === activeId ? "true" : undefined}
                 aria-current={item.id === activeId ? "location" : undefined}
-                onClick={(event) => handleClick(event, item.id)}
+                onClick={(event) => {
+                  if (handleClick(event, item.id)) {
+                    setActiveId(item.id);
+                  }
+                }}
                 onMouseEnter={() => setHoveredId(item.id)}
                 onMouseLeave={() => setHoveredId(null)}
                 className={`block text-sm font-normal leading-snug transition-colors duration-200 ${

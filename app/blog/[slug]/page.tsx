@@ -12,6 +12,7 @@ import BlogImageModal from "@/components/markdown/BlogImageModal";
 import FootnoteScrollScript from "@/components/markdown/FootnoteScrollScript";
 import TagList from "@/components/blog/TagList";
 import TableOfContents from "@/components/blog/TableOfContents";
+import TocRegistration from "@/components/blog/TocRegistration";
 import { JsonLd } from "@/components/common";
 import { blogPostStructuredData } from "@/lib/structuredData";
 
@@ -133,6 +134,9 @@ export default async function BlogPostPage({ params }: PostProps) {
 
       {/* 目次（記事の外側・左側に固定表示。h2 が2つ以上ある場合のみ） */}
       {hasToc && <TableOfContents items={toc} />}
+
+      {/* 目次が非表示になる幅（1080px 未満）ではフローティングメニューから開けるようにする */}
+      {hasToc && <TocRegistration items={toc} />}
 
       {/* 目次が非表示のときは上部の余白を広めに取る */}
       <main

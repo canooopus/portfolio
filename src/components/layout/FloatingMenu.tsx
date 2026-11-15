@@ -1,25 +1,78 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import {
+  useState,
+  useRef,
+  useEffect,
+  useSyncExternalStore,
+} from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Inter } from "next/font/google";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMenu } from "@/context/MenuContext";
+import { useToc } from "@/context/TocContext";
+import { useTocNavigation } from "@/hooks/useTocNavigation";
+import {
+  useActiveTocItem,
+  useRevealActiveTocItem,
+} from "@/hooks/useActiveTocItem";
 
 const inter = Inter({ subsets: ["latin"], weight: "400" });
 
+// TableOfContents が表示される幅。この幅以上のときはメニューに Contents を出さない
+const TOC_MEDIA_QUERY = "(min-width: 1080px)";
+
+function subscribeTocMediaQuery(callback: () => void) {
+  const mql = window.matchMedia(TOC_MEDIA_QUERY);
+  mql.addEventListener("change", callback);
+  return () => mql.removeEventListener("change", callback);
+}
+
+function getIsWideViewport() {
+  return window.matchMedia(TOC_MEDIA_QUERY).matches;
+}
+
+// SSR 時は広い画面として扱う（メニューは閉じた状態で描画されるため実害はない）
+function getIsWideViewportServer() {
+  return true;
+}
+
+type MenuView = "closed" | "menu" | "contents";
+
 export default function FloatingMenu() {
   const { isReady } = useMenu();
+  const { tocItems } = useToc();
+  const { handleClick: handleTocClick } = useTocNavigation();
   const pathname = usePathname();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [view, setView] = useState<MenuView>("closed");
   const [activePathname, setActivePathname] = useState(pathname);
   const menuRef = useRef<HTMLDivElement>(null);
+  const tocListRef = useRef<HTMLUListElement>(null);
+  const isMenuOpen = view !== "closed";
+
+  // 目次パネルを開いている間だけスクロール位置から現在のセクションを判定する
+  const [activeTocId, setActiveTocId] = useActiveTocItem(
+    tocItems,
+    view === "contents",
+  );
+  // 選択中の項目が見出し一覧の表示範囲外なら、一覧内だけスクロールして追従する
+  useRevealActiveTocItem(tocListRef, activeTocId, view === "contents");
+
+  // 固定目次と同じ幅判定（useSyncExternalStore で同期購読）
+  const isWideViewport = useSyncExternalStore(
+    subscribeTocMediaQuery,
+    getIsWideViewport,
+    getIsWideViewportServer,
+  );
+
+  // 固定目次が出る幅では重複するので、狭い画面で記事に目次があるときだけ出す
+  const showContents = !isWideViewport && tocItems.length > 0;
 
   // ページ遷移時にメニューを閉じる（レンダー中のstate調整。ガードにより1回だけ実行）
   if (pathname !== activePathname) {
     setActivePathname(pathname);
-    setIsMenuOpen(false);
+    setView("closed");
   }
 
   // スマホのスクロールとタップを区別してメニューを閉じる処理
@@ -50,19 +103,19 @@ export default function FloatingMenu() {
       if (isScrolling) return;
 
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsMenuOpen(false);
+        setView("closed");
       }
     };
 
     const handleMouseDown = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsMenuOpen(false);
+        setView("closed");
       }
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        setIsMenuOpen(false);
+        setView("closed");
       }
     };
 
@@ -91,7 +144,7 @@ export default function FloatingMenu() {
     e: React.MouseEvent<HTMLAnchorElement>,
     href: string,
   ) => {
-    setIsMenuOpen(false);
+    setView("closed");
 
     if (pathname === href) {
       e.preventDefault();
@@ -101,6 +154,16 @@ export default function FloatingMenu() {
       });
     }
   };
+
+  // 目次を開く（表示中のセクションの選択状態は useActiveTocItem が追随する）
+  const handleOpenContents = () => {
+    setView("contents");
+  };
+
+  const menuPanelHeight = showContents ? 176 : 160;
+  // 目次がすべて収まる高さ（ヘッダー + 見出し 1 件あたりの行高 + 行間）。
+  // 画面に収まらない長さのときだけ、外側の max-h で制限されて一覧内スクロールになる
+  const contentsPanelHeight = 46 + tocItems.length * 34;
 
   return (
     <motion.div
@@ -119,18 +182,91 @@ export default function FloatingMenu() {
         borderRadius: 24,
       }}
       animate={{
-        width: isMenuOpen ? 160 : 48,
-        height: isMenuOpen ? 160 : 48,
-        borderRadius: isMenuOpen ? 20 : 24,
+        width: view === "closed" ? 48 : view === "contents" ? 260 : 160,
+        height:
+          view === "closed"
+            ? 48
+            : view === "contents"
+              ? contentsPanelHeight
+              : menuPanelHeight,
+        borderRadius: view === "closed" ? 24 : 20,
         opacity: isReady ? 1 : 0,
         y: isReady ? 0 : 15,
       }}
       transition={{ type: "spring", damping: 24, stiffness: 280 }}
       // className から `right-4` を除外して style 側の calc に一本化
-      className={`fixed bottom-12 z-50 w-12 h-12 rounded-3xl bg-black/50 backdrop-blur-md border border-white/10 shadow-lg overflow-hidden flex items-center justify-center ${inter.className}`}
+      className={`fixed bottom-12 z-50 w-12 h-12 max-h-[calc(100vh-7rem)] max-w-[calc(100vw-2rem)] rounded-3xl bg-black/50 backdrop-blur-md border border-white/10 shadow-lg overflow-hidden flex items-center justify-center ${inter.className}`}
     >
       <AnimatePresence mode="wait">
-        {isMenuOpen ? (
+        {view === "contents" ? (
+          <motion.div
+            key="contents-panel"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="flex h-full w-full flex-col p-2 text-neutral-200"
+          >
+            <div className="flex shrink-0 items-center gap-1 pb-1">
+              <button
+                type="button"
+                onClick={() => setView("menu")}
+                aria-label="Back to menu"
+                className="flex h-7 w-7 items-center justify-center rounded-lg text-neutral-300 hover:bg-white/10 cursor-pointer"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  width="18"
+                  height="18"
+                >
+                  <path
+                    d="M14 6l-6 6 6 6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+              <span className="text-xs uppercase tracking-wider text-neutral-400">
+                Contents
+              </span>
+            </div>
+
+            <ul
+              ref={tocListRef}
+              className="-mr-1 min-h-0 flex-1 space-y-0.5 overflow-y-auto pr-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+              {tocItems.map((item) => (
+                <li key={item.id}>
+                  <a
+                    href={`#${item.id}`}
+                    data-active={
+                      item.id === activeTocId ? "true" : undefined
+                    }
+                    aria-current={
+                      item.id === activeTocId ? "location" : undefined
+                    }
+                    onClick={(event) => {
+                      if (handleTocClick(event, item.id)) {
+                        setActiveTocId(item.id);
+                        setView("closed");
+                      }
+                    }}
+                    className={`block rounded-lg px-2 py-1.5 text-sm leading-snug transition-colors duration-200 hover:bg-white/10 ${
+                      item.id === activeTocId
+                        ? "text-neutral-50"
+                        : "text-white/40 hover:text-neutral-100"
+                    }`}
+                  >
+                    {item.text}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+        ) : view === "menu" ? (
           <motion.div
             key="menu-panel"
             initial={{ opacity: 0 }}
@@ -196,6 +332,29 @@ export default function FloatingMenu() {
                 </svg>
                 <span>Blog</span>
               </Link>
+
+              {showContents && (
+                <button
+                  type="button"
+                  onClick={handleOpenContents}
+                  className="flex w-full items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-white/10 text-sm text-neutral-200 cursor-pointer"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    width="18"
+                    height="18"
+                  >
+                    <path
+                      d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  <span>Contents</span>
+                </button>
+              )}
             </div>
           </motion.div>
         ) : (
@@ -204,7 +363,7 @@ export default function FloatingMenu() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setIsMenuOpen(true)}
+            onClick={() => setView("menu")}
             aria-label="Open menu"
             aria-expanded={isMenuOpen}
             className="w-12 h-12 flex items-center justify-center rounded-full text-neutral-200 hover:bg-white/10 cursor-pointer"

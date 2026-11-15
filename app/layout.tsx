@@ -3,6 +3,7 @@ import { Rubik } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/react";
 import { MenuProvider } from "@/context/MenuContext";
+import { TocProvider } from "@/context/TocContext";
 import FloatingMenu from "@/components/layout/FloatingMenu";
 import Footer from "@/components/layout/Footer";
 import { ScrollRestoration, WebMcpProvider } from "@/components/common";
@@ -51,13 +52,15 @@ export default function RootLayout({
         <link rel="ai-catalog" href="/.well-known/ai-catalog.json" />
         <ScrollRestoration />
         <WebMcpProvider />
-        <MenuProvider>
-          <div className="flex flex-col min-h-screen">
-            <main className="grow">{children}</main>
-            <Footer />
-            <FloatingMenu />
-          </div>
-        </MenuProvider>
+        <TocProvider>
+          <MenuProvider>
+            <div className="flex flex-col min-h-screen">
+              <main className="grow">{children}</main>
+              <Footer />
+              <FloatingMenu />
+            </div>
+          </MenuProvider>
+        </TocProvider>
         <Analytics />
       </body>
     </html>
