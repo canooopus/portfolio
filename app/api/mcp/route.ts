@@ -1,5 +1,5 @@
 import { type NextRequest } from "next/server";
-import { getSortedPostsData, getRawPostContent } from "@/features/blog/posts";
+import { getSortedPostsData, getRawPostContent } from "@/features/blog/postSource";
 import { BOND_PROJECT, SITE_AUTHOR, SITE_URL } from "@/lib/site";
 
 export const dynamic = "force-dynamic";

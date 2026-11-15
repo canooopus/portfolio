@@ -1,4 +1,4 @@
-import { getSortedPostsData, getRawPostContent } from "@/features/blog/posts";
+import { getSortedPostsData, getRawPostContent } from "@/features/blog/postSource";
 import { photographyItems } from "@/features/photography/photographyItems";
 import {
   BOND_PROJECT,

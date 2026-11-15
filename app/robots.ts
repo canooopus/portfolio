@@ -17,6 +17,8 @@ export default function robots(): MetadataRoute.Robots {
         allow: "/",
         other: {
           "Content-Signal": "ai-train=no, search=yes, ai-input=no",
+          // ARD の追加 discovery mechanism（well-known の代替導線）
+          Agentmap: `${SITE_URL}/.well-known/ai-catalog.json`,
         },
       },
     ],

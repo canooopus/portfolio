@@ -13,13 +13,14 @@ export async function GET() {
     $schema: "https://agenticresourcediscovery.org/schemas/v1/ai-catalog.json",
     specVersion: "1.0",
     host: {
-      name: SITE_NAME,
+      displayName: SITE_NAME,
+      identifier: `did:web:${host}`,
       domain: host,
       description: SITE_DESCRIPTION,
     },
     entries: [
       {
-        id: `urn:air:${host}:api:openapi`,
+        identifier: `urn:air:${host}:api:openapi`,
         displayName: `${SITE_NAME} OpenAPI Specification`,
         type: "application/vnd.oai.openapi+json",
         url: `${SITE_URL}/openapi.json`,
@@ -30,7 +31,7 @@ export async function GET() {
         ],
       },
       {
-        id: `urn:air:${host}:catalog:api-catalog`,
+        identifier: `urn:air:${host}:catalog:api-catalog`,
         displayName: `${SITE_NAME} API Catalog (RFC 9727)`,
         type: "application/linkset+json",
         url: `${SITE_URL}/.well-known/api-catalog`,
@@ -41,7 +42,7 @@ export async function GET() {
         ],
       },
       {
-        id: `urn:air:${host}:mcp:server-card`,
+        identifier: `urn:air:${host}:mcp:server-card`,
         displayName: `${SITE_NAME} MCP Server Card`,
         type: "application/json",
         url: `${SITE_URL}/.well-known/mcp/server-card.json`,
@@ -52,7 +53,7 @@ export async function GET() {
         ],
       },
       {
-        id: `urn:air:${host}:a2a:agent-card`,
+        identifier: `urn:air:${host}:a2a:agent-card`,
         displayName: `${SITE_NAME} A2A Agent Card`,
         type: "application/json",
         url: `${SITE_URL}/.well-known/agent-card.json`,
@@ -63,7 +64,7 @@ export async function GET() {
         ],
       },
       {
-        id: `urn:air:${host}:skills:portfolio-guide`,
+        identifier: `urn:air:${host}:skills:portfolio-guide`,
         displayName: `${SITE_NAME} Portfolio Guide Skill`,
         type: "text/markdown",
         url: `${SITE_URL}/.well-known/agent-skills/portfolio-guide/SKILL.md`,
@@ -74,7 +75,7 @@ export async function GET() {
         ],
       },
       {
-        id: `urn:air:${host}:doc:llms-txt`,
+        identifier: `urn:air:${host}:doc:llms-txt`,
         displayName: `${SITE_NAME} Summary (llms.txt)`,
         type: "text/plain",
         url: `${SITE_URL}/llms.txt`,
@@ -89,7 +90,7 @@ export async function GET() {
 
   return Response.json(catalog, {
     headers: {
-      "Content-Type": "application/json; charset=utf-8",
+      "Content-Type": "application/json",
       "Cache-Control": "public, max-age=3600, stale-while-revalidate=86400",
       "Access-Control-Allow-Origin": "*",
     },

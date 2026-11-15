@@ -1,0 +1,27 @@
+; DNS for AI Discovery (DNS-AID) — sample zone
+;
+; example.com を、このサイトを配信する独自ドメインに置き換えてください。
+; *.vercel.app は Vercel 管理のドメインのため、DNS レコードは追加できません。
+;
+; SVCB / HTTPS は ServiceMode (priority > 0) で公開し、alpn と port を
+; mandatory に含めます。DNSSEC はゾーン側ではなくレジストラ / DNS プロバイダ
+; の設定で有効化してください（README 参照）。
+
+$ORIGIN example.com.
+$TTL 3600
+
+; サイト全体のエントリポイント
+_index._agents  IN SVCB  1 example.com. alpn="h2,h3" port=443 mandatory=alpn,port
+_index._agents  IN HTTPS 1 example.com. alpn="h2,h3" port=443 mandatory=alpn,port
+
+; A2A エージェント（/.well-known/agent-card.json, /api/a2a）
+_a2a._agents    IN SVCB  1 example.com. alpn="a2a" port=443 mandatory=alpn,port
+_a2a._agents    IN HTTPS 1 example.com. alpn="a2a" port=443 mandatory=alpn,port
+
+; MCP サーバー（/.well-known/mcp/server-card.json, /api/mcp）
+_mcp._agents    IN SVCB  1 example.com. alpn="mcp" port=443 mandatory=alpn,port
+_mcp._agents    IN HTTPS 1 example.com. alpn="mcp" port=443 mandatory=alpn,port
+
+; ARD の追加 discovery mechanism（省略可）
+_catalog._agents IN TXT "url=https://example.com/.well-known/ai-catalog.json"
+_search._agents  IN SRV 0 0 443 example.com.

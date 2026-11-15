@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { getSortedPostsData, getRawPostContent } from "@/features/blog/posts";
+import { getSortedPostsData, getRawPostContent } from "@/features/blog/postSource";
 import { photographyItems } from "@/features/photography/photographyItems";
 import {
   BOND_PROJECT,
@@ -78,7 +78,7 @@ ${SOCIAL_LINKS.map((link) => `- [${link.label}](${link.url}): ${link.description
 - Contact: ${SITE_AUTHOR.contact}
 `;
 
-    return new Response(content, { headers: markdownHeaders });
+    return markdownResponse(content, markdownHeaders);
   }
 
   // 2. ブログ一覧
@@ -102,7 +102,7 @@ Technical articles, architecture breakdowns, and personal notes.
 ${list || "No posts found."}
 `;
 
-    return new Response(content, { headers: markdownHeaders });
+    return markdownResponse(content, markdownHeaders);
   }
 
   // 3. ブログ個別記事
@@ -135,7 +135,7 @@ ${list || "No posts found."}
 ${content.trim()}
 `;
 
-    return new Response(markdown, { headers: markdownHeaders });
+    return markdownResponse(markdown, markdownHeaders);
   }
 
   // 4. 写真ギャラリー
@@ -157,7 +157,7 @@ A collection of photographs captured by ${SITE_AUTHOR.name}.
 ${photos || "No photographs yet."}
 `;
 
-    return new Response(content, { headers: markdownHeaders });
+    return markdownResponse(content, markdownHeaders);
   }
 
   return notFoundMarkdown(targetPath, markdownHeaders);
@@ -178,15 +178,31 @@ An error occurred while generating the Markdown representation.
   }
 }
 
+function markdownResponse(
+  body: string,
+  headers: Record<string, string>,
+  status = 200,
+): Response {
+  return new Response(body, {
+    status,
+    headers: {
+      ...headers,
+      // エージェントがコンテキスト量を見積もれるようにトークン概算を返す
+      "x-markdown-tokens": String(Math.ceil(body.length / 4)),
+    },
+  });
+}
+
 function notFoundMarkdown(
   targetPath: string,
   headers: Record<string, string>,
 ) {
-  return new Response(
+  return markdownResponse(
     `# 404 — Page Not Found
 
 The path \`${targetPath}\` was not found on ${SITE_URL}.
 `,
-    { status: 404, headers },
+    headers,
+    404,
   );
 }

@@ -7,7 +7,7 @@ export const dynamic = "force-static";
  * Informs AI agents about authentication policy, public endpoints, rate limits, and registration.
  */
 export async function GET() {
-  const content = `# Authentication & Agent Access Policy — ${SITE_NAME}
+  const content = `# auth.md — Authentication & Agent Access Policy — ${SITE_NAME}
 
 Welcome AI agents and developers. This document outlines how automated agents and crawlers can interact with ${SITE_URL}.
 
@@ -27,12 +27,28 @@ All standard discovery and content endpoints on this site are **public and requi
 ## Authentication Details
 
 - **Protected APIs**: None currently. All content is freely accessible.
-- **Supported Identity Types**: \`agent\`, \`service\`
-- **Credential Types**: \`none\` (Public), \`api_key\` (optional future)
+- **Supported Identity Types**: \`anonymous\`, \`service\`
+- **Credential Types**: \`none\` (public)
 - **Supported Scopes**: \`read\`
 - **OAuth Authorization Server**: \`${SITE_URL}/.well-known/oauth-authorization-server\`
 - **OAuth Protected Resource**: \`${SITE_URL}/.well-known/oauth-protected-resource\`
 - **OpenID Configuration**: \`${SITE_URL}/.well-known/openid-configuration\`
+
+## Agent Registration
+
+This site is a public, read-only resource. No account registration, credential issuance, or OAuth consent flow is required.
+
+- **Identity types**: \`anonymous\` (no credential), \`service\` (for future API keys)
+- **Credential types**: \`none\` (public access)
+- **Registration method**: anonymous access — no registration step; start with the discovery endpoints above
+- **Provisioning / contact**: email ${SITE_AUTHOR.email} for custom API access or partnership requests
+- **Claim / revocation**: not applicable (no credentials are issued)
+
+## Credential Use
+
+- No \`Authorization\` header is required for any public endpoint.
+- If a credential is provisioned in the future, send it as \`Authorization: Bearer <token>\`.
+- Invalid or revoked credentials should result in \`401 Unauthorized\`.
 
 ## Rate Limits & Politeness Guidelines
 

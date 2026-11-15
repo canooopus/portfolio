@@ -20,11 +20,16 @@ export async function GET() {
     scopes_supported: ["read"],
     poppy_domains: [host],
     agent_auth: {
+      // auth.md スキルの場所（Auth.md spec の agent_auth.skill）
+      skill: `${SITE_URL}/auth.md`,
       register_uri: `${SITE_URL}/auth.md`,
-      supported_identity_types: ["agent", "service"],
-      credential_types: ["none", "api_key"],
-      claim_uri: `${SITE_URL}/auth.md`,
-      revocation_uri: `${SITE_URL}/auth.md`,
+      // 公開サイトのため匿名アクセスが唯一の登録方法。
+      // service / API キーは必要になった時点で追加する。
+      identity_types_supported: ["anonymous"],
+      anonymous: {
+        credential_types_supported: ["none"],
+        claim_uri: `${SITE_URL}/auth.md`,
+      },
     },
   };
 

@@ -47,6 +47,8 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className={rubik.className}>
+        {/* ARD の追加 discovery mechanism。React が <head> に hoist する */}
+        <link rel="ai-catalog" href="/.well-known/ai-catalog.json" />
         <ScrollRestoration />
         <WebMcpProvider />
         <MenuProvider>

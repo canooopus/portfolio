@@ -50,7 +50,11 @@ const nextConfig: NextConfig = {
     unoptimized: true,
   },
   outputFileTracingIncludes: {
+    // content/blog は fs で動的に読むため、動的 Route Handler には
+    // 明示的に同梱しないと Vercel の関数から見えない。
     "/api/markdown": ["./content/blog/**/*"],
+    "/api/mcp": ["./content/blog/**/*"],
+    "/api/a2a": ["./content/blog/**/*"],
   },
   async headers() {
     return [

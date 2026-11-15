@@ -8,6 +8,10 @@ export const dynamic = "force-static";
 export async function GET() {
   const host = new URL(SITE_URL).host;
 
+  // このサイトは公開の読み取り専用サイトで、Poppy の agent/apis/session
+  // インターフェース（OAuth 発行・失効）は実装していない。
+  // 実装していない capability を宣言すると issuer 検証で落ちるため、
+  // spec の website-only 形式（web: {} のみ）を返す。
   const manifest = {
     protocol_version: "0.1",
     organization: {
@@ -15,17 +19,6 @@ export async function GET() {
       domain: host,
     },
     web: {},
-    apis: {
-      openapi: `${SITE_URL}/openapi.json`,
-      health: `${SITE_URL}/api/health`,
-    },
-    agent: {
-      name: `${SITE_NAME} Agent`,
-      card: `${SITE_URL}/.well-known/agent-card.json`,
-    },
-    auth: {
-      issuer: SITE_URL,
-    },
   };
 
   return Response.json(manifest, {

@@ -1,4 +1,4 @@
-import { getSortedPostsData } from "@/features/blog/posts";
+import { getSortedPostsData } from "@/features/blog/postSource";
 import {
   BOND_PROJECT,
   SITE_AUTHOR,
