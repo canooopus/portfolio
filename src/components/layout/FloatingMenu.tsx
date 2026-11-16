@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  useState,
-  useRef,
-  useEffect,
-  useSyncExternalStore,
-} from "react";
+import { useState, useRef, useEffect, useSyncExternalStore } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Inter } from "next/font/google";
 import Link from "next/link";
@@ -161,9 +156,9 @@ export default function FloatingMenu() {
   };
 
   const menuPanelHeight = showContents ? 176 : 160;
-  // 目次がすべて収まる高さ（ヘッダー + 見出し 1 件あたりの行高 + 行間）。
+  // 目次がすべて収まる高さ（見出し 1 件あたりの行高・行間 + 下部の戻るピル領域）。
   // 画面に収まらない長さのときだけ、外側の max-h で制限されて一覧内スクロールになる
-  const contentsPanelHeight = 46 + tocItems.length * 34;
+  const contentsPanelHeight = 48 + Math.ceil(tocItems.length * 33.25);
 
   return (
     <motion.div
@@ -207,33 +202,6 @@ export default function FloatingMenu() {
             transition={{ duration: 0.15 }}
             className="flex h-full w-full flex-col p-2 text-neutral-200"
           >
-            <div className="flex shrink-0 items-center gap-1 pb-1">
-              <button
-                type="button"
-                onClick={() => setView("menu")}
-                aria-label="Back to menu"
-                className="flex h-7 w-7 items-center justify-center rounded-lg text-neutral-300 hover:bg-white/10 cursor-pointer"
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  width="18"
-                  height="18"
-                >
-                  <path
-                    d="M14 6l-6 6 6 6"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
-              <span className="text-xs uppercase tracking-wider text-neutral-400">
-                Contents
-              </span>
-            </div>
-
             <ul
               ref={tocListRef}
               className="-mr-1 min-h-0 flex-1 space-y-0.5 overflow-y-auto pr-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
@@ -242,9 +210,7 @@ export default function FloatingMenu() {
                 <li key={item.id}>
                   <a
                     href={`#${item.id}`}
-                    data-active={
-                      item.id === activeTocId ? "true" : undefined
-                    }
+                    data-active={item.id === activeTocId ? "true" : undefined}
                     aria-current={
                       item.id === activeTocId ? "location" : undefined
                     }
@@ -254,7 +220,7 @@ export default function FloatingMenu() {
                         setView("closed");
                       }
                     }}
-                    className={`block rounded-lg px-2 py-1.5 text-sm leading-snug transition-colors duration-200 hover:bg-white/10 ${
+                    className={`block rounded-xl px-2 py-1.5 text-sm leading-snug transition-colors duration-200 hover:bg-white/10 ${
                       item.id === activeTocId
                         ? "text-neutral-50"
                         : "text-white/40 hover:text-neutral-100"
@@ -265,6 +231,30 @@ export default function FloatingMenu() {
                 </li>
               ))}
             </ul>
+
+            <button
+              type="button"
+              onClick={() => setView("menu")}
+              aria-label="Back to menu"
+              className="mt-1 flex h-7 w-full shrink-0 items-center justify-center gap-1 rounded-full border border-white/10 bg-white/10 px-3 text-sm leading-none text-neutral-50 transition-colors cursor-pointer"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+                width="14"
+                height="14"
+                className="-ml-0.5"
+              >
+                <path
+                  d="M14 6l-6 6 6 6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              <span>Menu</span>
+            </button>
           </motion.div>
         ) : view === "menu" ? (
           <motion.div
