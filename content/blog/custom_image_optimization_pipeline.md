@@ -227,10 +227,10 @@ When rendering images directly in JSX, I use `@/components/common/Image` instead
 
 Comparing file sizes before and after shows that `medium` variants (used in article content) are reduced to just a small fraction of their original size:
 
-| Source File     | Original Size | medium |   large | medium Reduction |
-| --------------- | ------------: | -----: | ------: | ---------------: |
-| `sample(1).jpg` |     1,040.6KB | 73.4KB | 225.1KB |             ~93% |
-| `sample(2).jpg` |     4,862.2KB | 53.7KB | 151.7KB |             ~99% |
+| Source File   | Original Size | medium |   large | medium Reduction |
+| ------------- | ------------: | -----: | ------: | ---------------: |
+| sample(1).jpg |     1,040.6KB | 73.4KB | 225.1KB |             ~93% |
+| sample(2).jpg |     4,862.2KB | 53.7KB | 151.7KB |             ~99% |
 
 Even when source photos are several megabytes, the actual payload downloaded in the article stays well under a few hundred kilobytes. Since conversion happens only once at build time, runtime delivery is just plain static file hosting—no request counters or quota worries.
 
