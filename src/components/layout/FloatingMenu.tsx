@@ -15,6 +15,11 @@ import {
 
 const inter = Inter({ subsets: ["latin"], weight: "400" });
 
+// 目次パネルの最小幅（メニューパネルと同じ幅）
+const MIN_CONTENTS_WIDTH = 160;
+// リンクの px-2(16px) + パネルの p-2(16px) + border(2px) + 余白(2px)
+const CONTENTS_WIDTH_OFFSET = 36;
+
 // TableOfContents が表示される幅。この幅以上のときはメニューに Contents を出さない
 const TOC_MEDIA_QUERY = "(min-width: 1080px)";
 
@@ -44,6 +49,8 @@ export default function FloatingMenu() {
   const [activePathname, setActivePathname] = useState(pathname);
   const menuRef = useRef<HTMLDivElement>(null);
   const tocListRef = useRef<HTMLUListElement>(null);
+  const contentsMeasureRef = useRef<HTMLDivElement>(null);
+  const [contentsWidth, setContentsWidth] = useState(MIN_CONTENTS_WIDTH);
   const isMenuOpen = view !== "closed";
 
   // 目次パネルを開いている間だけスクロール位置から現在のセクションを判定する
@@ -63,6 +70,29 @@ export default function FloatingMenu() {
 
   // 固定目次が出る幅では重複するので、狭い画面で記事に目次があるときだけ出す
   const showContents = !isWideViewport && tocItems.length > 0;
+
+  // 目次項目が折り返さない幅を、非表示の測定用要素から取得する
+  useEffect(() => {
+    const element = contentsMeasureRef.current;
+    if (!element || tocItems.length === 0) return;
+
+    let cancelled = false;
+    const measure = () => {
+      if (cancelled) return;
+      const textWidth = Math.ceil(element.getBoundingClientRect().width);
+      setContentsWidth(
+        Math.max(MIN_CONTENTS_WIDTH, textWidth + CONTENTS_WIDTH_OFFSET),
+      );
+    };
+
+    measure();
+    // フォント読み込みで文字幅が変わる場合に再測定する
+    void document.fonts.ready.then(measure);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [tocItems]);
 
   // ページ遷移時にメニューを閉じる（レンダー中のstate調整。ガードにより1回だけ実行）
   if (pathname !== activePathname) {
@@ -177,7 +207,8 @@ export default function FloatingMenu() {
         borderRadius: 24,
       }}
       animate={{
-        width: view === "closed" ? 48 : view === "contents" ? 260 : 160,
+        width:
+          view === "closed" ? 48 : view === "contents" ? contentsWidth : 160,
         height:
           view === "closed"
             ? 48
@@ -220,7 +251,7 @@ export default function FloatingMenu() {
                         setView("closed");
                       }
                     }}
-                    className={`block rounded-xl px-2 py-1.5 text-sm leading-snug transition-colors duration-200 hover:bg-white/10 ${
+                    className={`block overflow-hidden text-ellipsis whitespace-nowrap rounded-xl px-2 py-1.5 text-sm leading-snug transition-colors duration-200 hover:bg-white/10 ${
                       item.id === activeTocId
                         ? "text-neutral-50"
                         : "text-white/40 hover:text-neutral-100"
@@ -374,6 +405,17 @@ export default function FloatingMenu() {
           </motion.button>
         )}
       </AnimatePresence>
+
+      {/* 目次項目の自然な幅を測るための非表示要素（折り返しを許さずに計測する） */}
+      <div
+        ref={contentsMeasureRef}
+        aria-hidden="true"
+        className="pointer-events-none invisible fixed left-0 top-0 w-max whitespace-nowrap text-sm leading-snug"
+      >
+        {tocItems.map((item) => (
+          <div key={item.id}>{item.text}</div>
+        ))}
+      </div>
     </motion.div>
   );
 }
